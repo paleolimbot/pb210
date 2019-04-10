@@ -37,7 +37,9 @@ activities <- alta_lake_210Pb %>%
     activity_sd = activity_210Pb_sd_percent / 100 * activity_210Pb_Bq_g
   )
 
-ggplot(activities, aes(x = activity, y = depth)) +
+activities %>%
+  filter(!is_standard, is.finite(activity)) %>%
+  ggplot(aes(x = activity, y = depth)) +
   geom_point() +
   geom_errorbarh(aes(xmin = activity - activity_sd, xmax = activity + activity_sd)) +
   scale_y_reverse()
