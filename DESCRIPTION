@@ -1,0 +1,20 @@
+Package: pb210
+Title: Lead-210 dating utilities
+Version: 0.0.0.9000
+Authors@R: person("
+    Dewey", "Dunnington", 
+    email = "dewey@fishandwhistle.net", 
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-9415-4582")
+  )
+Description: Utilities to create chronologies for sediment cores using
+    analysis of lead-210 activity.
+Depends: R (>= 3.5.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
