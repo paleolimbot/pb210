@@ -1,0 +1,31 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# pb210
+
+[![Travis build status](https://travis-ci.org/paleolimbot/pb210.svg?branch=master)](https://travis-ci.org/paleolimbot/pb210)
+
+The goal of pb210 is to provide a reproducible R-based workflow to create sediment core chronologies from ^210^Pb activity measurements.
+
+## Installation
+
+You can install the released version of pb210 from github with:
+
+``` r
+# install.package("remotes")
+remotes::install_github("paleolimbot/pb210")
+```
+
+This project just started...nothing here yet!
