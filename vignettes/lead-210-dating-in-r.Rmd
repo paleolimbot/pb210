@@ -10,11 +10,42 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw(10))
 
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
+
+```{r}
+library(pb210)
+```
+
+```{r, warning=FALSE}
+activities <- alta_lake_210Pb %>%
+  transmute(
+    sample_id,
+    is_standard = is.na(section_top_cm),
+    top = section_top_cm,
+    bottom = section_bottom_cm,
+    depth = (top + bottom) / 2,
+    mass = slice_mas_g,
+    activity = activity_210Pb_Bq_g, 
+    activity_sd = activity_210Pb_sd_percent / 100 * activity_210Pb_Bq_g
+  )
+
+ggplot(activities, aes(x = activity, y = depth)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = activity - activity_sd, xmax = activity + activity_sd)) +
+  scale_y_reverse()
+```
+
+```{r}
+
+```
+
 
 
