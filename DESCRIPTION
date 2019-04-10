@@ -20,3 +20,5 @@ Suggests:
     dplyr,
     ggplot2
 VignetteBuilder: knitr
+URL: https://github.com/paleolimbot/pb210
+BugReports: https://github.com/paleolimbot/pb210/issues
