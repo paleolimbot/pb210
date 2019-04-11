@@ -32,7 +32,7 @@ activities <- alta_lake_210Pb %>%
     top = section_top_cm,
     bottom = section_bottom_cm,
     depth = (top + bottom) / 2,
-    mass = slice_mas_g,
+    mass = slice_mass_g,
     activity = activity_210Pb_Bq_g, 
     activity_sd = activity_210Pb_sd_percent / 100 * activity_210Pb_Bq_g
   )

@@ -18,7 +18,13 @@ Suggests:
     knitr,
     rmarkdown,
     dplyr,
-    ggplot2
+    ggplot2,
+    testthat,
+    withr
 VignetteBuilder: knitr
 URL: https://github.com/paleolimbot/pb210
 BugReports: https://github.com/paleolimbot/pb210/issues
+Imports: 
+    tibble,
+    stats,
+    rlang

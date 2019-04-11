@@ -5,7 +5,7 @@
 \alias{alta_lake_210Pb}
 \alias{alta_lake_drying}
 \title{Alta Lake Gravity Core Data}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 22 rows and 32 columns.}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 22 rows and 33 columns.}
 \usage{
 alta_lake_210Pb
 
