@@ -9,7 +9,8 @@ test_that("CRS model works on Alta Lake data", {
     sample_mass = real_pb210$slice_mass_g,
     excess_pb210_sd = real_pb210$excess_210Pb_sd_Bq,
     calc_inventory_surface = pb210_surface_min_depth,
-    calc_inventory_below = pb210_deep_inventory_zero
+    calc_inventory_below = pb210_deep_inventory_zero,
+    decay_constant = 0.03108
   )
 
   real_ages$age_compare <- 2014.60215053763 - real_pb210$crs_age_section_top_ad
@@ -46,7 +47,7 @@ test_that("CIC and CRS models work on Kellys Lake data", {
   real_ages <- pb210_age_crs(
     real_pb210$cumulative_mass,
     real_pb210$unsupported_pb210,
-    # sample_mass = real_pb210$mass,
+    sample_mass = real_pb210$mass,
     excess_pb210_sd = real_pb210$unsupported_pb210_error,
     calc_excess_pb210_surface = pb210_surface_estimate,
     calc_inventory_surface = pb210_surface_estimate,

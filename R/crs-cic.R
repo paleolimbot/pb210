@@ -6,20 +6,21 @@
 #' @param excess_pb210 Excess (non-erosional) lead-210 activity. Can be NA for samples on which
 #'   lead-210 was not measured.
 #' @param excess_pb210_sd The standard deviation of the excess lead-210 value. Can be NA if error is not known.
-#' @param calc_excess_pb210_surface,calc_inventory_surface The surface inventory (CRS) and pb210 activity (CIC)
+#' @param calc_excess_pb210_surface,calc_inventory_surface,calc_inventory_below The surface
+#'   inventory and deep inventory (CRS) and surface lead-210 activity (CIC)
 #'   are important factors in the models that may need to be estimated. The default is to use the value
-#'   at the minimum depth value (closest to surface).
+#'   at the minimum depth value (closest to surface). purrr-style one-sided formulas are
+#'   supported.
 #' @param core_area The internal diameter of the corer, in cm^2
-#' @param decay_constant The decay contstant for lead-210, in 1/yr.
+#' @param decay_constant The decay contstant for lead-210, in 1/yr. This is an argument
+#'   because different spreadsheets use different decay constants (!!), and we would like
+#'   these functions to reproduce most existing age-depth models. Ideally this value should
+#'   be ln(2) / 22.26 (the default), given that the half-life of lead-210 is 22.26 years.
 #'
 #' @references
 #' Appleby, P.G., and Oldfield, F. 1983. The assessment of 210Pb data from sites with
 #' varying sediment accumulation rates.
 #' Hydrobiologia, 103: 29–35. doi:10.1007/BF00028424.
-#'
-#' Binford, M.W., Kahl, J.S., and Norton, S.A. 1993. Interpretation of210Pb
-#' profiles and verification of the CRS dating model in PIRLA project lake sediment cores.
-#' Journal of Paleolimnology, 9: 275–296. doi:10.1007/BF00677218.
 #'
 #' @return A table with (at least) components `age` and `age_sd`. CRS model
 #'   output also contains `mar` and `mar_sd`.
@@ -27,7 +28,7 @@
 #'
 pb210_age_cic <- function(depth, excess_pb210, excess_pb210_sd = NA_real_,
                           calc_excess_pb210_surface = pb210_surface_min_depth,
-                          decay_constant = 0.03108) {
+                          decay_constant = pb210_decay_constant()) {
   stopifnot(
     is.numeric(depth), length(depth) >= 3, all(is.finite(depth)),
     # no repeated depths or depth == 0
@@ -76,11 +77,11 @@ pb210_age_cic <- function(depth, excess_pb210, excess_pb210_sd = NA_real_,
 
 #' @rdname pb210_age_cic
 #' @export
-pb210_age_crs <- function(depth, excess_pb210, sample_mass = 1, excess_pb210_sd = NA_real_,
+pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA_real_,
                           calc_excess_pb210_surface = pb210_surface_min_depth,
                           calc_inventory_surface = pb210_surface_min_depth,
                           calc_inventory_below = pb210_deep_inventory_zero,
-                          core_area = pi * (6.3 / 2)^2, decay_constant = 0.03108) {
+                          core_area = pi * (6.3 / 2)^2, decay_constant = pb210_decay_constant()) {
 
   stopifnot(
     is.numeric(sample_mass),
