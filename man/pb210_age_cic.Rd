@@ -12,7 +12,8 @@ pb210_age_cic(depth, excess_pb210, excess_pb210_sd = NA_real_,
 pb210_age_crs(depth, excess_pb210, sample_mass = 1,
   excess_pb210_sd = NA_real_,
   calc_excess_pb210_surface = pb210_surface_min_depth,
-  calc_inventory_surface = pb210_surface_min_depth, core_area = pi *
+  calc_inventory_surface = pb210_surface_min_depth,
+  calc_inventory_below = pb210_deep_inventory_zero, core_area = pi *
   (6.3/2)^2, decay_constant = 0.03108)
 }
 \arguments{

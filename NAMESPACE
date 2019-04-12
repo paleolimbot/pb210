@@ -2,5 +2,9 @@
 
 export(pb210_age_cic)
 export(pb210_age_crs)
+export(pb210_deep_inventory_estimate)
+export(pb210_deep_inventory_estimate_loglinear)
+export(pb210_deep_inventory_zero)
 export(pb210_surface_estimate)
+export(pb210_surface_estimate_loglinear)
 export(pb210_surface_min_depth)

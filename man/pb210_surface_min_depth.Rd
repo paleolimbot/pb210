@@ -2,12 +2,24 @@
 % Please edit documentation in R/crs-cic.R
 \name{pb210_surface_min_depth}
 \alias{pb210_surface_min_depth}
+\alias{pb210_surface_estimate_loglinear}
 \alias{pb210_surface_estimate}
+\alias{pb210_deep_inventory_zero}
+\alias{pb210_deep_inventory_estimate}
+\alias{pb210_deep_inventory_estimate_loglinear}
 \title{Estimate surface Lead-210 activity}
 \usage{
 pb210_surface_min_depth(depth, pb210)
 
+pb210_surface_estimate_loglinear(depth, pb210)
+
 pb210_surface_estimate(depth, pb210)
+
+pb210_deep_inventory_zero(depth, pb210)
+
+pb210_deep_inventory_estimate(depth, pb210)
+
+pb210_deep_inventory_estimate_loglinear(depth, pb210)
 }
 \arguments{
 \item{depth}{Depth of sample}

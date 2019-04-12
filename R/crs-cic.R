@@ -79,6 +79,7 @@ pb210_age_cic <- function(depth, excess_pb210, excess_pb210_sd = NA_real_,
 pb210_age_crs <- function(depth, excess_pb210, sample_mass = 1, excess_pb210_sd = NA_real_,
                           calc_excess_pb210_surface = pb210_surface_min_depth,
                           calc_inventory_surface = pb210_surface_min_depth,
+                          calc_inventory_below = pb210_deep_inventory_zero,
                           core_area = pi * (6.3 / 2)^2, decay_constant = 0.03108) {
 
   stopifnot(
@@ -87,7 +88,7 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass = 1, excess_pb210_sd 
   )
 
   calc_inventory_surface <- rlang::as_function(calc_inventory_surface)
-
+  calc_inventory_below <- rlang::as_function(calc_inventory_below)
 
   tbl <- pb210_age_cic(
     depth = depth,
@@ -104,10 +105,13 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass = 1, excess_pb210_sd 
   # the MAR relative error was calculated above in pb210_age_cic()
   mar_relative_error <- tbl$age_sd / tbl$age
 
+  # the cumulative inventory prior to any measured pb210 must be calculated
+  deep_inventory <- calc_inventory_below(tbl$depth, tbl$excess_pb210)
+
   # the CRS is based on similar math but on the total lead-210
   # in the core starting at background
   tbl$excess_pb210_in_core <- tbl$excess_pb210_interp * sample_mass
-  tbl$inventory <- rev(cumsum(rev(tbl$excess_pb210_in_core)))
+  tbl$inventory <- deep_inventory + rev(cumsum(rev(tbl$excess_pb210_in_core)))
   surface_inventory <- calc_inventory_surface(tbl$depth, tbl$inventory)
 
   # age calculations
@@ -136,21 +140,82 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass = 1, excess_pb210_sd 
 #' @export
 #'
 pb210_surface_min_depth <- function(depth, pb210) {
-  stopifnot(is.numeric(depth), is.numeric(pb210))
   pb210[which.min(depth)]
 }
 
 #' @rdname pb210_surface_min_depth
 #' @export
+pb210_surface_estimate_loglinear <- function(depth, pb210) {
+  coeffs <- fit_loglinear_model(depth, pb210, "surface value")
+  unname(exp(coeffs["b"]))
+}
+
+#' @rdname pb210_surface_min_depth
+#' @export
 pb210_surface_estimate <- function(depth, pb210) {
-  stopifnot(is.numeric(depth), is.numeric(pb210))
-  fit <- try(stats::lm(log(pb210) ~ depth, na.action = stats::na.omit), silent = TRUE)
+  coeffs <- fit_exponential_model(depth, pb210, "surface value")
+  unname(exp(coeffs["b"]))
+}
+
+#' @rdname pb210_surface_min_depth
+#' @export
+pb210_deep_inventory_zero <- function(depth, pb210) {
+  0
+}
+
+#' @rdname pb210_surface_min_depth
+#' @export
+pb210_deep_inventory_estimate <- function(depth, pb210) {
+  pb210_deep_inventory_estimate_base(
+    depth, pb210,
+    fit_exponential_model(depth, pb210, "deep inventory")
+  )
+}
+
+#' @rdname pb210_surface_min_depth
+#' @export
+pb210_deep_inventory_estimate_loglinear <- function(depth, pb210) {
+  pb210_deep_inventory_estimate_base(
+    depth, pb210,
+    fit_loglinear_model(depth, pb210, "deep inventory")
+  )
+}
+
+pb210_deep_inventory_estimate_base <- function(depth, pb210, coeffs) {
+
+  # find the place below which we need the integral to Inf
+  max_depth <- max(depth[is.finite(pb210)])
+
+  # integrated, this is exp(m*x + b) / m, and because at x = infinity the integral is 0
+  # the definite integral from [background] to infinity is exp(m * [background] + b) / -m
+  unname(exp(coeffs["m"] * max_depth  + coeffs["b"]) / -coeffs["m"])
+}
+
+fit_loglinear_model <- function(x, y, estimate_context = "a parameter") {
+  # y values that are 0 or less will cause the model not to fit
+  y[y <= 0] <- NA_real_
+
+  fit <- try(stats::lm(log(y) ~ x, na.action = stats::na.omit), silent = TRUE)
   if(inherits(fit, "try-error")) {
-    stop("Could not estimate surface values using an log-transform linear regression")
+    stop("Could not estimate ", estimate_context, " using a log-transform linear regression")
+  }
+  coeffs <- stats::coefficients(fit)
+  names(coeffs) <- c("b", "m")
+  coeffs
+}
+
+fit_exponential_model <- function(x, y, estimate_context = "a parameter") {
+  # y values that are 0 or less will cause the model not to fit
+  y[y <= 0] <- NA_real_
+
+  # the nonlinear least squares function often fails when coefficients do not make sense
+  # using a loglinear fit to find the starting place is one way around this
+  coeffs_loglin <- fit_loglinear_model(x, y, sprintf("exponential model start parameters (%s)", estimate_context))
+
+  fit <- try(stats::nls(y ~ exp(m * x + b), start = as.list(coeffs_loglin)), silent = TRUE)
+  if(inherits(fit, "try-error")) {
+    stop("Could not estimate ", estimate_context, " using a non-linear least squares exponential model")
   }
 
-  slope <- stats::coefficients(fit)["depth"]
-  min_depth <- min(depth)
-  min_pb210 <- pb210[which.min(depth)]
-  unname(slope * (min_depth - 0) + min_pb210)
+  stats::coefficients(fit)
 }
