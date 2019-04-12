@@ -31,3 +31,21 @@ pb210_decay_constant <- function(half_life = 22.26) {
 pb210_core_area <- function(diameter = 6.3) {
   pi * (diameter / 2)^2
 }
+
+
+#' Generate a time duration in seconds
+#'
+#' @param days,hours,minutes,seconds Quantities to convert to seconds. Multiple inputs will be
+#'   added
+#'
+#' @return A time in seconds
+#' @export
+#'
+#' @examples
+#' pb210_time_seconds(days = 1)
+#' pb210_time_seconds(hours = 24)
+#'
+pb210_time_seconds <- function(days = 0, hours = 0, minutes = 0, seconds = 0) {
+  seconds + (minutes * 60) + (hours * 60 * 60) + (days * 24 * 60 * 60)
+}
+
