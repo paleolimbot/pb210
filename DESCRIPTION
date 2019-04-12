@@ -29,3 +29,4 @@ Imports:
     tibble,
     stats,
     rlang
+Roxygen: list(markdown = TRUE)

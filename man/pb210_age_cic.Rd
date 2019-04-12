@@ -41,8 +41,8 @@ be ln(2) / 22.26 (the default), given that the half-life of lead-210 is 22.26 ye
 \item{core_area}{The internal diameter of the corer, in units of length^2.}
 }
 \value{
-A table with (at least) components `age` and `age_sd`. CRS model
-  output also contains `mar` and `mar_sd`.
+A table with (at least) components \code{age} and \code{age_sd}. CRS model
+output also contains \code{mar} and \code{mar_sd}.
 }
 \description{
 Apply the Constant Rate of Supply or Constant Initial Concentration model

@@ -11,15 +11,13 @@ pb210_compressibility_constant(value = 2e-06)
 Lower values indicate a higher propensity for the material to be compressed.}
 }
 \value{
-A function of a single parameter, `age`, which is a (decreasing) vector of ages.
+A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
 }
 \description{
 Note that this refers to compressibility at the time of deposition.
 }
 \examples{
-age_compare <- tibble::tibble(
-  ages = 150:0,
-  pb210_compressibility_constant()(ages)
-)
+ages <- 150:0
+pb210_compressibility_constant()(ages)
 
 }

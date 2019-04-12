@@ -10,15 +10,13 @@ pb210_density_constant(value = 1500)
 \item{value}{A density at the time of deposition, in kg / m3}
 }
 \value{
-A function of a single parameter, `age`, which is a (decreasing) vector of ages.
+A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
 }
 \description{
 Note that this refers to dry density at the time of deposition.
 }
 \examples{
-age_compare <- tibble::tibble(
-  ages = 150:0,
-  pb210_density_constant()(ages)
-)
+ages <- 150:0
+pb210_density_constant()(ages)
 
 }

@@ -10,15 +10,13 @@ pb210_water_content_constant(value = 0.95)
 \item{value}{A water content at the time of deposition, unitless (mass water / mass sample)}
 }
 \value{
-A function of a single parameter, `age`, which is a (decreasing) vector of ages.
+A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
 }
 \description{
 Note that this refers to water content at the time of deposition.
 }
 \examples{
-age_compare <- tibble::tibble(
-  ages = 150:0,
-  pb210_water_content_constant()(ages)
-)
+ages <- 150:0
+pb210_water_content_constant()(ages)
 
 }

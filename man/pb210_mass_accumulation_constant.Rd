@@ -22,7 +22,7 @@ pb210_mass_accumulation_rnorm_trend(initial = 0.15, mean_slope = 0,
 slope, in kg / m2 / year / year}
 }
 \value{
-A function of a single parameter, `age`, which is a (decreasing) vector of ages.
+A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
 }
 \description{
 Parameter generators for mass accumulation rates
@@ -30,9 +30,9 @@ Parameter generators for mass accumulation rates
 \examples{
 age_compare <- tibble::tibble(
   ages = 150:0,
-  pb210_mass_accumulation_constant()(ages),
-  pb210_mass_accumulation_rnorm()(ages),
-  pb210_mass_accumulation_rnorm_trend()(ages)
+  constant = pb210_mass_accumulation_constant()(ages),
+  rnorm = pb210_mass_accumulation_rnorm()(ages),
+  rnorm_trend = pb210_mass_accumulation_rnorm_trend()(ages)
 )
 
 }

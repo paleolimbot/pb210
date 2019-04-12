@@ -30,6 +30,6 @@ pb210_deep_inventory_estimate_loglinear(depth, pb210)
 A plausible surface value given the inputs
 }
 \description{
-Estimates surface lead-210 activity using an exponential fit of `pb210`
-vs. `-depth`, or using the lead-210 activity at the  minimum `depth` value.
+Estimates surface lead-210 activity using an exponential fit of \code{pb210}
+vs. \code{-depth}, or using the lead-210 activity at the  minimum \code{depth} value.
 }

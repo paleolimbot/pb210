@@ -4,12 +4,11 @@
 \alias{pb210_core_area}
 \title{Calculate core area from an internal diameter}
 \usage{
-pb210_core_area(diameter = 6.3)
+pb210_core_area(diameter = 6.3/100)
 }
 \arguments{
-\item{diameter}{A diameter in units of length. The default is 6.3, which
-is the internal diameter of core tubes for our trusty 2.5" Glew (1989) corer
-(in cm).}
+\item{diameter}{A diameter in meters. The default is 0.063 m (6.3 cm), which
+is the internal diameter of the core tubes for our trusty 2.5" Glew (1989) corer.}
 }
 \description{
 Calculate core area from an internal diameter

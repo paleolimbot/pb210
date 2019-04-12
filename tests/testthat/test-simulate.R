@@ -1,5 +1,24 @@
 context("test-simulate")
 
+test_that("simulators returns tibbles", {
+  expect_is(pb210_simulate_accumulation(), "tbl_df")
+  expect_is(pb210_simulate_core(), "tbl_df")
+})
+
+test_that("age and depth steps are contiguous", {
+  accumulation_sim <- pb210_simulate_accumulation(max_age = 100, time_step = 2)
+  expect_true(all(diff(accumulation_sim$age_top) == -2))
+  expect_true(all(diff(accumulation_sim$age_bottom) == -2))
+  expect_equal(max(accumulation_sim$age_bottom), 100)
+  expect_equal(min(accumulation_sim$age_top), 0)
+
+  core_sim <- pb210_simulate_core(depth_step = rep(1, 30))
+  expect_true(all(diff(core_sim$depth_top) == 1))
+  expect_true(all(diff(core_sim$depth_bottom) == 1))
+  expect_equal(max(core_sim$depth_bottom), 30)
+  expect_equal(min(core_sim$depth_top), 0)
+})
+
 test_that("parameter generators return functions that are length stable", {
 
   test_parameter_generator <- function(gen, ages = 300:0) {
