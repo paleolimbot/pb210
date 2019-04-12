@@ -27,7 +27,7 @@ pb210_decay_constant <- function(half_life = 22.26) {
 #' @examples
 #' pb210_core_area()
 #'
-pb210_core_area <- function(diameter = 6.3 / 100) {
+pb210_core_area <- function(diameter = 0.063) {
   pi * (diameter / 2)^2
 }
 

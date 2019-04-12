@@ -4,7 +4,7 @@
 \alias{pb210_core_area}
 \title{Calculate core area from an internal diameter}
 \usage{
-pb210_core_area(diameter = 6.3/100)
+pb210_core_area(diameter = 0.063)
 }
 \arguments{
 \item{diameter}{A diameter in meters. The default is 0.063 m (6.3 cm), which
