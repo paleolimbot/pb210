@@ -7,7 +7,7 @@
 pb210_decay_constant(half_life = 22.26)
 }
 \arguments{
-\item{half_life}{A half-life value in years. For lead-210, this value is 22.26 years.}
+\item{half_life}{A half-life value in units of time. For lead-210, this value is 22.26 years.}
 }
 \description{
 Calculate a decay constant

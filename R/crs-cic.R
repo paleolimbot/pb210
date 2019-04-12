@@ -11,7 +11,7 @@
 #'   are important factors in the models that may need to be estimated. The default is to use the value
 #'   at the minimum depth value (closest to surface). purrr-style one-sided formulas are
 #'   supported.
-#' @param core_area The internal diameter of the corer, in cm^2
+#' @param core_area The internal diameter of the corer, in units of length^2.
 #' @param decay_constant The decay contstant for lead-210, in 1/yr. This is an argument
 #'   because different spreadsheets use different decay constants (!!), and we would like
 #'   these functions to reproduce most existing age-depth models. Ideally this value should
@@ -81,7 +81,8 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA
                           calc_excess_pb210_surface = pb210_surface_min_depth,
                           calc_inventory_surface = pb210_surface_min_depth,
                           calc_inventory_below = pb210_deep_inventory_zero,
-                          core_area = pi * (6.3 / 2)^2, decay_constant = pb210_decay_constant()) {
+                          core_area = pb210_core_area(),
+                          decay_constant = pb210_decay_constant()) {
 
   stopifnot(
     is.numeric(sample_mass),

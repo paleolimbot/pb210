@@ -13,8 +13,9 @@ pb210_age_crs(depth, excess_pb210, sample_mass,
   excess_pb210_sd = NA_real_,
   calc_excess_pb210_surface = pb210_surface_min_depth,
   calc_inventory_surface = pb210_surface_min_depth,
-  calc_inventory_below = pb210_deep_inventory_zero, core_area = pi *
-  (6.3/2)^2, decay_constant = pb210_decay_constant())
+  calc_inventory_below = pb210_deep_inventory_zero,
+  core_area = pb210_core_area(),
+  decay_constant = pb210_decay_constant())
 }
 \arguments{
 \item{depth}{The representative depth of each sample. Must be greater than 0.}
@@ -37,7 +38,7 @@ be ln(2) / 22.26 (the default), given that the half-life of lead-210 is 22.26 ye
 
 \item{sample_mass}{The mass of each sample.}
 
-\item{core_area}{The internal diameter of the corer, in cm^2}
+\item{core_area}{The internal diameter of the corer, in units of length^2.}
 }
 \value{
 A table with (at least) components `age` and `age_sd`. CRS model
