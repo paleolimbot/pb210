@@ -77,7 +77,7 @@ test_that("age and depth steps are contiguous for pb210_simulate_core (with comp
 test_that("accumulation simulation for constant rate of supply works", {
   crs_sim <- withr::with_seed(433, {
     pb210_simulate_accumulation(
-      mass_accumulation = pb210_mass_accumulation_rnorm_trend()
+      mass_accumulation = pb210_mass_accumulation_rlnorm(sd = 0.1)
     )
   })
 
@@ -86,7 +86,7 @@ test_that("accumulation simulation for constant rate of supply works", {
   inventory_surface <- max(crs_sim$inventory)
   crs_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / crs_sim$inventory)
   expect_true(
-    all(abs(crs_sim$crs_age_top[crs_sim$age < 150] - crs_sim$age_top[crs_sim$age < 150]) < 1e-3)
+    all(abs(crs_sim$crs_age_top[crs_sim$age < 100] - crs_sim$age_top[crs_sim$age < 100]) < 1)
   )
 })
 
@@ -104,30 +104,30 @@ test_that("accumulation simulation for constant initial concentration works", {
     cic_sim$age
   )
 
-  # the CRS model should approximately work here for the last 150 years
+  # the CRS model should approximately work here for the last 100 years
   cic_sim$inventory <- rev(cumsum(rev(cic_sim$pb210_specific_activity * cic_sim$slice_mass)))
   inventory_surface <- max(cic_sim$inventory)
   cic_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / cic_sim$inventory)
 
   expect_true(
-    all(abs(cic_sim$crs_age_top[cic_sim$age < 150] - cic_sim$age_top[cic_sim$age < 150]) < 1e-3)
+    all(abs(cic_sim$crs_age_top[cic_sim$age < 100] - cic_sim$age_top[cic_sim$age < 100]) < 1e-3)
   )
 })
 
 test_that("core simulation for constant rate of supply works", {
   crs_sim <- withr::with_seed(433, {
     pb210_simulate_accumulation(
-      mass_accumulation = pb210_mass_accumulation_rnorm_trend()
+      mass_accumulation = pb210_mass_accumulation_rlnorm(sd = 0.1)
     ) %>%
       pb210_simulate_core()
   })
 
-  # the CRS model should work here for the last 150 years
+  # the CRS model should work here for the last 100 years
   crs_sim$inventory <- rev(cumsum(rev(crs_sim$pb210_specific_activity * crs_sim$slice_mass)))
   inventory_surface <- max(crs_sim$inventory)
   crs_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / crs_sim$inventory)
   expect_true(
-    all(abs(crs_sim$crs_age_top[crs_sim$age < 150] - crs_sim$age_top[crs_sim$age < 150]) < 1e-1)
+    all(abs(crs_sim$crs_age_top[crs_sim$age < 100] - crs_sim$age_top[crs_sim$age < 100]) < 0.01)
   )
 })
 
@@ -139,21 +139,21 @@ test_that("core simulation for constant initial concentration works", {
   ) %>%
     pb210_simulate_core()
 
-  # the CIC model to calculate ages should work exactly for the last 150 years
+  # the CIC model to calculate ages should work exactly for the last 100 years
   pb210_surface <- max(cic_sim$pb210_specific_activity)
   cic_sim$cic_age_top <- 1 / pb210_decay_constant() * log(pb210_surface / cic_sim$pb210_specific_activity)
   expect_equal(
-    cic_sim$cic_age_top[cic_sim$age < 150],
-    cic_sim$age_top[cic_sim$age < 150]
+    cic_sim$cic_age_top[cic_sim$age < 100],
+    cic_sim$age_top[cic_sim$age < 100]
   )
 
-  # the CRS model should approximately work here for the last 150 years
+  # the CRS model should approximately work here for the last 100 years
   cic_sim$inventory <- rev(cumsum(rev(cic_sim$pb210_specific_activity * cic_sim$slice_mass)))
   inventory_surface <- max(cic_sim$inventory)
   cic_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / cic_sim$inventory)
 
   expect_true(
-    all(abs(cic_sim$crs_age_top[cic_sim$age < 150] - cic_sim$age_top[cic_sim$age < 150]) < 1)
+    all(abs(cic_sim$crs_age_top[cic_sim$age < 100] - cic_sim$age_top[cic_sim$age < 100]) < 1)
   )
 })
 
@@ -200,8 +200,7 @@ test_that("parameter generators return functions that are length stable", {
   test_parameter_generator(pb210_supply_constant)
 
   test_parameter_generator(pb210_mass_accumulation_constant)
-  test_parameter_generator(pb210_mass_accumulation_rnorm)
-  test_parameter_generator(pb210_mass_accumulation_rnorm_trend)
+  test_parameter_generator(pb210_mass_accumulation_rlnorm)
 
   test_parameter_generator(pb210_density_constant)
 

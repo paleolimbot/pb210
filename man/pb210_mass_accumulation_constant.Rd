@@ -2,24 +2,17 @@
 % Please edit documentation in R/simulate.R
 \name{pb210_mass_accumulation_constant}
 \alias{pb210_mass_accumulation_constant}
-\alias{pb210_mass_accumulation_rnorm}
-\alias{pb210_mass_accumulation_rnorm_trend}
+\alias{pb210_mass_accumulation_rlnorm}
 \title{Parameter generators for mass accumulation rates}
 \usage{
 pb210_mass_accumulation_constant(value = 0.15)
 
-pb210_mass_accumulation_rnorm(mean = 0.15, sd = 0.02)
-
-pb210_mass_accumulation_rnorm_trend(initial = 0.15, mean_slope = 0,
-  sd_slope = 0.005)
+pb210_mass_accumulation_rlnorm(mean = 0.15, sd = 0.02)
 }
 \arguments{
-\item{value, mean, initial}{An accumulation rate, in kg / m2 / year.}
+\item{value, mean}{An accumulation rate, in kg / m2 / year.}
 
-\item{sd}{For random normal accumulation rates, the standard deviation}
-
-\item{mean_slope, sd_slope}{The mean and standard deviation of the change in
-slope, in kg / m2 / year / year}
+\item{sd}{For random (log)normal accumulation rates, the standard deviation}
 }
 \value{
 A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
@@ -31,8 +24,7 @@ Parameter generators for mass accumulation rates
 age_compare <- tibble::tibble(
   ages = 150:0,
   constant = pb210_mass_accumulation_constant()(ages),
-  rnorm = pb210_mass_accumulation_rnorm()(ages),
-  rnorm_trend = pb210_mass_accumulation_rnorm_trend()(ages)
+  rlnorm = pb210_mass_accumulation_rlnorm()(ages)
 )
 
 }

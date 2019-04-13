@@ -207,10 +207,8 @@ pb210_supply_constant <- function(value = 100)  {
 
 #' Parameter generators for mass accumulation rates
 #'
-#' @param value,mean,initial An accumulation rate, in kg / m2 / year.
-#' @param sd For random normal accumulation rates, the standard deviation
-#' @param mean_slope,sd_slope The mean and standard deviation of the change in
-#'   slope, in kg / m2 / year / year
+#' @param value,mean An accumulation rate, in kg / m2 / year.
+#' @param sd For random (log)normal accumulation rates, the standard deviation
 #'
 #' @return A function of a single parameter, `age`, which is a (decreasing) vector of ages.
 #' @export
@@ -219,8 +217,7 @@ pb210_supply_constant <- function(value = 100)  {
 #' age_compare <- tibble::tibble(
 #'   ages = 150:0,
 #'   constant = pb210_mass_accumulation_constant()(ages),
-#'   rnorm = pb210_mass_accumulation_rnorm()(ages),
-#'   rnorm_trend = pb210_mass_accumulation_rnorm_trend()(ages)
+#'   rlnorm = pb210_mass_accumulation_rlnorm()(ages)
 #' )
 #'
 pb210_mass_accumulation_constant <- function(value = 0.150)  {
@@ -232,28 +229,11 @@ pb210_mass_accumulation_constant <- function(value = 0.150)  {
 
 #' @rdname pb210_mass_accumulation_constant
 #' @export
-pb210_mass_accumulation_rnorm <- function(mean = 0.150, sd = 0.020) {
+pb210_mass_accumulation_rlnorm <- function(mean = 0.150, sd = 0.020) {
   force(mean)
   force(sd)
   function(age) {
-    stats::rnorm(length(age), mean = 150, sd = 20)
-  }
-}
-
-#' @rdname pb210_mass_accumulation_constant
-#' @export
-pb210_mass_accumulation_rnorm_trend <- function(initial = 0.150, mean_slope = 0, sd_slope = 0.005) {
-  force(initial)
-  force(mean_slope)
-  force(sd_slope)
-  function(age) {
-    delta_accumulation <- stats::rnorm(
-      length(age) - 1,
-      mean = -diff(age) * mean_slope,
-      sd = -diff(age) * sd_slope
-    )
-
-    cumsum(c(initial, delta_accumulation))
+    stats::rlnorm(length(age), meanlog = log(mean), sdlog = sd)
   }
 }
 
