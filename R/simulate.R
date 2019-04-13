@@ -53,7 +53,7 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
     initial_density = initial_density(.data$age), # kg / m^3
 
     # radioactive decay of pb210, normalize to mass
-    pb210_activity = .data$initial_pb210_content * exp(-decay_constant * .data$age) / .data$slice_mass, # Bq / kg
+    pb210_specific_activity = .data$initial_pb210_content * exp(-decay_constant * .data$age) / .data$slice_mass, # Bq / kg
 
     # compression of sediment
     cumulative_mass_above = c(rev(cumsum(rev(.data$slice_mass[-1]))), 0), # kg
@@ -74,7 +74,7 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
   tbl[
     order(tbl$depth),
     c(
-      "age", "depth", "pb210_activity", "age_top", "age_bottom",
+      "age", "depth", "pb210_specific_activity", "age_top", "age_bottom",
       "depth_top", "depth_bottom", "slice_mass", "slice_density"
     )
   ]
@@ -99,7 +99,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
   stopifnot(
     is.data.frame(accumulation),
     all(
-      c("age", "depth_top", "depth_bottom", "pb210_activity", "slice_mass", "slice_density") %in% colnames(accumulation)
+      c("age", "depth_top", "depth_bottom", "pb210_specific_activity", "slice_mass", "slice_density") %in% colnames(accumulation)
     ),
     is.numeric(depth_step), all(depth_step > 0),
     is.numeric(core_area), length(core_area) == 1, core_area > 0
@@ -114,7 +114,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
   accumulation$thickness <- accumulation$depth_bottom - accumulation$depth_top # cm
   accumulation$slice_volume <- accumulation$slice_mass / accumulation$slice_density # m^3
 
-  accumulation$pb210_activity_total <- accumulation$pb210_activity * accumulation$slice_mass # Bq
+  accumulation$pb210_specific_activity_total <- accumulation$pb210_specific_activity * accumulation$slice_mass # Bq
   accumulation$age_total <- accumulation$age_bottom - accumulation$age_top # yr
   accumulation$sediment_accumulation_rate <- accumulation$age_total / accumulation$thickness # yr
 
@@ -137,19 +137,19 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
 
         # could be clearer, but this is an attempt to interpolate the location
         # of the "top" depth based on the intersecting sample from accumulation
-        interpolated_top_ages <- accumulation$age_top + (accumulation$depth_top - top) *
-          accumulation$sediment_accumulation_rate
-        interpolated_bottom_ages <- accumulation$age_bottom + (accumulation$depth_bottom - bottom) *
-          accumulation$sediment_accumulation_rate
-        intersects_top <- (proportion_in_slice > 0) & (accumulation$depth_top <= top)
-        intersects_bottom <- (proportion_in_slice > 0) & (accumulation$depth_bottom >= bottom)
+        # interpolated_top_ages <- accumulation$age_top + (accumulation$depth_top - top) *
+        #   accumulation$sediment_accumulation_rate
+        # interpolated_bottom_ages <- accumulation$age_top + (accumulation$depth_top - bottom) *
+        #   accumulation$sediment_accumulation_rate
+        # intersects_top <- (proportion_in_slice > 0) & (accumulation$depth_top <= top)
+        # intersects_bottom <- (proportion_in_slice > 0) & (accumulation$depth_bottom >= bottom)
 
         # return a 1-row tibble of summary values
         tibble::tibble(
           slice_mass = sum(mass_in_slice),
-          pb210_activity = sum(accumulation$pb210_activity_total * proportion_in_slice) / .data$slice_mass,
-          age_top = interpolated_top_ages[intersects_top][1],
-          age_bottom = interpolated_bottom_ages[intersects_bottom][1],
+          pb210_specific_activity = sum(accumulation$pb210_specific_activity_total * proportion_in_slice) / .data$slice_mass,
+          # age_top = interpolated_top_ages[intersects_top][1],
+          # age_bottom = interpolated_bottom_ages[intersects_bottom][1],
           age = stats::weighted.mean(accumulation$age, mass_in_slice),
           slice_volume = (bottom - top) / 100 * core_area,
           slice_density = .data$slice_mass / .data$slice_volume
@@ -160,9 +160,15 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
     )
   )
 
+  # interpolate age_top and age_bottom using stats::approx
+  known_depths <- c(0, accumulation$depth_bottom)
+  known_ages <- c(0, accumulation$age_bottom)
+  depths$age_top <- stats::approx(known_depths, known_ages, depths$depth_top)$y
+  depths$age_bottom <- stats::approx(known_depths, known_ages, depths$depth_bottom)$y
+
   tbl <- tibble::as_tibble(
     cbind(
-      depths[c("depth_top", "depth_bottom", "depth")],
+      depths[c("depth_top", "depth_bottom", "depth", "age_top", "age_bottom")],
       do.call(rbind, depths$interpolated_attributes)
     )
   )
@@ -171,7 +177,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
   tbl[
     order(tbl$depth),
     c(
-      "age", "depth", "pb210_activity", "age_top", "age_bottom",
+      "age", "depth", "pb210_specific_activity", "age_top", "age_bottom",
       "depth_top", "depth_bottom", "slice_mass", "slice_density"
     )
   ]
