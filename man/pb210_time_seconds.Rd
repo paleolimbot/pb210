@@ -8,7 +8,7 @@ pb210_time_seconds(days = 0, hours = 0, minutes = 0, seconds = 0)
 }
 \arguments{
 \item{days, hours, minutes, seconds}{Quantities to convert to seconds. Multiple inputs will be
-added}
+added.}
 }
 \value{
 A time in seconds

@@ -35,7 +35,7 @@ pb210_core_area <- function(diameter = 0.063) {
 #' Generate a time duration in seconds
 #'
 #' @param days,hours,minutes,seconds Quantities to convert to seconds. Multiple inputs will be
-#'   added
+#'   added.
 #'
 #' @return A time in seconds
 #' @export

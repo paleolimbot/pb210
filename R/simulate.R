@@ -21,19 +21,24 @@
 #' pb210_simulate_accumulation()
 #'
 pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulation_constant(),
+                                        max_age = 500, time_step = 1,
                                         supply = pb210_supply_constant(),
                                         compressibility = pb210_compressibility_constant(),
                                         initial_density = pb210_density_constant(),
-                                        decay_constant = pb210_decay_constant(),
-                                        max_age = 300, time_step = 5) {
+                                        decay_constant = pb210_decay_constant()) {
   stopifnot(
     is.numeric(max_age), length(max_age) == 1,
     is.numeric(time_step), length(time_step) == 1, time_step > 0,
-    is.function(supply),
-    is.function(mass_accumulation),
-    is.function(compressibility),
-    is.function(initial_density)
+    is.numeric(decay_constant), length(decay_constant) == 1, decay_constant > 0
   )
+
+  # all calculations here are for a 1 m^2 section.
+  core_area <- 1
+
+  mass_accumulation <- rlang::as_function(mass_accumulation, env = rlang::caller_env())
+  supply <- rlang::as_function(supply, env = rlang::caller_env())
+  compressibility <- rlang::as_function(compressibility, env = rlang::caller_env())
+  initial_density <- rlang::as_function(initial_density, env = rlang::caller_env())
 
   tbl <- tibble::tibble(
     # ages
@@ -43,7 +48,7 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
 
     # initial values
     initial_pb210_content = supply(.data$age) * time_step, # Bq
-    slice_mass = mass_accumulation(.data$age) * time_step, # kg
+    slice_mass = mass_accumulation(.data$age) * time_step * core_area, # kg
     compressibility = compressibility(.data$age), # 1/Pa
     initial_density = initial_density(.data$age), # kg / m^3
 
@@ -56,23 +61,32 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
     relative_volume = 1 - (.data$delta_pressure * .data$compressibility), # unitless (volume / volume at deposition)
 
     # use density and relative_volume to map slice mass to thickness
-    # kg / m^2 / (kg / m^3)
-    thickness = .data$slice_mass / .data$initial_density * .data$relative_volume, # m
+    # kg / (kg / m^3) * unitless = m^3
+    slice_volume = .data$slice_mass / .data$initial_density * .data$relative_volume,
+    slice_density = .data$slice_mass / .data$slice_volume,
+    thickness = .data$slice_volume / core_area * 100, # cm
     depth_bottom = rev(cumsum(rev(.data$thickness))),
     depth_top = c(rev(cumsum(rev(.data$thickness[-1]))), 0),
     depth = (.data$depth_top + .data$depth_bottom) / 2
   )
 
-  tbl[c("age", "depth", "pb210_activity", "age_top", "age_bottom", "depth_top", "depth_bottom", "cumulative_mass_above")]
+  # return like most core data, backwards in time
+  tbl[
+    order(tbl$depth),
+    c(
+      "age", "depth", "pb210_activity", "age_top", "age_bottom",
+      "depth_top", "depth_bottom", "slice_mass", "slice_density"
+    )
+  ]
 }
 
 
 #' Simulate a core of an accumulation
 #'
-#' @param age_simulation An age simulation, created by [pb210_simulate_accumulation()].
+#' @param accumulation An age simulation, created by [pb210_simulate_accumulation()].
 #' @param depth_step A vector of depth steps to consider, from the top to the bottom
 #'   of the core. There should be one element in the vector for each slice considered.
-#' @param core_area The area of the corer, in m^2^.
+#' @param core_area The internal area of the core in m^2^.
 #'
 #' @return A tibble with components ...
 #' @export
@@ -80,19 +94,87 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
 #' @examples
 #' pb210_simulate_core()
 #'
-pb210_simulate_core <- function(age_simulation = pb210_simulate_accumulation(),
-                                depth_step = rep(0.5, 60),
-                                core_area = pb210_core_area()) {
+pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
+                                depth_step = rep(0.5, 60), core_area = pb210_core_area()) {
   stopifnot(
-    tibble::is_tibble(age_simulation), all(c() %in% colnames(age_simulation)),
+    is.data.frame(accumulation),
+    all(
+      c("age", "depth_top", "depth_bottom", "pb210_activity", "slice_mass", "slice_density") %in% colnames(accumulation)
+    ),
+    is.numeric(depth_step), all(depth_step > 0),
     is.numeric(core_area), length(core_area) == 1, core_area > 0
   )
 
-  tibble::tibble(
-    depth_top = c(0, cumsum(depth_step[-1])),
-    depth_bottom = cumsum(depth_step),
-    depth = (.data$depth_top + .data$depth_bottom) / 2
+  # all calculations for `accumulation` were for 1 m^2^. slice_mass is the only parameter
+  # that depends on this. For the calculations in this resampling to be correct,
+  # we need to rescale slice_mass here.
+  accumulation$slice_mass <- accumulation$slice_mass * core_area / 1.
+
+  # calculations on accumulation that apply to all of the new depth slices
+  accumulation$thickness <- accumulation$depth_bottom - accumulation$depth_top # cm
+  accumulation$slice_volume <- accumulation$slice_mass / accumulation$slice_density # m^3
+
+  accumulation$pb210_activity_total <- accumulation$pb210_activity * accumulation$slice_mass # Bq
+  accumulation$age_total <- accumulation$age_bottom - accumulation$age_top # yr
+  accumulation$sediment_accumulation_rate <- accumulation$age_total / accumulation$thickness # yr
+
+  depths <- tibble::tibble(
+    # make new depth slices
+    depth_top = c(0, cumsum(depth_step[-1])), # cm
+    depth_bottom = cumsum(depth_step), # cm
+    depth = (.data$depth_top + .data$depth_bottom) / 2, # cm
+
+    # these attributes are calculated for each new depth slice
+    interpolated_attributes = mapply(
+      function(top, bottom) {
+        # these calculations only apply to this new depth slice
+        # they are all of length nrow(accumulation)
+        depth_bottom_match <- pmin(bottom, accumulation$depth_bottom) # cm depth
+        depth_top_match <- pmax(top, accumulation$depth_top) # cm depth
+        depth_in_slice <- pmax(0, depth_bottom_match - depth_top_match) # cm
+        proportion_in_slice <- depth_in_slice / accumulation$thickness # proportion
+        mass_in_slice <- accumulation$slice_mass * proportion_in_slice # kg
+
+        # could be clearer, but this is an attempt to interpolate the location
+        # of the "top" depth based on the intersecting sample from accumulation
+        interpolated_top_ages <- accumulation$age_top + (accumulation$depth_top - top) *
+          accumulation$sediment_accumulation_rate
+        interpolated_bottom_ages <- accumulation$age_bottom + (accumulation$depth_bottom - bottom) *
+          accumulation$sediment_accumulation_rate
+        intersects_top <- (proportion_in_slice > 0) & (accumulation$depth_top <= top)
+        intersects_bottom <- (proportion_in_slice > 0) & (accumulation$depth_bottom >= bottom)
+
+        # return a 1-row tibble of summary values
+        tibble::tibble(
+          slice_mass = sum(mass_in_slice),
+          pb210_activity = sum(accumulation$pb210_activity_total * proportion_in_slice) / .data$slice_mass,
+          age_top = interpolated_top_ages[intersects_top][1],
+          age_bottom = interpolated_bottom_ages[intersects_bottom][1],
+          age = stats::weighted.mean(accumulation$age, mass_in_slice),
+          slice_volume = (bottom - top) / 100 * core_area,
+          slice_density = .data$slice_mass / .data$slice_volume
+        )
+      },
+      .data$depth_top, .data$depth_bottom,
+      SIMPLIFY = FALSE
+    )
   )
+
+  tbl <- tibble::as_tibble(
+    cbind(
+      depths[c("depth_top", "depth_bottom", "depth")],
+      do.call(rbind, depths$interpolated_attributes)
+    )
+  )
+
+  # the same format as the pb210_simulate_accumulation()
+  tbl[
+    order(tbl$depth),
+    c(
+      "age", "depth", "pb210_activity", "age_top", "age_bottom",
+      "depth_top", "depth_bottom", "slice_mass", "slice_density"
+    )
+  ]
 }
 
 #' Parameter generators for lead-210 supply
