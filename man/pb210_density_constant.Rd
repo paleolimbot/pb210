@@ -4,7 +4,7 @@
 \alias{pb210_density_constant}
 \title{Parameter generators for density values}
 \usage{
-pb210_density_constant(value = 1500)
+pb210_density_constant(value = 150)
 }
 \arguments{
 \item{value}{A density at the time of deposition, in kg / m3}

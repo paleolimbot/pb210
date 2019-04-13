@@ -44,8 +44,6 @@ test_that("parameter generators return functions that are length stable", {
   test_parameter_generator(pb210_mass_accumulation_rnorm)
   test_parameter_generator(pb210_mass_accumulation_rnorm_trend)
 
-  test_parameter_generator(pb210_water_content_constant)
-
   test_parameter_generator(pb210_density_constant)
 
   test_parameter_generator(pb210_compressibility_constant)

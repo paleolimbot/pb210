@@ -4,11 +4,12 @@
 \alias{pb210_compressibility_constant}
 \title{Parameter generators for compressibility}
 \usage{
-pb210_compressibility_constant(value = 2e-06)
+pb210_compressibility_constant(value = 0.001)
 }
 \arguments{
 \item{value}{A compressibility at the time of deposition, in 1/Pa.
-Lower values indicate a higher propensity for the material to be compressed.}
+Higher values (closer to 0) indicate a higher propensity for the material
+to be compressed.}
 }
 \value{
 A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
