@@ -179,7 +179,7 @@ test_that("count simulation works with default parameters", {
   sim <- pb210_simulate_counting()
   expect_true(
     all(
-      c("pb210_specific_activity_sd", "pb210_specific_activity_counted", "pb210_specific_activity_se") %in%
+      c("pb210_specific_activity_estimate", "pb210_specific_activity_se") %in%
         colnames(sim)
     )
   )

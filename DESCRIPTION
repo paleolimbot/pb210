@@ -28,5 +28,6 @@ BugReports: https://github.com/paleolimbot/pb210/issues
 Imports: 
     tibble,
     stats,
-    rlang
+    rlang,
+    lubridate
 Roxygen: list(markdown = TRUE)

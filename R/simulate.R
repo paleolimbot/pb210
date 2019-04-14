@@ -11,7 +11,8 @@
 #' are in Bq / kg. `pb210_simulate_counting()` simulates putting a subsample
 #' of each slice on a counter for a specified amount of time. This allows
 #' assigning an error to the known lead-210 activity, as well as provide
-#' more realistic data for simulations.
+#' more realistic data for simulations. See [pb210_error_from_specific_activity()]
+#' for details.
 #'
 #' @param max_age The maximum age of the simulation (years)
 #' @param time_step The time to consider in each step (years)
@@ -28,11 +29,10 @@
 #' @param depth_step A vector of depth steps to consider, from the top to the bottom
 #'   of the core. There should be one element in the vector for each slice considered.
 #' @param core_area The internal area of the core in m^2^.
-#' @param count_mass,count_time The amount of mass each sample will be counted, and
-#'   the time each sample should be counted for. Both of these can be vectors
-#'   the same length as `accumulation`.
+#' @inheritParams pb210_error_from_specific_activity
 #'
 #' @return A tibble with columns:
+#'
 #'   - **age** (years): the mean age of the slice (weighted by mass)
 #'   - **depth** (cm): the midpoint depth of the slice
 #'   - **pb210_specific_activity** (Bq/kg)
@@ -41,11 +41,22 @@
 #'   - **slice_mass** (kg)
 #'   - **slice_density** (kg / m^3^)
 #'
+#'   The output of `pb210_simulate_counting()` also includes the columns:
+#'
+#'   - **pb210_specific_activity_estimate** (Bq/kg): A plausible activity that might be
+#'     obtained by a lead-210 counting method, sampled using [stats::rpois()].
+#'   - **pb210_specific_activity_se** (Bq/kg): The standard error (estimate of the standard
+#'     deviation) of **pb210_specific_activity_estimate**. For the expected error,
+#'     use [pb210_error_from_specific_activity()] on
+#'
+#'
 #' @importFrom rlang .data
 #' @export
 #'
 #' @examples
+#' # 1 row per year
 #' accumulation <- pb210_simulate_accumulation()
+#' # 1 row per 0.5 cm
 #' core <- pb210_simulate_core(accumulation)
 #' counted_core <- pb210_simulate_counting(core)
 #'
@@ -207,28 +218,34 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
 #' @export
 pb210_simulate_counting <- function(accumulation = pb210_simulate_core(),
                                     count_mass = 0.5 / 1000,
-                                    count_time = pb210_time_seconds(days = 1)) {
-  stopifnot(
-    all(c("pb210_specific_activity") %in% colnames(accumulation)),
-    is.numeric(count_mass), length(count_mass) == 1 || length(count_mass) == nrow(accumulation),
-    is.numeric(count_time), length(count_time) == 1 || length(count_time) == nrow(accumulation)
-  )
+                                    count_time = lubridate::ddays(1)) {
+  stopifnot("pb210_specific_activity" %in% colnames(accumulation))
+  check_count_params(accumulation$pb210_specific_activity, count_mass, count_time)
+  count_time <- count_time_seconds(count_time)
 
   # model counts as a poisson distribution with lambda = the expected number of counts
-  total_pb210 <- accumulation$pb210_specific_activity * count_mass # Bq (== counts / s)
-  expected_decays <- total_pb210 * count_time # counts
+  expected_decays <- pb210_counts_from_specific_activity(
+    accumulation$pb210_specific_activity,
+    count_mass,
+    count_time
+  )
   sampled_decays <- stats::rpois(nrow(accumulation), lambda = expected_decays) # counts
 
-  # without doing any counting, we can now know the sd of the governing distribution
-  # in a poisson distribution, the variance = the expected counts
-  accumulation$pb210_specific_activity_sd <- sqrt(expected_decays) / count_time / count_mass # Bq / kg
-
-  # the sampled ("counted") activity
-  accumulation$pb210_specific_activity_counted <- sampled_decays / count_time / count_mass # Bq / kg
-  accumulation$pb210_specific_activity_se <- sqrt(sampled_decays) / count_time / count_mass # Bq / kg
+  # add estimate and standard error to the
+  accumulation$pb210_specific_activity_estimate <- pb210_specific_activity_from_counts(
+    sampled_decays,
+    count_mass,
+    count_time
+  )
+  accumulation$pb210_specific_activity_se <- pb210_error_from_counts(
+    sampled_decays,
+    count_mass,
+    count_time
+  )
 
   accumulation
 }
+
 
 #' Parameter generators for lead-210 supply
 #'
