@@ -79,7 +79,9 @@ check_count_params <- function(x, count_mass, count_time) {
   stopifnot(
     is.numeric(x),
     length(count_mass) == 1 || length(count_mass) == length(x),
-    length(count_time) == 1 || length(count_time) == length(x)
+    all(count_mass > 0),
+    length(count_time) == 1 || length(count_time) == length(x),
+    all(as.numeric(count_time) > 0)
   )
 }
 
