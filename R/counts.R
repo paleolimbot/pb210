@@ -10,7 +10,7 @@
 #' @param count_mass The amount of mass each sample that was counted (kg). Can be
 #'   a vector to specify different masses for each sample.
 #' @param count_time The time each sample was counted, as resolved by
-#'   [lubridate::as.duration()]. Raw numbers are treated as a number of seconds;
+#'   [lubridate::as.duration()]. Raw numbers are treated as a number of seconds, however
 #'   we reccomend using [lubridate::ddays()] and/or [lubridate::dhours()] to make
 #'   the units explicit.
 #'

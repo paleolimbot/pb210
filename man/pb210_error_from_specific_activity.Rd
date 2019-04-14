@@ -24,7 +24,7 @@ pb210_counts_from_specific_activity(pb210_specific_activity, count_mass,
 a vector to specify different masses for each sample.}
 
 \item{count_time}{The time each sample was counted, as resolved by
-\code{\link[lubridate:as.duration]{lubridate::as.duration()}}. Raw numbers are treated as a number of seconds;
+\code{\link[lubridate:as.duration]{lubridate::as.duration()}}. Raw numbers are treated as a number of seconds, however
 we reccomend using \code{\link[lubridate:ddays]{lubridate::ddays()}} and/or \code{\link[lubridate:dhours]{lubridate::dhours()}} to make
 the units explicit.}
 
