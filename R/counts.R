@@ -25,13 +25,13 @@
 #' )
 #'
 #' pb210_error_from_counts(
-#'   c(500, 100, 10, 5),
+#'   c(21600, 4320, 432, 216),
 #'   count_mass = 0.5 / 1000,
 #'   count_time = lubridate::ddays(1)
 #' )
 #'
 #' pb210_specific_activity_from_counts(
-#'   c(500, 100, 10, 5),
+#'   c(21600, 4320, 432, 216),
 #'   count_mass = 0.5 / 1000,
 #'   count_time = lubridate::ddays(1)
 #' )

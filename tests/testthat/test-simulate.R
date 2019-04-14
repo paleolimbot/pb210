@@ -175,14 +175,24 @@ test_that("core simulation calculates identical values when slices are identical
   )
 })
 
-test_that("count simulation works with default parameters", {
+test_that("count simulation outputs the expected type and column names", {
   sim <- pb210_simulate_counting()
+  expect_is(sim, "tbl_df")
   expect_true(
     all(
       c("pb210_specific_activity_estimate", "pb210_specific_activity_se") %in%
         colnames(sim)
     )
   )
+})
+
+test_that("count simulation outputs identical counts when counting time is infinite", {
+  withr::with_seed(4938, {
+    sim <- pb210_simulate_counting(count_time = 1e9)
+    expect_true(
+      all(abs(sim$pb210_specific_activity - sim$pb210_specific_activity_estimate) < 0.1)
+    )
+  })
 })
 
 test_that("parameter generators return functions that are length stable", {
