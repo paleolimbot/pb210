@@ -6,7 +6,12 @@
 #' `pb210_simulate_core()` returns a data frame with one row per `depth_step`
 #' (like extruding a core). These functions were created to test the
 #' [pb210_age_crs()] and [pb210_age_cic()] functions, and to create
-#' the lead-210 theory vignette.
+#' the lead-210 theory vignette. Ages are in years, depths are in cm,
+#' masses are in kg, densities are in kg / m^3^, and specific activities
+#' are in Bq / kg. `pb210_simulate_counting()` simulates putting a subsample
+#' of each slice on a counter for a specified amount of time. This allows
+#' assigning an error to the known lead-210 activity, as well as provide
+#' more realistic data for simulations.
 #'
 #' @param max_age The maximum age of the simulation (years)
 #' @param time_step The time to consider in each step (years)
@@ -23,14 +28,26 @@
 #' @param depth_step A vector of depth steps to consider, from the top to the bottom
 #'   of the core. There should be one element in the vector for each slice considered.
 #' @param core_area The internal area of the core in m^2^.
+#' @param count_mass,count_time The amount of mass each sample will be counted, and
+#'   the time each sample should be counted for. Both of these can be vectors
+#'   the same length as `accumulation`.
 #'
-#' @return A tibble with components ...
+#' @return A tibble with columns:
+#'   - **age** (years): the mean age of the slice (weighted by mass)
+#'   - **depth** (cm): the midpoint depth of the slice
+#'   - **pb210_specific_activity** (Bq/kg)
+#'   - **age_top**, **age_bottom** (years)
+#'   - **depth_top**, **depth_bottom** (cm)
+#'   - **slice_mass** (kg)
+#'   - **slice_density** (kg / m^3^)
+#'
 #' @importFrom rlang .data
 #' @export
 #'
 #' @examples
 #' accumulation <- pb210_simulate_accumulation()
-#' pb210_simulate_core(accumulation)
+#' core <- pb210_simulate_core(accumulation)
+#' counted_core <- pb210_simulate_counting(core)
 #'
 pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulation_constant(),
                                         max_age = 500, time_step = 1,
@@ -109,7 +126,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
     is.data.frame(accumulation),
     all(
       c(
-        "age", "depth_top", "depth_bottom",
+        "age", "depth_top", "depth_bottom", "age_top", "age_bottom",
         "pb210_specific_activity", "slice_mass",
         "slice_density"
       ) %in% colnames(accumulation)
@@ -184,6 +201,33 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
       "depth_top", "depth_bottom", "slice_mass", "slice_density"
     )
   ]
+}
+
+#' @rdname pb210_simulate_accumulation
+#' @export
+pb210_simulate_counting <- function(accumulation = pb210_simulate_core(),
+                                    count_mass = 0.5 / 1000,
+                                    count_time = pb210_time_seconds(days = 1)) {
+  stopifnot(
+    all(c("pb210_specific_activity") %in% colnames(accumulation)),
+    is.numeric(count_mass), length(count_mass) == 1 || length(count_mass) == nrow(accumulation),
+    is.numeric(count_time), length(count_time) == 1 || length(count_time) == nrow(accumulation)
+  )
+
+  # model counts as a poisson distribution with lambda = the expected number of counts
+  total_pb210 <- accumulation$pb210_specific_activity * count_mass # Bq (== counts / s)
+  expected_decays <- total_pb210 * count_time # counts
+  sampled_decays <- stats::rpois(nrow(accumulation), lambda = expected_decays) # counts
+
+  # without doing any counting, we can now know the sd of the governing distribution
+  # in a poisson distribution, the variance = the expected counts
+  accumulation$pb210_specific_activity_sd <- sqrt(expected_decays) / count_time / count_mass # Bq / kg
+
+  # the sampled ("counted") activity
+  accumulation$pb210_specific_activity_counted <- sampled_decays / count_time / count_mass # Bq / kg
+  accumulation$pb210_specific_activity_se <- sqrt(sampled_decays) / count_time / count_mass # Bq / kg
+
+  accumulation
 }
 
 #' Parameter generators for lead-210 supply

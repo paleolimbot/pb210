@@ -175,16 +175,13 @@ test_that("core simulation calculates identical values when slices are identical
   )
 })
 
-test_that("core simulation works with default parameters", {
-  core_sim <- pb210_simulate_core()
-  expect_equal(
-    core_sim$age_bottom[-nrow(core_sim)],
-    core_sim$age_top[-1]
-  )
-
-  expect_equal(
-    core_sim$depth_bottom[-nrow(core_sim)],
-    core_sim$depth_top[-1]
+test_that("count simulation works with default parameters", {
+  sim <- pb210_simulate_counting()
+  expect_true(
+    all(
+      c("pb210_specific_activity_sd", "pb210_specific_activity_counted", "pb210_specific_activity_se") %in%
+        colnames(sim)
+    )
   )
 })
 
