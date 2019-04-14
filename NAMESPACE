@@ -3,6 +3,7 @@
 export(pb210_age_cic)
 export(pb210_age_crs)
 export(pb210_compressibility_constant)
+export(pb210_compressibility_none)
 export(pb210_core_area)
 export(pb210_counts_from_specific_activity)
 export(pb210_decay_constant)

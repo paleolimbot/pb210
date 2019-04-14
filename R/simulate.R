@@ -323,8 +323,6 @@ pb210_density_constant <- function(value = 150)  {
 
 #' Parameter generators for compressibility
 #'
-#' Note that this refers to compressibility at the time of deposition.
-#'
 #' @param value A compressibility at the time of deposition, in 1/Pa.
 #'   Higher values (closer to 0) indicate a higher propensity for the material
 #'   to be compressed.
@@ -341,4 +339,10 @@ pb210_compressibility_constant <- function(value = 1e-3)  {
   function(age) {
     value
   }
+}
+
+#' @rdname pb210_compressibility_constant
+#' @export
+pb210_compressibility_none <- function()  {
+  pb210_compressibility_constant(0)
 }

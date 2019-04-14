@@ -8,7 +8,8 @@ test_that("simulators returns tibbles", {
 test_that("age and depth steps are contiguous for pb210_simulate_accumulation", {
   accumulation_sim <- pb210_simulate_accumulation(
     max_age = 100, time_step = 2,
-    compressibility = ~0, initial_density = ~150, mass_accumulation = ~0.15
+    compressibility = pb210_compressibility_none(),
+    initial_density = ~150, mass_accumulation = ~0.15
   )
   expect_true(all(diff(accumulation_sim$age_top) == 2))
   expect_true(all(diff(accumulation_sim$age_bottom) == 2))

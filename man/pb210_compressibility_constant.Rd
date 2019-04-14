@@ -2,9 +2,12 @@
 % Please edit documentation in R/simulate.R
 \name{pb210_compressibility_constant}
 \alias{pb210_compressibility_constant}
+\alias{pb210_compressibility_none}
 \title{Parameter generators for compressibility}
 \usage{
 pb210_compressibility_constant(value = 0.001)
+
+pb210_compressibility_none()
 }
 \arguments{
 \item{value}{A compressibility at the time of deposition, in 1/Pa.
@@ -15,7 +18,7 @@ to be compressed.}
 A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.
 }
 \description{
-Note that this refers to compressibility at the time of deposition.
+Parameter generators for compressibility
 }
 \examples{
 ages <- 150:0
