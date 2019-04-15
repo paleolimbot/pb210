@@ -55,8 +55,8 @@ pb210_core_area <- function(diameter = 0.063) {
 #'
 expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_range = 0:100, na.rm = FALSE) {
   stopifnot(
-    is.numeric(age_range),
-    is.numeric(known_ages),
+    is.numeric(calculated_ages),
+    is.numeric(known_ages), all(is.finite(known_ages)),
     is.numeric(max_delta), all(is.finite(max_delta)),
     is.numeric(age_range), all(is.finite(age_range))
   )
@@ -67,13 +67,13 @@ expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_
 
   tbl <- tibble::tibble(calculated_ages, known_ages, max_delta)
   tbl <- tbl[(tbl$known_ages >= min(age_range)) & (tbl$known_ages <= max(age_range)), ]
+  if(na.rm) {
+    tbl <- tbl[is.finite(tbl$calculated_ages), ]
+  }
   if(nrow(tbl) == 0) stop("Zero ages to compare")
 
   testthat::expect_true(
-    all(
-      abs(tbl$calculated_ages - tbl$known_ages) <= tbl$max_delta,
-      na.rm = na.rm
-    ),
+    all(abs(tbl$calculated_ages - tbl$known_ages) <= tbl$max_delta),
     label = sprintf(
       "abs((%s) - (%s)) <= %s (from age %s-%s)",
       calc_ages_label, known_ages_label, max_delta_label, min(age_range), max(age_range)
