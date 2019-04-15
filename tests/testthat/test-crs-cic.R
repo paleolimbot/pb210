@@ -1,6 +1,6 @@
 context("test-age")
 
-test_that("CIC model works on simulated data", {
+test_that("CIC model works on simulated core data", {
   core <- withr::with_seed(4817, {
     pb210_simulate_accumulation(mass_accumulation = pb210_mass_accumulation_constant()) %>%
       pb210_simulate_core(core_area = 1) %>%
@@ -14,11 +14,8 @@ test_that("CIC model works on simulated data", {
     calc_excess_pb210_surface = pb210_surface_estimate
   )
 
-  expect_true(
-    all(
-      abs(core$age[2:30] - cic_model$age[2:30]) < cic_model$age_sd[2:30]
-    )
-  )
+  # not quite within 1 year for all samples
+  expect_ages_similar(cic_model$age, core$age, max_delta = 1.32)
 
   crs_model <- pb210_age_crs(
     depth = core$depth,
@@ -31,18 +28,13 @@ test_that("CIC model works on simulated data", {
     calc_inventory_below = pb210_deep_inventory_estimate
   )
 
-  expect_true(
-    all(
-      abs(core$age[2:30] - crs_model$age[2:30]) < crs_model$age_sd[2:30]
-    )
-  )
-
+  expect_ages_similar(crs_model$age, core$age)
 })
 
-test_that("CRS model works on simulated data", {
+test_that("CRS model works on simulated core data", {
   core <- withr::with_seed(4817, {
-    pb210_simulate_accumulation(mass_accumulation = pb210_mass_accumulation_rlnorm()) %>%
-      pb210_simulate_core(core_area = 1) %>%
+    pb210_simulate_accumulation(mass_accumulation = pb210_mass_accumulation_rlnorm(sd = 1)) %>%
+      pb210_simulate_core() %>%
       pb210_simulate_counting()
   })
 
@@ -57,12 +49,7 @@ test_that("CRS model works on simulated data", {
     calc_inventory_below = pb210_deep_inventory_estimate
   )
 
-  expect_true(
-    all(
-      abs(core$age[2:30] - crs_model$age[2:30]) < crs_model$age_sd[2:30]
-    )
-  )
-
+  expect_ages_similar(crs_model$age, core$age)
 })
 
 test_that("CRS model works on Alta Lake data", {

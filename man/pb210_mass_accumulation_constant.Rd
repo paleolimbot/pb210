@@ -7,12 +7,14 @@
 \usage{
 pb210_mass_accumulation_constant(value = 0.15)
 
-pb210_mass_accumulation_rlnorm(mean = 0.15, sd = 0.02)
+pb210_mass_accumulation_rlnorm(mean = 0.15, sd = 1)
 }
 \arguments{
 \item{value, mean}{An accumulation rate, in kg / m2 / year.}
 
-\item{sd}{For random (log)normal accumulation rates, the standard deviation}
+\item{sd}{For random (log)normal accumulation rates, the log standard deviation.
+The default is 1, which results in highly variable sedimentation rates. This is
+useful for testing \code{\link[=pb210_age_crs]{pb210_age_crs()}}.}
 }
 \value{
 A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.

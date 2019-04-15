@@ -272,7 +272,9 @@ pb210_supply_constant <- function(value = 100)  {
 #' Parameter generators for mass accumulation rates
 #'
 #' @param value,mean An accumulation rate, in kg / m2 / year.
-#' @param sd For random (log)normal accumulation rates, the standard deviation
+#' @param sd For random (log)normal accumulation rates, the log standard deviation.
+#'   The default is 1, which results in highly variable sedimentation rates. This is
+#'   useful for testing [pb210_age_crs()].
 #'
 #' @return A function of a single parameter, `age`, which is a (decreasing) vector of ages.
 #' @export
@@ -293,7 +295,7 @@ pb210_mass_accumulation_constant <- function(value = 0.150)  {
 
 #' @rdname pb210_mass_accumulation_constant
 #' @export
-pb210_mass_accumulation_rlnorm <- function(mean = 0.150, sd = 0.020) {
+pb210_mass_accumulation_rlnorm <- function(mean = 0.150, sd = 1) {
   force(mean)
   force(sd)
   function(age) {

@@ -30,3 +30,53 @@ pb210_decay_constant <- function(half_life = 22.26) {
 pb210_core_area <- function(diameter = 0.063) {
   pi * (diameter / 2)^2
 }
+
+
+#' Test age similarity
+#'
+#' The testing of this package requires a lot of testing whether or not
+#' two sets of ages are similar. This function is designed for use in
+#' this testing. The default is 1 year of error in the last 100 years.
+#'
+#' @param calculated_ages The ages that we aren't sure about
+#' @param known_ages The ages that we are sure about
+#' @param max_delta The maximum error
+#' @param age_range The age range we care about
+#' @param na.rm Should missing ages be removed?
+#'
+#' @export
+#'
+#' @examples
+#' # similar ages
+#' expect_ages_similar(1:10 + runif(10, -1, 1), 1:10, max_delta = 1)
+#'
+#' # not similar ages
+#' try(expect_ages_similar(1:10 + runif(10, -1, 1), 1:10, max_delta = 0.01))
+#'
+expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_range = 0:100, na.rm = FALSE) {
+  stopifnot(
+    is.numeric(age_range),
+    is.numeric(known_ages),
+    is.numeric(max_delta), all(is.finite(max_delta)),
+    is.numeric(age_range), all(is.finite(age_range))
+  )
+
+  calc_ages_label <- deparse(substitute(calculated_ages))
+  known_ages_label <- deparse(substitute(known_ages))
+  max_delta_label <- deparse(substitute(max_delta))
+
+  tbl <- tibble::tibble(calculated_ages, known_ages, max_delta)
+  tbl <- tbl[(tbl$known_ages >= min(age_range)) & (tbl$known_ages <= max(age_range)), ]
+  if(nrow(tbl) == 0) stop("Zero ages to compare")
+
+  testthat::expect_true(
+    all(
+      abs(tbl$calculated_ages - tbl$known_ages) <= tbl$max_delta,
+      na.rm = na.rm
+    ),
+    label = sprintf(
+      "abs((%s) - (%s)) <= %s (from age %s-%s)",
+      calc_ages_label, known_ages_label, max_delta_label, min(age_range), max(age_range)
+    )
+  )
+}
