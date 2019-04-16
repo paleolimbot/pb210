@@ -5,6 +5,7 @@
 \alias{pb210_fit_loglinear}
 \alias{pb210_fit_exponential_manual}
 \alias{pb210_fit_exponential_zero}
+\alias{pb210_fit_exponential_constant}
 \alias{predict.exponential_manual}
 \alias{coef.exponential_manual}
 \alias{predict.lm_loglinear}
@@ -19,6 +20,8 @@ pb210_fit_loglinear(x, y)
 pb210_fit_exponential_manual(m, b)
 
 pb210_fit_exponential_zero()
+
+pb210_fit_exponential_constant(value)
 
 \method{predict}{exponential_manual}(object, newdata, ...)
 
@@ -35,7 +38,7 @@ pb210_fit_exponential_zero()
 
 \item{y}{A dependent variable that responds exponentially to \code{x}.}
 
-\item{m, b}{Directly specify coefficients for a manual fit.}
+\item{m, b, value}{Directly specify coefficients for a manual fit.}
 
 \item{object}{A model fit object.}
 

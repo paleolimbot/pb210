@@ -52,6 +52,23 @@ test_that("zero model is zero always", {
   )
 })
 
+test_that("constant model is constant always", {
+  fit <- pb210_fit_exponential_constant(4)
+  expect_equal(
+    predict(fit, tibble::tibble(x = seq(-100, 100))),
+    rep(4, 201)
+  )
+})
+
+test_that("fit coersion works as expected", {
+  fake_depth <- 0:10
+  fake_pb210 <- exp(5 - fake_depth) + rnorm(11, sd = 0.005)
+  fit <- pb210_fit_exponential(fake_depth, fake_pb210)
+  expect_identical(pb210_as_fit(fit), fit)
+  expect_identical(pb210_as_fit(0), pb210_fit_exponential_zero())
+  expect_identical(pb210_as_fit(4), pb210_fit_exponential_constant(4))
+})
+
 test_that("linear interpolator works as intended", {
   known_x <- c(0, 1, 2)
   known_y <- c(10, 12, 16)

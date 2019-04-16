@@ -13,7 +13,7 @@
 #' @param newdata A tibble with a column `x`.
 #' @param object A model fit object.
 #' @param ... Not used.
-#' @param m,b Directly specify coefficients for a manual fit.
+#' @param m,b,value Directly specify coefficients for a manual fit.
 #'
 #' @return A model object like that returned by [stats::nls()], with a
 #'   [stats::predict()] method.
@@ -81,6 +81,17 @@ pb210_fit_exponential_zero <- function() {
   pb210_fit_exponential_manual(1, -Inf)
 }
 
+#' @rdname pb210_fit_exponential
+#' @export
+pb210_fit_exponential_constant <- function(value) {
+  stopifnot(is.numeric(value), length(value) == 1)
+  if(value == 0) {
+    pb210_fit_exponential_zero()
+  } else {
+    pb210_fit_exponential_manual(m = 0, b = log(value))
+  }
+}
+
 #' @importFrom stats predict
 #' @rdname pb210_fit_exponential
 #' @export
@@ -123,6 +134,48 @@ coef.lm_loglinear <- function(object, ...) {
   lm_coeffs <- NextMethod()
   names(lm_coeffs) <- c("b", "m")
   lm_coeffs
+}
+
+
+#' Coerce objects to exponential fits
+#'
+#' This is used to sanitize input for [pb210_age_cic()] and [pb210_age_crs()],
+#' where fit objects are required but where it is anticipated that
+#' numeric constants will be common as input.
+#'
+#' @param x An object
+#'
+#' @return An object with a [stats::predict()] method.
+#' @export
+#'
+#' @examples
+#' fake_depth <- 0:10
+#' fake_pb210 <- exp(5 - fake_depth) + rnorm(11, sd = 0.005)
+#'
+#' pb210_as_fit(pb210_fit_exponential(fake_depth, fake_pb210))
+#' pb210_as_fit(1)
+#' pb210_as_fit(0)
+#'
+pb210_as_fit <- function(x) {
+  UseMethod("pb210_as_fit")
+}
+
+#' @rdname pb210_as_fit
+#' @export
+pb210_as_fit.default <- function(x) {
+  # any S3 with a predict method is OK
+  predict <- try(utils::getS3method("predict", class(x), optional = FALSE), silent = TRUE)
+  if(inherits(predict, "try-error")) {
+    stop("No stats::predict() method for object inheriting ", paste(class(x), collapse = " / "))
+  }
+
+  x
+}
+
+#' @rdname pb210_as_fit
+#' @export
+pb210_as_fit.numeric <- function(x) {
+  pb210_fit_exponential_constant(x)
 }
 
 
