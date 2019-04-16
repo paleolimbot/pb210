@@ -146,12 +146,12 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA
 #' @param cumulative_dry_mass The cumulative dry mass of the core in kilograms, starting at depth
 #'   0 and including all samples in the core. These must be positive and in increasing order.
 #' @param excess_pb210_specific_activity An excess lead-210 activity for samples where this was
-#'   measured, and NA where lead-210 was not measured (NA values will be estimated using
-#'   `model_top`, `model_middle`, and `model_bottom`).
+#'   measured, and NA where lead-210 was not measured. NA values will be estimated using
+#'   `model_top`, `model_middle`, and `model_bottom`.
 #' @param model_bottom A fit object that will be used to model activities below
 #'   the last positive finite lead-210 activity. This must be created using
 #'   [pb210_fit_exponential()] in that its `m` and `b` coefficients are used to calculate
-#'   the integrated depth below the last positive finite `excess_pb210_specific_activity`.
+#'   the integrated activity below the last positive finite `excess_pb210_specific_activity`.
 #' @param model_middle A fit object that will be used to model activities between
 #'   measured finite lead-210 activities.
 #' @param n_segments The number of tiny rectangles used to approximate the cumulative
@@ -164,6 +164,10 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA
 #' fake_mass <- 1:10
 #' fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
 #' pb210_calculate_inventory(fake_mass, fake_pb210)
+#'
+#' # compare with known inventory from integrating
+#' # exp(5 - fake_mass) to +Inf
+#' exp(-1 * fake_mass  + 5) / -(-1)
 #'
 pb210_calculate_inventory <- function(
   cumulative_dry_mass, excess_pb210_specific_activity,

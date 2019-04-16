@@ -16,13 +16,13 @@ pb210_calculate_inventory(cumulative_dry_mass,
 0 and including all samples in the core. These must be positive and in increasing order.}
 
 \item{excess_pb210_specific_activity}{An excess lead-210 activity for samples where this was
-measured, and NA where lead-210 was not measured (NA values will be estimated using
-\code{model_top}, \code{model_middle}, and \code{model_bottom}).}
+measured, and NA where lead-210 was not measured. NA values will be estimated using
+\code{model_top}, \code{model_middle}, and \code{model_bottom}.}
 
 \item{model_bottom}{A fit object that will be used to model activities below
 the last positive finite lead-210 activity. This must be created using
 \code{\link[=pb210_fit_exponential]{pb210_fit_exponential()}} in that its \code{m} and \code{b} coefficients are used to calculate
-the integrated depth below the last positive finite \code{excess_pb210_specific_activity}.}
+the integrated activity below the last positive finite \code{excess_pb210_specific_activity}.}
 
 \item{model_middle}{A fit object that will be used to model activities between
 measured finite lead-210 activities.}
@@ -48,5 +48,9 @@ values (middle).
 fake_mass <- 1:10
 fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
 pb210_calculate_inventory(fake_mass, fake_pb210)
+
+# compare with known inventory from integrating
+# exp(5 - fake_mass) to +Inf
+exp(-1 * fake_mass  + 5) / -(-1)
 
 }
