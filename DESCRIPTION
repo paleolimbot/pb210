@@ -29,5 +29,7 @@ Imports:
     tibble,
     stats,
     rlang,
-    lubridate
+    lubridate,
+    magrittr,
+    errors
 Roxygen: list(markdown = TRUE)
