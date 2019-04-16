@@ -4,6 +4,7 @@
 \alias{pb210_fit_exponential}
 \alias{pb210_fit_loglinear}
 \alias{predict.lm_loglinear}
+\alias{coef.lm_loglinear}
 \title{Fit an exponential model}
 \usage{
 pb210_fit_exponential(x, y)
@@ -11,6 +12,8 @@ pb210_fit_exponential(x, y)
 pb210_fit_loglinear(x, y)
 
 \method{predict}{lm_loglinear}(object, newdata, ...)
+
+\method{coef}{lm_loglinear}(object, ...)
 }
 \arguments{
 \item{x}{An independent variable like depth or cumulative dry mass.}

@@ -40,7 +40,6 @@ pb210_fit_exponential <- function(x, y) {
   # using a loglinear fit to find the starting place is one way around this
   fit_loglinear <- pb210_fit_loglinear(x, y)
   coeffs_loglinear <- stats::coefficients(fit_loglinear)
-  names(coeffs_loglinear) <- c("b", "m")
 
   stats::nls(y ~ exp(m * x + b), start = as.list(coeffs_loglinear), na.action = stats::na.omit)
 }
@@ -52,9 +51,6 @@ pb210_fit_loglinear <- function(x, y) {
   y[y <= 0] <- NA_real_
 
   fit <- stats::lm(log(y) ~ x, na.action = stats::na.omit)
-  coeffs <- stats::coefficients(fit)
-  names(coeffs) <- c("b", "m")
-  coeffs
 
   class(fit) <- c("lm_loglinear", class(fit))
   fit
@@ -67,4 +63,13 @@ predict.lm_loglinear <- function(object, newdata, ...) {
   class(object) <- "lm"
   stopifnot(is.data.frame(newdata), "x" %in% colnames(newdata))
   exp(unname(stats::predict(object, newdata)))
+}
+
+#' @importFrom stats coef
+#' @rdname pb210_fit_exponential
+#' @export
+coef.lm_loglinear <- function(object, ...) {
+  lm_coeffs <- NextMethod()
+  names(lm_coeffs) <- c("b", "m")
+  lm_coeffs
 }
