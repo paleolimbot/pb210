@@ -67,6 +67,7 @@ test_that("fit coersion works as expected", {
   expect_identical(pb210_as_fit(fit), fit)
   expect_identical(pb210_as_fit(0), pb210_fit_exponential_zero())
   expect_identical(pb210_as_fit(4), pb210_fit_exponential_constant(4))
+  expect_error(pb210_as_fit("I'm not a fit"), "method for object")
 })
 
 test_that("linear interpolator works as intended", {
