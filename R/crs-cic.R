@@ -121,7 +121,7 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
 #'
 #' @examples
 #' fake_mass <- 1:10
-#' fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
+#' fake_pb210 <- exp(5 - fake_mass)
 #' pb210_inventory(fake_mass, fake_pb210)
 #'
 #' # compare with known inventory from integrating
@@ -177,13 +177,15 @@ pb210_inventory <- function(
 
 check_mass_and_activity <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_) {
   stopifnot(
-    is.numeric(cumulative_dry_mass), all(is.finite(cumulative_dry_mass)),
-    all(cumulative_dry_mass > 0),
+    is.numeric(cumulative_dry_mass),
+    all(is.finite(cumulative_dry_mass)),
+    all(cumulative_dry_mass >= 0),
     all(diff(cumulative_dry_mass) > 0),
     is.numeric(excess_pb210),
     sum(is.finite(excess_pb210) & (excess_pb210 > 0)) >= 3,
     length(cumulative_dry_mass) == length(excess_pb210),
     is.numeric(excess_pb210_sd),
+    all(excess_pb210 >= 0, na.rm = TRUE),
     length(excess_pb210_sd) == 1 || length(excess_pb210_sd) == length(cumulative_dry_mass)
   )
 }

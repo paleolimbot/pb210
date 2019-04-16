@@ -73,13 +73,32 @@ test_that("CRS model works on simulated core data", {
 
 test_that("inventory calculation works", {
   withr::with_seed(29, {
-    fake_mass <- 1:10
-    fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
+    fake_mass <- 0:10
+    fake_pb210 <- exp(5 - fake_mass) + rnorm(11, sd = 0.005)
     known_coeffs <- c(m = -1, b = 5)
     known_inventory <- unname(exp(known_coeffs["m"] * fake_mass  + known_coeffs["b"]) / -known_coeffs["m"])
+    calc_inventory <- pb210_inventory(fake_mass, fake_pb210)
 
+    expect_true(all(is.finite(calc_inventory)))
     expect_true(
-      all(abs(pb210_inventory(fake_mass, fake_pb210) - known_inventory) < 0.1)
+      all(abs(calc_inventory - known_inventory) < 0.1)
     )
   })
+})
+
+test_that("cumulative mass and excess_pb210 assumptions are checked", {
+  mass <- 0:2
+  pb210 <- c(10, 1, 0.1)
+  expect_silent(check_mass_and_activity(mass, pb210))
+  # no non-finite values
+  expect_error(check_mass_and_activity(c(0, 1, NA), pb210), "is not TRUE")
+  # negative excess values
+  expect_error(check_mass_and_activity(mass, c(10, 1, -1)), "is not TRUE")
+  # not enough finite values
+  expect_error(check_mass_and_activity(mass, c(10, 1, NA)), "is not TRUE")
+  expect_error(check_mass_and_activity(mass, c(10, 1, 0)), "is not TRUE")
+  # inconsistent lengths
+  expect_error(check_mass_and_activity(0:3, pb210), "is not TRUE")
+  expect_error(check_mass_and_activity(mass, c(pb210, 0.01)), "is not TRUE")
+  expect_error(check_mass_and_activity(mass, pb210, c(1, 2)), "is not TRUE")
 })

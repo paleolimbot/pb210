@@ -46,7 +46,7 @@ values (middle).
 }
 \examples{
 fake_mass <- 1:10
-fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
+fake_pb210 <- exp(5 - fake_mass)
 pb210_inventory(fake_mass, fake_pb210)
 
 # compare with known inventory from integrating
