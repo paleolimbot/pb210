@@ -4,6 +4,9 @@
 \name{reexports}
 \alias{reexports}
 \alias{\%>\%}
+\alias{drop_errors}
+\alias{set_errors}
+\alias{errors}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -11,6 +14,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
+  \item{errors}{\code{\link[errors]{drop_errors}}, \code{\link[errors]{set_errors}}, \code{\link[errors]{errors}}}
+
   \item{magrittr}{\code{\link[magrittr]{\%>\%}}}
 }}
 
