@@ -26,6 +26,9 @@
 #' fit_exp <- pb210_fit_exponential(fake_depth, fake_pb210)
 #' fit_loglinear <- pb210_fit_loglinear(fake_depth, fake_pb210)
 #'
+#' coefficients(fit_exp)
+#' coefficients(fit_loglinear)
+#'
 #' tibble::tibble(
 #'   new_depth = 0:5,
 #'   fitted_exp = predict(fit_exp, newdata = tibble::tibble(x = new_depth)),
@@ -36,12 +39,17 @@ pb210_fit_exponential <- function(x, y) {
   # y values that are 0 or less will cause the model not to fit
   y[y <= 0] <- NA_real_
 
-  # the nonlinear least squares function often fails when coefficients do not make sense
+  # the nonlinear least squares function often fails when initial
+  # coefficients do not make sense
   # using a loglinear fit to find the starting place is one way around this
   fit_loglinear <- pb210_fit_loglinear(x, y)
   coeffs_loglinear <- stats::coefficients(fit_loglinear)
 
-  stats::nls(y ~ exp(m * x + b), start = as.list(coeffs_loglinear), na.action = stats::na.omit)
+  stats::nls(
+    y ~ exp(m * x + b),
+    start = as.list(coeffs_loglinear),
+    na.action = stats::na.omit
+  )
 }
 
 #' @rdname pb210_fit_exponential
@@ -60,8 +68,13 @@ pb210_fit_loglinear <- function(x, y) {
 #' @rdname pb210_fit_exponential
 #' @export
 predict.lm_loglinear <- function(object, newdata, ...) {
+  stopifnot(
+    is.data.frame(newdata),
+    "x" %in% colnames(newdata),
+    is.numeric(newdata$x)
+  )
+
   class(object) <- "lm"
-  stopifnot(is.data.frame(newdata), "x" %in% colnames(newdata))
   exp(unname(stats::predict(object, newdata)))
 }
 
@@ -72,4 +85,47 @@ coef.lm_loglinear <- function(object, ...) {
   lm_coeffs <- NextMethod()
   names(lm_coeffs) <- c("b", "m")
   lm_coeffs
+}
+
+
+#' Fit an interpolator
+#'
+#' @param x,y Numeric vectors of known values, where `x` is the
+#'   "known" variable and `y` is the variable that must be interpolated
+#'   (between unknown `x` values).
+#'
+#' @return An object of class "interpolator".
+#' @export
+#'
+#' @examples
+#' fake_depth <- 0:10
+#' fake_pb210 <- exp(5 - fake_depth) + rnorm(11, sd = 0.005)
+#' fit_interp <- pb210_fit_interpolator_linear(fake_depth, fake_pb210)
+#' predict(fit_interp, newdata = tibble::tibble(x = seq(-1, 11, by = 0.5)))
+#'
+pb210_fit_interpolator_linear <- function(x, y) {
+  stopifnot(
+    is.numeric(x),
+    is.numeric(y),
+    sum(is.finite(x) & is.finite(y)) >= 2
+  )
+
+  tbl <- tibble::tibble(x, y)
+  tbl <- tbl[is.finite(x) & is.finite(y), ]
+  tbl <- tbl[order(tbl$x), ]
+
+  structure(list(coords = tbl), class = "linear_interpolator")
+}
+
+#' @importFrom stats predict
+#' @rdname pb210_fit_exponential
+#' @export
+predict.linear_interpolator <- function(object, newdata, ...) {
+  stopifnot(
+    is.data.frame(newdata),
+    "x" %in% colnames(newdata),
+    is.numeric(newdata$x)
+  )
+
+  stats::approx(object$coords, xout = newdata$x)$y
 }

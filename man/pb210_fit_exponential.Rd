@@ -5,6 +5,7 @@
 \alias{pb210_fit_loglinear}
 \alias{predict.lm_loglinear}
 \alias{coef.lm_loglinear}
+\alias{predict.linear_interpolator}
 \title{Fit an exponential model}
 \usage{
 pb210_fit_exponential(x, y)
@@ -14,6 +15,8 @@ pb210_fit_loglinear(x, y)
 \method{predict}{lm_loglinear}(object, newdata, ...)
 
 \method{coef}{lm_loglinear}(object, ...)
+
+\method{predict}{linear_interpolator}(object, newdata, ...)
 }
 \arguments{
 \item{x}{An independent variable like depth or cumulative dry mass.}
@@ -45,6 +48,9 @@ fake_pb210 <- exp(5 - fake_depth) + rnorm(11, sd = 0.005)
 
 fit_exp <- pb210_fit_exponential(fake_depth, fake_pb210)
 fit_loglinear <- pb210_fit_loglinear(fake_depth, fake_pb210)
+
+coefficients(fit_exp)
+coefficients(fit_loglinear)
 
 tibble::tibble(
   new_depth = 0:5,
