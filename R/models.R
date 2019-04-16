@@ -45,6 +45,12 @@ pb210_fit_exponential <- function(x, y) {
   fit_loglinear <- pb210_fit_loglinear(x, y)
   coeffs_loglinear <- stats::coefficients(fit_loglinear)
 
+  # the nls() function also fails when the initial coeficients are
+  # perfect, which is the case here with a (nearly) perfect fit
+  if(is_perfect_lm_fit(fit_loglinear)) {
+    return(fit_loglinear)
+  }
+
   stats::nls(
     y ~ exp(m * x + b),
     start = as.list(coeffs_loglinear),
@@ -134,6 +140,10 @@ coef.lm_loglinear <- function(object, ...) {
   lm_coeffs <- NextMethod()
   names(lm_coeffs) <- c("b", "m")
   lm_coeffs
+}
+
+is_perfect_lm_fit <- function(fit_obj, epsilon = .Machine$double.eps^0.5) {
+  all(abs(stats::residuals(fit_obj)) < epsilon, na.rm = TRUE)
 }
 
 

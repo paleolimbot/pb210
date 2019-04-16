@@ -13,11 +13,11 @@ test_that("loglinear model fits", {
     # make sure these are close! without the custom predict method,
     # it predicts the log(y) value rather than y.
     fitted_pb210 <- predict(fit, newdata = tibble::tibble(x = fake_depth))
-    expect_true(all(abs(log(fitted_pb210) - log(fake_pb210)) < 0.3))
+    expect_true(all(abs(log(fitted_pb210) - log(fake_pb210)) < 0.25))
 
     # coefficients should be "b" = 5 and "m" = -1
     expect_identical(names(coefficients(fit)), c("b", "m"))
-    expect_true(all(abs(coefficients(fit) - c(5, -1)) < 0.01))
+    expect_true(all(abs(coefficients(fit) - c(5, -1)) < 0.07))
   })
 })
 
