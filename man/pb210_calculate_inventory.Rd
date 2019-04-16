@@ -13,11 +13,11 @@ pb210_calculate_inventory(cumulative_dry_mass,
 }
 \arguments{
 \item{cumulative_dry_mass}{The cumulative dry mass of the core in kilograms, starting at depth
-0. These must be positive and in increasing order.}
+0 and including all samples in the core. These must be positive and in increasing order.}
 
 \item{excess_pb210_specific_activity}{An excess lead-210 activity for samples where this was
-measured, and NA where lead-210 was not measured (NA values will be interpolated using
-\code{model_middle}).}
+measured, and NA where lead-210 was not measured (NA values will be estimated using
+\code{model_top}, \code{model_middle}, and \code{model_bottom}).}
 
 \item{model_bottom}{A fit object that will be used to model activities below
 the last positive finite lead-210 activity. This must be created using
@@ -31,11 +31,18 @@ measured finite lead-210 activities.}
 activity between the first and last positive finite lead-210 measurement.}
 }
 \value{
-A vector of cumulative lead-210 activities for each sample.
+A vector of cumulative lead-210 activities for each sample in Bq.
 }
 \description{
 The cumulative content of lead-210 from the bottom of the core is the basis for the
-constant rate of supply model, and is a required input to \code{\link[=pb210_age_crs]{pb210_age_crs()}}.
+constant rate of supply model, and is a required input to \code{\link[=pb210_age_crs]{pb210_age_crs()}}. There are
+as many ways to calculate this as there are people who interpret lead-210 activities.
+This function models the bottom (below measured lead-210), middle (between measured
+values of lead-210), and top (above measured lead-210) with separate models to
+accomodate the variety of methods. By default, lead-210 activity is estimated
+for samples in which it was not measured by an exponential fit of lead-210
+activity vs. depth (top and bottom), and by linear interpolation between
+values (middle).
 }
 \examples{
 fake_mass <- 1:10

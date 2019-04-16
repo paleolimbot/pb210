@@ -1,19 +1,19 @@
 
 #' Fit an exponential model
 #'
-#' Fits the exponential model (`y ~ exp(m * x + b)`), estimating parameters `m` and `b`
-#' using [stats::nls()].
-#' The log-linear version fits the model `log(y) ~ x` using [stats::lm()],
-#'  where the y-intercept is `b`
-#' and the slope of the line is `m`. The log-linear version overestimates
-#' the importance of small values but is widely used. NA and zero values
-#' are removed observation-wise prior to fitting.
+#' Fits the exponential model (`y ~ exp(m * x + b)`), estimating parameters `m`
+#' and `b` using [stats::nls()]. The log-linear version fits the model `log(y) ~ x`
+#' using [stats::lm()], where the y-intercept is `b` and the slope of the
+#' line is `m`. The log-linear version overestimates the importance of small
+#' values but is widely used. NA and zero values are removed observation-wise
+#' prior to fitting.
 #'
 #' @param x An independent variable like depth or cumulative dry mass.
 #' @param y A dependent variable that responds exponentially to `x`.
 #' @param newdata A tibble with a column `x`.
 #' @param object A model fit object.
 #' @param ... Not used.
+#' @param m,b Directly specify coefficients for a manual fit.
 #'
 #' @return A model object like that returned by [stats::nls()], with a
 #'   [stats::predict()] method.
@@ -62,6 +62,44 @@ pb210_fit_loglinear <- function(x, y) {
 
   class(fit) <- c("lm_loglinear", class(fit))
   fit
+}
+
+#' @rdname pb210_fit_exponential
+#' @export
+pb210_fit_exponential_manual <- function(m, b) {
+  stopifnot(
+    is.numeric(m), length(m) == 1,
+    is.numeric(b), length(b) == 1
+  )
+
+  structure(list(coef = c("b" = unname(b), "m" = unname(m))), class = "exponential_manual")
+}
+
+#' @rdname pb210_fit_exponential
+#' @export
+pb210_fit_exponential_zero <- function() {
+  pb210_fit_exponential_manual(1, -Inf)
+}
+
+#' @importFrom stats predict
+#' @rdname pb210_fit_exponential
+#' @export
+predict.exponential_manual <- function(object, newdata, ...) {
+  stopifnot(
+    is.data.frame(newdata),
+    "x" %in% colnames(newdata),
+    is.numeric(newdata$x)
+  )
+
+  coeffs <- stats::coefficients(object)
+  exp(coeffs["m"] * newdata$x + coeffs["b"])
+}
+
+#' @importFrom stats coef
+#' @rdname pb210_fit_exponential
+#' @export
+coef.exponential_manual <- function(object, ...) {
+  object$coef
 }
 
 #' @importFrom stats predict

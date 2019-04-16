@@ -3,6 +3,10 @@
 \name{pb210_fit_exponential}
 \alias{pb210_fit_exponential}
 \alias{pb210_fit_loglinear}
+\alias{pb210_fit_exponential_manual}
+\alias{pb210_fit_exponential_zero}
+\alias{predict.exponential_manual}
+\alias{coef.exponential_manual}
 \alias{predict.lm_loglinear}
 \alias{coef.lm_loglinear}
 \alias{predict.linear_interpolator}
@@ -11,6 +15,14 @@
 pb210_fit_exponential(x, y)
 
 pb210_fit_loglinear(x, y)
+
+pb210_fit_exponential_manual(m, b)
+
+pb210_fit_exponential_zero()
+
+\method{predict}{exponential_manual}(object, newdata, ...)
+
+\method{coef}{exponential_manual}(object, ...)
 
 \method{predict}{lm_loglinear}(object, newdata, ...)
 
@@ -23,6 +35,8 @@ pb210_fit_loglinear(x, y)
 
 \item{y}{A dependent variable that responds exponentially to \code{x}.}
 
+\item{m, b}{Directly specify coefficients for a manual fit.}
+
 \item{object}{A model fit object.}
 
 \item{newdata}{A tibble with a column \code{x}.}
@@ -34,13 +48,12 @@ A model object like that returned by \code{\link[stats:nls]{stats::nls()}}, with
 \code{\link[stats:predict]{stats::predict()}} method.
 }
 \description{
-Fits the exponential model (\code{y ~ exp(m * x + b)}), estimating parameters \code{m} and \code{b}
-using \code{\link[stats:nls]{stats::nls()}}.
-The log-linear version fits the model \code{log(y) ~ x} using \code{\link[stats:lm]{stats::lm()}},
-where the y-intercept is \code{b}
-and the slope of the line is \code{m}. The log-linear version overestimates
-the importance of small values but is widely used. NA and zero values
-are removed observation-wise prior to fitting.
+Fits the exponential model (\code{y ~ exp(m * x + b)}), estimating parameters \code{m}
+and \code{b} using \code{\link[stats:nls]{stats::nls()}}. The log-linear version fits the model \code{log(y) ~ x}
+using \code{\link[stats:lm]{stats::lm()}}, where the y-intercept is \code{b} and the slope of the
+line is \code{m}. The log-linear version overestimates the importance of small
+values but is widely used. NA and zero values are removed observation-wise
+prior to fitting.
 }
 \examples{
 fake_depth <- 0:10

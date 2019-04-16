@@ -36,6 +36,22 @@ test_that("exponential model fits", {
   })
 })
 
+test_that("manual model fits", {
+  fake_depth <- 0:10
+  fake_pb210 <- exp(5 - fake_depth)
+  fit <- pb210_fit_exponential_manual(-1, 5)
+  expect_identical(predict(fit, tibble::tibble(x = fake_depth)), fake_pb210)
+  expect_identical(coefficients(fit), c("b" = 5, "m" = -1))
+})
+
+test_that("zero model is zero always", {
+  fit <- pb210_fit_exponential_zero()
+  expect_equal(
+    predict(fit, tibble::tibble(x = seq(-100, 100))),
+    rep(0, 201)
+  )
+})
+
 test_that("linear interpolator works as intended", {
   known_x <- c(0, 1, 2)
   known_y <- c(10, 12, 16)
@@ -44,4 +60,3 @@ test_that("linear interpolator works as intended", {
   expect_identical(predict(interp_fit, tibble::tibble(x = known_x)), known_y)
   expect_identical(predict(interp_fit, tibble::tibble(x = c(0.5, 1.5))), c(11, 14))
 })
-

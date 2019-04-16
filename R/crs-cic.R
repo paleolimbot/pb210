@@ -134,13 +134,20 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA
 #' Calculate cumulative lead-210 activity
 #'
 #' The cumulative content of lead-210 from the bottom of the core is the basis for the
-#' constant rate of supply model, and is a required input to [pb210_age_crs()].
+#' constant rate of supply model, and is a required input to [pb210_age_crs()]. There are
+#' as many ways to calculate this as there are people who interpret lead-210 activities.
+#' This function models the bottom (below measured lead-210), middle (between measured
+#' values of lead-210), and top (above measured lead-210) with separate models to
+#' accomodate the variety of methods. By default, lead-210 activity is estimated
+#' for samples in which it was not measured by an exponential fit of lead-210
+#' activity vs. depth (top and bottom), and by linear interpolation between
+#' values (middle).
 #'
 #' @param cumulative_dry_mass The cumulative dry mass of the core in kilograms, starting at depth
-#'   0. These must be positive and in increasing order.
+#'   0 and including all samples in the core. These must be positive and in increasing order.
 #' @param excess_pb210_specific_activity An excess lead-210 activity for samples where this was
-#'   measured, and NA where lead-210 was not measured (NA values will be interpolated using
-#'   `model_middle`).
+#'   measured, and NA where lead-210 was not measured (NA values will be estimated using
+#'   `model_top`, `model_middle`, and `model_bottom`).
 #' @param model_bottom A fit object that will be used to model activities below
 #'   the last positive finite lead-210 activity. This must be created using
 #'   [pb210_fit_exponential()] in that its `m` and `b` coefficients are used to calculate
@@ -150,7 +157,7 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA
 #' @param n_segments The number of tiny rectangles used to approximate the cumulative
 #'   activity between the first and last positive finite lead-210 measurement.
 #'
-#' @return A vector of cumulative lead-210 activities for each sample.
+#' @return A vector of cumulative lead-210 activities for each sample in Bq.
 #' @export
 #'
 #' @examples
