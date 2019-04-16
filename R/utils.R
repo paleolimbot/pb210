@@ -80,3 +80,14 @@ expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_
     )
   )
 }
+
+with_errors <- function(x, error = NA_real_) {
+  if(inherits(x, "errors") && any(!is.na(error))) {
+    warning("Two errors included. Using error internal to x.")
+    x
+  } else if(inherits(x, "errors")) {
+    x
+  } else {
+    set_errors(x, error)
+  }
+}
