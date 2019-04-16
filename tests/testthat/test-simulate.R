@@ -85,7 +85,7 @@ test_that("accumulation simulation for constant rate of supply works", {
   # the CRS model should work here for the last 150 years
   crs_sim$inventory <- rev(cumsum(rev(crs_sim$pb210_specific_activity * crs_sim$slice_mass)))
   inventory_surface <- max(crs_sim$inventory)
-  crs_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / crs_sim$inventory)
+  crs_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / crs_sim$inventory)
 
   expect_ages_similar(crs_sim$crs_age_top, crs_sim$age_top)
 })
@@ -100,14 +100,14 @@ test_that("accumulation simulation for constant initial concentration works", {
 
   # the CIC model to calculate ages should work exactly
   expect_equal(
-    1 / pb210_decay_constant() * log(1000 / cic_sim$pb210_specific_activity),
+    1 / drop_errors(pb210_decay_constant()) * log(1000 / cic_sim$pb210_specific_activity),
     cic_sim$age
   )
 
   # the CRS model should approximately work here for the last 100 years
   cic_sim$inventory <- rev(cumsum(rev(cic_sim$pb210_specific_activity * cic_sim$slice_mass)))
   inventory_surface <- max(cic_sim$inventory)
-  cic_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / cic_sim$inventory)
+  cic_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / cic_sim$inventory)
 
   expect_ages_similar(cic_sim$crs_age_top, cic_sim$age_top, 1e-3)
 })
@@ -123,7 +123,7 @@ test_that("core simulation for constant rate of supply works", {
   # the CRS model should work here for the last 100 years
   crs_sim$inventory <- rev(cumsum(rev(crs_sim$pb210_specific_activity * crs_sim$slice_mass)))
   inventory_surface <- max(crs_sim$inventory)
-  crs_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / crs_sim$inventory)
+  crs_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / crs_sim$inventory)
 
   expect_ages_similar(crs_sim$crs_age_top, crs_sim$age_top, 1)
 })
@@ -138,7 +138,7 @@ test_that("core simulation for constant initial concentration works", {
 
   # the CIC model to calculate ages should work exactly for the last 100 years
   pb210_surface <- max(cic_sim$pb210_specific_activity)
-  cic_sim$cic_age_top <- 1 / pb210_decay_constant() * log(pb210_surface / cic_sim$pb210_specific_activity)
+  cic_sim$cic_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(pb210_surface / cic_sim$pb210_specific_activity)
   expect_equal(
     cic_sim$cic_age_top[cic_sim$age < 100],
     cic_sim$age_top[cic_sim$age < 100]
@@ -147,7 +147,7 @@ test_that("core simulation for constant initial concentration works", {
   # the CRS model should approximately work here for the last 100 years
   cic_sim$inventory <- rev(cumsum(rev(cic_sim$pb210_specific_activity * cic_sim$slice_mass)))
   inventory_surface <- max(cic_sim$inventory)
-  cic_sim$crs_age_top <- 1 / pb210_decay_constant() * log(inventory_surface / cic_sim$inventory)
+  cic_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / cic_sim$inventory)
 
   expect_ages_similar(cic_sim$crs_age_top, cic_sim$age_top, 1)
 })

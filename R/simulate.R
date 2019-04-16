@@ -66,6 +66,9 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
                                         compressibility = pb210_compressibility_constant(),
                                         initial_density = pb210_density_constant(),
                                         decay_constant = pb210_decay_constant()) {
+  # we do not propogate error in this simulation
+  decay_constant <- without_errors(decay_constant)
+
   stopifnot(
     is.numeric(max_age), length(max_age) == 1,
     is.numeric(time_step), length(time_step) == 1, time_step > 0,

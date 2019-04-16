@@ -31,63 +31,81 @@
 pb210_age_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
                           model_top = pb210_fit_exponential(cumulative_dry_mass, excess_pb210),
                           decay_constant = pb210_decay_constant()) {
-
-  check_mass_and_activity(cumulative_dry_mass, excess_pb210, excess_pb210_sd)
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
   stopifnot(
-    is.numeric(decay_constant), length(decay_constant) == 1
+    is.numeric(decay_constant), length(decay_constant) == 1,
+    without_errors(decay_constant) > 0
   )
 
   # estimate the surface pb210 value
   model_top <- pb210_as_fit(model_top)
   surface_excess_pb210 <- stats::predict(model_top, tibble::tibble(x = 0))
 
-  # calculate relative error of pb210, which we use to calculate the error in age
-  # this error propogation was used by R. Jack Cornett in his spreadsheets
-  # it likely should be updated
-  pb210_relative_sd <- excess_pb210_sd / excess_pb210
+  # assign errors
+  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
+  decay_constant <- with_errors(decay_constant)
+  surface_excess_pb210 <- with_errors(surface_excess_pb210)
+
+  # calculate ages
+  age <- with_errors(1) / decay_constant * log(surface_excess_pb210 / excess_pb210)
+  age_sd <- errors(age)
+  age_sd[age_sd == 0] <- NA_real_
 
   tibble::tibble(
     cumulative_dry_mass,
-    excess_pb210,
+    excess_pb210 = without_errors(excess_pb210),
     excess_pb210_sd,
-    age = 1 / decay_constant * log(surface_excess_pb210 / excess_pb210),
-    age_sd = .data$age * sqrt(2 * pb210_relative_sd^2)
+    age = without_errors(age),
+    age_sd = age_sd
   )
 }
 
 #' @rdname pb210_age_cic
 #' @export
 pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
-                          inventory = pb210_inventory(cumulative_dry_mass, excess_pb210),
+                          inventory = pb210_inventory(cumulative_dry_mass, excess_pb210, excess_pb210_sd),
                           excess_pb210_sd = NA_real_,
                           model_top = pb210_fit_exponential(cumulative_dry_mass, inventory),
                           core_area = pb210_core_area(),
                           decay_constant = pb210_decay_constant()) {
 
-  check_mass_and_activity(cumulative_dry_mass, excess_pb210, excess_pb210_sd)
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
   stopifnot(
     is.numeric(inventory), length(inventory) == length(cumulative_dry_mass),
     length(core_area) == 1, is.numeric(core_area),
     length(decay_constant) == 1, is.numeric(decay_constant)
   )
 
-  # calculate relative error of pb210, which we use to calculate the error in age
-  # this error propogation was used by R. Jack Cornett in his spreadsheets
-  # it likely should be updated
-  pb210_relative_sd <- excess_pb210_sd / excess_pb210
-  inventory_sd <- inventory * sqrt(2 * pb210_relative_sd^2)
-
   # the CRS model is the CIC model using inventory instead of concentration
   tbl <- pb210_age_cic(
-    cumulative_dry_mass, inventory, inventory_sd,
+    cumulative_dry_mass, inventory,
     model_top = model_top, decay_constant = decay_constant
   )
 
-  # the CRS lets us estimate the mass accumulation rate directly
-  tbl$mar <- decay_constant * inventory / excess_pb210 / core_area
-  tbl$mar_sd <- tbl$mar * pb210_relative_sd
+  # add errors
+  decay_constant <- with_errors(decay_constant)
+  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
+  core_area <- with_errors(core_area)
+  inventory <- with_errors(inventory)
 
-  tbl
+  # the CRS model lets us estimate the mass accumulation rate directly
+  mar <- decay_constant * inventory / excess_pb210 / core_area
+  mar_sd <- errors(mar)
+  mar_sd[mar_sd == 0] <- NA_real_
+
+  inventory_sd <- extract_errors(inventory)
+
+  tibble::tibble(
+    cumulative_dry_mass,
+    excess_pb210 = without_errors(excess_pb210),
+    excess_pb210_sd,
+    inventory = without_errors(inventory),
+    inventory_sd = inventory_sd,
+    age = tbl$age,
+    age_sd = tbl$age_sd,
+    mar = without_errors(mar),
+    mar_sd = mar_sd
+  )
 }
 
 
@@ -116,7 +134,8 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
 #' @param n_segments The number of tiny rectangles used to approximate the cumulative
 #'   activity between the first and last positive finite lead-210 measurement.
 #'
-#' @return A vector of cumulative lead-210 activities for each sample in Bq.
+#' @return A vector with [errors::errors()] of cumulative lead-210 activities for each sample
+#'   (in Bq).
 #' @export
 #'
 #' @examples
@@ -129,19 +148,22 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
 #' exp(-1 * fake_mass  + 5) / -(-1)
 #'
 pb210_inventory <- function(
-  cumulative_dry_mass, excess_pb210,
+  cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
   model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210),
   model_middle = pb210_fit_interpolator_linear(cumulative_dry_mass, excess_pb210),
   n_segments = 200L
 ) {
-  check_mass_and_activity(cumulative_dry_mass, excess_pb210)
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
   stopifnot(
     is.integer(n_segments)
   )
 
+  # separate values and errors for calculation
+  excess_pb210_sd <- extract_errors(excess_pb210, excess_pb210_sd)
+  excess_pb210 <- without_errors(excess_pb210)
+
   finite_pb210_indices <- which(
-    is.finite(excess_pb210) &
-      (excess_pb210 > 0)
+    is.finite(excess_pb210) & (excess_pb210 > 0)
   )
 
   first_finite_mass <- cumulative_dry_mass[min(finite_pb210_indices)] # kg
@@ -167,12 +189,19 @@ pb210_inventory <- function(
     deep_pb210(last_finite_mass) + c(inventory_middle, 0)
   )
 
-  # combine the two methods
-  ifelse(
+  # combine the two methods to calculate inventory
+  inventory <- ifelse(
     cumulative_dry_mass >= last_finite_mass,
     predict(inventory_middle_interp, tibble::tibble(x = cumulative_dry_mass)),
     deep_pb210(cumulative_dry_mass)
   )
+
+  # this error propogation is from R. Jack Cornett's spreadsheet, and should
+  # be examined with more scrutiny
+  pb210_relative_sd <- excess_pb210_sd / excess_pb210
+  inventory_sd <- inventory * sqrt(2 * pb210_relative_sd^2 + 0.02^2)
+
+  with_errors(inventory, inventory_sd)
 }
 
 #' Calculate excess (unsupported) lead-210

@@ -5,6 +5,7 @@
 \title{Calculate cumulative lead-210 activity}
 \usage{
 pb210_inventory(cumulative_dry_mass, excess_pb210,
+  excess_pb210_sd = NA_real_,
   model_bottom = pb210_fit_exponential(cumulative_dry_mass,
   excess_pb210),
   model_middle = pb210_fit_interpolator_linear(cumulative_dry_mass,
@@ -19,6 +20,9 @@ These must be greater than 0 and in increasing order.}
 measured, and NA where lead-210 was not measured. NA values will be estimated using
 \code{model_top}, \code{model_middle}, and \code{model_bottom}.}
 
+\item{excess_pb210_sd}{The standard error of the excess lead-210 specific activity (in Bq/kg).
+Can be NA if error is not known.}
+
 \item{model_bottom}{A fit object that will be used to model activities below
 the last positive finite lead-210 activity. This must be created using
 \code{\link[=pb210_fit_exponential]{pb210_fit_exponential()}} in that its \code{m} and \code{b} coefficients are used to calculate
@@ -31,7 +35,8 @@ measured finite lead-210 activities.}
 activity between the first and last positive finite lead-210 measurement.}
 }
 \value{
-A vector of cumulative lead-210 activities for each sample in Bq.
+A vector with \code{\link[errors:errors]{errors::errors()}} of cumulative lead-210 activities for each sample
+(in Bq).
 }
 \description{
 The cumulative content of lead-210 from the bottom of the core is the basis for the

@@ -36,6 +36,10 @@
 #' )
 #'
 pb210_fit_exponential <- function(x, y) {
+  # these functions do not consider error
+  x <- without_errors(x)
+  y <- without_errors(y)
+
   # y values that are 0 or less will cause the model not to fit
   y[y <= 0] <- NA_real_
 
@@ -61,6 +65,10 @@ pb210_fit_exponential <- function(x, y) {
 #' @rdname pb210_fit_exponential
 #' @export
 pb210_fit_loglinear <- function(x, y) {
+  # these functions do not consider error
+  x <- without_errors(x)
+  y <- without_errors(y)
+
   # y values that are 0 or less will cause the model not to fit
   y[y <= 0] <- NA_real_
 
@@ -205,6 +213,10 @@ pb210_as_fit.numeric <- function(x) {
 #' predict(fit_interp, newdata = tibble::tibble(x = seq(-1, 11, by = 0.5)))
 #'
 pb210_fit_interpolator_linear <- function(x, y) {
+  # these functions do not consider error
+  x <- without_errors(x)
+  y <- without_errors(y)
+
   stopifnot(
     is.numeric(x),
     is.numeric(y),

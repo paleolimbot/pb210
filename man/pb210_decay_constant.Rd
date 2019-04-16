@@ -4,15 +4,29 @@
 \alias{pb210_decay_constant}
 \title{Calculate a decay constant}
 \usage{
-pb210_decay_constant(half_life = 22.26)
+pb210_decay_constant(half_life = set_errors(22.2, 0.22))
 }
 \arguments{
-\item{half_life}{A half-life value in units of time. For lead-210, this value is 22.26 years.}
+\item{half_life}{A half-life value (in years).}
 }
 \description{
-Calculate a decay constant
+The most commonly cited value is 22.26 with 2-sigma uncertainty of
+0.22 (Hohndorf 1969), however Holden
+(1990) recommended using a value of 22.6(0.1). Most recently, Basunia (2014)
+recommended using a value of 22.20 with Hohndorf's (1969) uncertainty of 0.22
+years. The default value is the most recently reccomended value (Basunia 2014).
 }
 \examples{
 pb210_decay_constant()
 
+}
+\references{
+Holden, N.E. 1990. Total half-lives for selected nuclides. Pure
+and Applied Chemistry, 62: 941–958. doi:10.1351/pac199062050941.
+
+Hohndorf, A. 1969. Bestimmung der Halbwertszeit von ^210^Pb. Zeitschrift fur
+Naturforschung A, 24: 612–615. doi:10.1515/zna-1969-0419.
+
+Basunia, M.S. 2014. Nuclear Data Sheets for A = 210. Nuclear Data Sheets,
+121: 561–694. doi:10.1016/j.nds.2014.09.004.
 }
