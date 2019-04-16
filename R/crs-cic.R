@@ -130,6 +130,88 @@ pb210_age_crs <- function(depth, excess_pb210, sample_mass, excess_pb210_sd = NA
   tbl_out
 }
 
+
+#' Calculate cumulative lead-210 activity
+#'
+#' The cumulative content of lead-210 from the bottom of the core is the basis for the
+#' constant rate of supply model, and is a required input to [pb210_age_crs()].
+#'
+#' @param cumulative_dry_mass The cumulative dry mass of the core in kilograms, starting at depth
+#'   0. These must be positive and in increasing order.
+#' @param excess_pb210_specific_activity An excess lead-210 activity for samples where this was
+#'   measured, and NA where lead-210 was not measured (NA values will be interpolated using
+#'   `model_middle`).
+#' @param model_bottom A fit object that will be used to model activities below
+#'   the last positive finite lead-210 activity. This must be created using
+#'   [pb210_fit_exponential()] in that its `m` and `b` coefficients are used to calculate
+#'   the integrated depth below the last positive finite `excess_pb210_specific_activity`.
+#' @param model_middle A fit object that will be used to model activities between
+#'   measured finite lead-210 activities.
+#' @param n_segments The number of tiny rectangles used to approximate the cumulative
+#'   activity between the first and last positive finite lead-210 measurement.
+#'
+#' @return A vector of cumulative lead-210 activities for each sample.
+#' @export
+#'
+#' @examples
+#' fake_mass <- 1:10
+#' fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
+#' pb210_calculate_inventory(fake_mass, fake_pb210)
+#'
+pb210_calculate_inventory <- function(
+  cumulative_dry_mass, excess_pb210_specific_activity,
+  model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210_specific_activity),
+  model_middle = pb210_fit_interpolator_linear(cumulative_dry_mass, excess_pb210_specific_activity),
+  n_segments = 200L
+) {
+  stopifnot(
+    is.numeric(cumulative_dry_mass),
+    all(is.finite(cumulative_dry_mass)),
+    all(cumulative_dry_mass > 0),
+    all(diff(cumulative_dry_mass) > 0),
+    is.numeric(excess_pb210_specific_activity),
+    length(cumulative_dry_mass) == length(excess_pb210_specific_activity),
+    sum(is.finite(excess_pb210_specific_activity) & (excess_pb210_specific_activity > 0)) >= 3,
+    is.integer(n_segments)
+  )
+
+  finite_pb210_indices <- which(
+    is.finite(excess_pb210_specific_activity) &
+      (excess_pb210_specific_activity > 0)
+  )
+
+  first_finite_mass <- min(finite_pb210_indices) # kg
+  last_finite_mass <- max(finite_pb210_indices) # kg
+
+  # the model exp(m*x + b),
+  # integrated, is exp(m*x + b) / m, and because at x = infinity the integral is 0
+  # the definite integral from [background] to infinity is exp(m * [background] + b) / -m
+  coeffs <- stats::coefficients(model_bottom)
+  deep_pb210 <- function(mass) unname(exp(coeffs["m"] * mass  + coeffs["b"]) / -coeffs["m"])
+
+  # in the middle, approximate the cumulative sum with a bunch of tiny rectangles
+  mass_step <- (last_finite_mass - first_finite_mass) / n_segments # kg
+  mass_points <- seq(
+    first_finite_mass,
+    last_finite_mass - mass_step / 2,
+    length.out = n_segments - 1
+  ) # kg
+  pb210_modeled <- stats::predict(model_middle, tibble::tibble(x = mass_points)) # Bq / kg
+  inventory_middle <- rev(cumsum(rev(pb210_modeled))) * mass_step # Bq
+  inventory_middle_interp <- pb210_fit_interpolator_linear(
+    c(mass_points, last_finite_mass),
+    deep_pb210(last_finite_mass) + c(inventory_middle, 0)
+  )
+
+  # combine the two methods
+  ifelse(
+    cumulative_dry_mass >= last_finite_mass,
+    predict(inventory_middle_interp, tibble::tibble(x = cumulative_dry_mass)),
+    deep_pb210(cumulative_dry_mass)
+  )
+}
+
+
 #' Estimate surface Lead-210 activity
 #'
 #' Estimates surface lead-210 activity using an exponential fit of `pb210`

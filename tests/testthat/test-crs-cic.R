@@ -73,6 +73,19 @@ test_that("CRS model works on Alta Lake data", {
   expect_true(all(abs(real_ages$age_sd - real_ages$sd_compare) < 0.000001, na.rm = TRUE))
 })
 
+test_that("inventory calculation works", {
+  withr::with_seed(29, {
+    fake_mass <- 1:10
+    fake_pb210 <- exp(5 - fake_mass) + rnorm(10, sd = 0.005)
+    known_coeffs <- c(m = -1, b = 5)
+    known_inventory <- unname(exp(known_coeffs["m"] * fake_mass  + known_coeffs["b"]) / -known_coeffs["m"])
+
+    expect_true(
+      all(abs(pb210_calculate_inventory(fake_mass, fake_pb210) - known_inventory) < 0.1)
+    )
+  })
+})
+
 test_that("exponential surface estimation works", {
   withr::with_seed(287, {
     fake_depth <- 0:10
