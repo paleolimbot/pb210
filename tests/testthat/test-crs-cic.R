@@ -81,7 +81,7 @@ test_that("inventory calculation works", {
 
     expect_true(all(is.finite(calc_inventory)))
     expect_true(
-      all(abs(calc_inventory - known_inventory) < 0.1)
+      all(abs(log(calc_inventory) - log(known_inventory)) < 0.3)
     )
   })
 })

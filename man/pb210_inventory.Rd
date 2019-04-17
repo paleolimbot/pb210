@@ -7,8 +7,6 @@
 pb210_inventory(cumulative_dry_mass, excess_pb210,
   excess_pb210_sd = NA_real_,
   model_bottom = pb210_fit_exponential(cumulative_dry_mass,
-  excess_pb210),
-  model_middle = pb210_fit_interpolator_linear(cumulative_dry_mass,
   excess_pb210), n_segments = 200L)
 }
 \arguments{
@@ -27,9 +25,6 @@ Can be NA if error is not known.}
 the last positive finite lead-210 activity. This must be created using
 \code{\link[=pb210_fit_exponential]{pb210_fit_exponential()}} in that its \code{m} and \code{b} coefficients are used to calculate
 the integrated activity below the last positive finite \code{excess_pb210}.}
-
-\item{model_middle}{A fit object that will be used to model activities between
-measured finite lead-210 activities.}
 
 \item{n_segments}{The number of tiny rectangles used to approximate the cumulative
 activity between the first and last positive finite lead-210 measurement.}

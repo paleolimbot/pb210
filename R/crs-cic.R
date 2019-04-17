@@ -133,8 +133,6 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = N
 #'   the last positive finite lead-210 activity. This must be created using
 #'   [pb210_fit_exponential()] in that its `m` and `b` coefficients are used to calculate
 #'   the integrated activity below the last positive finite `excess_pb210`.
-#' @param model_middle A fit object that will be used to model activities between
-#'   measured finite lead-210 activities.
 #' @param n_segments The number of tiny rectangles used to approximate the cumulative
 #'   activity between the first and last positive finite lead-210 measurement.
 #'
@@ -154,7 +152,6 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = N
 pb210_inventory <- function(
   cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
   model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210),
-  model_middle = pb210_fit_interpolator_linear(cumulative_dry_mass, excess_pb210),
   n_segments = 200L
 ) {
   check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
@@ -179,20 +176,14 @@ pb210_inventory <- function(
   coeffs <- stats::coefficients(model_bottom)
   deep_pb210 <- function(mass) unname(exp(coeffs["m"] * mass  + coeffs["b"]) / -coeffs["m"])
 
-  # in the middle, approximate the cumulative sum with a bunch of tiny rectangles
-  # for points with known measurements, this is essentially a trapezoid rule
-  mass_step <- (last_finite_mass - first_finite_mass) / n_segments # kg
-  mass_points <- seq(
-    first_finite_mass,
-    last_finite_mass - mass_step / 2,
-    length.out = n_segments - 1
-  ) # kg
-  pb210_modeled <- stats::predict(model_middle, tibble::tibble(x = mass_points)) # Bq / kg
-  inventory_middle <- rev(cumsum(rev(pb210_modeled))) * mass_step # Bq
-  inventory_middle_interp <- pb210_fit_interpolator_linear(
-    c(mass_points, last_finite_mass),
-    deep_pb210(last_finite_mass) + c(inventory_middle, 0)
-  )
+  # in the middle, approximate the cumulative sum as trapezoids using
+  # finite values
+  finite_pb210 <- excess_pb210[finite_pb210_indices]
+  finite_mass <- cumulative_dry_mass[finite_pb210_indices]
+  trapezoidal_area <- (finite_pb210[-1] + finite_pb210[-length(finite_pb210)]) / 2 * diff(finite_mass)
+  cumulative_mass <- c(rev(cumsum(rev(trapezoidal_area))), 0) + deep_pb210(last_finite_mass)
+
+  inventory_middle_interp <- pb210_fit_interpolator_linear(finite_mass, cumulative_mass)
 
   # combine the two methods to calculate inventory
   inventory <- ifelse(
