@@ -99,7 +99,7 @@ pb210_fit_exponential_zero <- function() {
 #' @export
 pb210_fit_exponential_constant <- function(value) {
   stopifnot(is.numeric(value), length(value) == 1)
-  if(value == 0) {
+  if(!is.na(value) && value == 0) {
     pb210_fit_exponential_zero()
   } else {
     pb210_fit_exponential_manual(m = 0, b = log(value))

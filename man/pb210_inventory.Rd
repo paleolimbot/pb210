@@ -5,9 +5,9 @@
 \title{Calculate cumulative lead-210 activity}
 \usage{
 pb210_inventory(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd = NA_real_,
-  model_bottom = pb210_fit_exponential(cumulative_dry_mass,
-  excess_pb210), n_segments = 200L)
+  excess_pb210_sd = NA_real_, model_top = max(excess_pb210, na.rm =
+  TRUE), model_bottom = pb210_fit_exponential(cumulative_dry_mass,
+  excess_pb210))
 }
 \arguments{
 \item{cumulative_dry_mass}{The cumulative dry mass of the core (in kg), starting at the
@@ -21,13 +21,14 @@ measured, and NA where lead-210 was not measured. NA values will be estimated us
 \item{excess_pb210_sd}{The standard error of the excess lead-210 specific activity (in Bq/kg).
 Can be NA if error is not known.}
 
+\item{model_top}{A fit object or constant that will be used to model activities above the
+first positive finite lead-210 activity.}
+
 \item{model_bottom}{A fit object that will be used to model activities below
 the last positive finite lead-210 activity. This must be created using
 \code{\link[=pb210_fit_exponential]{pb210_fit_exponential()}} in that its \code{m} and \code{b} coefficients are used to calculate
-the integrated activity below the last positive finite \code{excess_pb210}.}
-
-\item{n_segments}{The number of tiny rectangles used to approximate the cumulative
-activity between the first and last positive finite lead-210 measurement.}
+the integrated activity below the last positive finite \code{excess_pb210}. Use
+\code{\link[=pb210_fit_exponential_zero]{pb210_fit_exponential_zero()}} to assume zero deep inventory of lead-210.}
 }
 \value{
 A vector with \code{\link[errors:errors]{errors::errors()}} of cumulative lead-210 activities for each sample

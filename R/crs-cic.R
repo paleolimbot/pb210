@@ -129,12 +129,13 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = N
 #' @param excess_pb210 An excess lead-210 activity for samples where this was
 #'   measured, and NA where lead-210 was not measured. NA values will be estimated using
 #'   `model_top`, `model_middle`, and `model_bottom`.
+#' @param model_top A fit object or constant that will be used to model activities above the
+#'   first positive finite lead-210 activity.
 #' @param model_bottom A fit object that will be used to model activities below
 #'   the last positive finite lead-210 activity. This must be created using
 #'   [pb210_fit_exponential()] in that its `m` and `b` coefficients are used to calculate
-#'   the integrated activity below the last positive finite `excess_pb210`.
-#' @param n_segments The number of tiny rectangles used to approximate the cumulative
-#'   activity between the first and last positive finite lead-210 measurement.
+#'   the integrated activity below the last positive finite `excess_pb210`. Use
+#'   [pb210_fit_exponential_zero()] to assume zero deep inventory of lead-210.
 #'
 #' @return A vector with [errors::errors()] of cumulative lead-210 activities for each sample
 #'   (in Bq).
@@ -151,13 +152,12 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = N
 #'
 pb210_inventory <- function(
   cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
-  model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210),
-  n_segments = 200L
+  model_top = max(excess_pb210, na.rm = TRUE),
+  model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210)
 ) {
   check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
-  stopifnot(
-    is.integer(n_segments)
-  )
+  model_top <- pb210_as_fit(model_top)
+  model_bottom <- pb210_as_fit(model_bottom)
 
   # separate values and errors for calculation
   excess_pb210_sd <- extract_errors(excess_pb210, excess_pb210_sd)
@@ -169,6 +169,17 @@ pb210_inventory <- function(
 
   first_finite_mass <- cumulative_dry_mass[min(finite_pb210_indices)] # kg
   last_finite_mass <- cumulative_dry_mass[max(finite_pb210_indices)] # kg
+
+  # approximate the surface activities first
+  excess_pb210[cumulative_dry_mass < first_finite_mass] <- stats::predict(
+    model_top,
+    tibble::tibble(x = cumulative_dry_mass[cumulative_dry_mass < first_finite_mass])
+  )
+
+  # recalculate finite indices, so the surface can be used in the trapezoidal approximation
+  finite_pb210_indices <- which(
+    is.finite(excess_pb210) & (excess_pb210 > 0)
+  )
 
   # the model exp(m*x + b),
   # integrated, is exp(m*x + b) / m, and because at x = infinity the integral is 0
