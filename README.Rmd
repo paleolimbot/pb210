@@ -5,27 +5,150 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r setup, include = FALSE}
+library(ggplot2)
+library(dplyr)
+theme_set(theme_bw())
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  dpi = 300
 )
 ```
 
 # pb210
 
-[![Travis build status](https://travis-ci.org/paleolimbot/pb210.svg?branch=master)](https://travis-ci.org/paleolimbot/pb210) [![Coverage status](https://codecov.io/gh/paleolimbot/pb210/branch/master/graph/badge.svg)](https://codecov.io/github/paleolimbot/pb210?branch=master)
+[![Travis build status](https://travis-ci.org/paleolimbot/pb210.svg?branch=master)](https://travis-ci.org/paleolimbot/pb210) [![Coverage status](https://codecov.io/gh/paleolimbot/pb210/branch/master/graph/badge.svg)](https://codecov.io/github/paleolimbot/pb210?branch=master) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
-The goal of pb210 is to provide a reproducible R-based workflow to create sediment core chronologies from ^210^Pb activity measurements.
+The goal of pb210 is to provide a reproducible R-based workflow to create sediment core chronologies from ^210^Pb activity measurements. I am not an expert on ^210^Pb, but occasionally need to interpret these data and would love input on how to make this package better (open an issue on the issues page or email me!).
+
+This is currently in experimental mode, so use it with caution!
 
 ## Installation
 
-You can install the released version of pb210 from github with:
+You can install the development version of pb210 from github with:
 
 ``` r
 # install.package("remotes")
 remotes::install_github("paleolimbot/pb210")
 ```
 
-This project just started...nothing here yet!
+If you can load the package, it's installed!
+
+```{r}
+library(pb210)
+```
+
+
+## Example
+
+You have some lead-210 measurements, but you want dates! Included are some lead-210 measurements from [Alta Lake, Whistler, British Columbia](http://doi.org/10.1007/s10933-016-9919-x).
+
+```{r, warning=FALSE, echo=FALSE}
+alta_pb210_plot <- ggplot(alta_lake_pb210, aes(depth_cm, total_pb210_Bq_kg)) +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = total_pb210_Bq_kg - total_pb210_sd, 
+      ymax = total_pb210_Bq_kg + total_pb210_sd
+    )
+  )
+
+alta_pb210_plot
+```
+
+First, you have to decide where "background" is. For these data, one might choose 7 cm (there is a facies change at 11 cm that is likely responsible for the further drop in activity). Then, you have to decide *what* background is. One method is to take the mean and standard deviation of the background data (another common method is to use measurements of ^226^Ra activity).
+
+```{r}
+alta_lake_background <- alta_lake_pb210 %>%
+  filter(depth_cm > 8) %>%
+  summarise(
+    background = mean(total_pb210_Bq_kg, na.rm = TRUE),
+    background_sd = sd(total_pb210_Bq_kg, na.rm = TRUE)
+  )
+
+alta_lake_background
+```
+
+```{r, warning=FALSE, echo=FALSE}
+alta_pb210_plot <- alta_pb210_plot +
+  geom_vline(xintercept = 8, lty = 2, alpha = 0.7) +
+  annotate(
+    "rect", 
+    xmin = -Inf, xmax = Inf,
+    ymin = 32.45 - 7.38, ymax = 32.45 + 7.38,
+    alpha = 0.3
+  )
+
+alta_pb210_plot
+```
+
+Next, we need to remove the "background" from the total measurements, propogating error on the way through. The **pb210** package uses the [errors package](https://cran.r-project.org/package=errors) to do most of the error propogation. This measure is called the *excess* or *unsupported* specific activity. The `pb210_excess()` function is one way to do this.
+
+```{r}
+alta_lake_pb210$excess_pb210 <- pb210_excess(
+  set_errors(alta_lake_pb210$total_pb210_Bq_kg, alta_lake_pb210$total_pb210_sd),
+  set_errors(alta_lake_background$background, alta_lake_background$background_sd)
+)
+
+alta_lake_pb210$excess_pb210[alta_lake_pb210$depth_cm > 8] <- NA
+```
+
+```{r, warning=FALSE, echo=FALSE}
+alta_pb210_plot +
+  geom_point(aes(y = excess_pb210), data = alta_lake_pb210, col = "red") +
+  geom_errorbar(
+    aes(
+      ymin = excess_pb210 - errors(excess_pb210), 
+      ymax = excess_pb210 + errors(excess_pb210)
+    ), 
+    data = alta_lake_pb210, 
+    col = "red"
+  )
+```
+
+For the constant rate of supply model (CRS; the most widely used model), we also need to calculate the *inventory*, or the cumulative activity of lead-210 starting at the bottom of the core. There are as many ways to do this as there are paleolimnologists, but the `pb210_inventory()` function should get you started. Note that this function requires the cumulative dry mass in kilograms as an input (as do the other dating functions).
+
+```{r}
+alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(alta_lake_pb210$slice_mass_g / 1000)
+alta_lake_pb210$inventory <- pb210_inventory(
+  alta_lake_pb210$cumulative_dry_mass,
+  alta_lake_pb210$excess_pb210,
+  model_bottom = 0
+)
+```
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+ggplot(alta_lake_pb210, aes(depth_cm, inventory)) +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = inventory - errors(inventory), 
+      ymax = inventory + errors(inventory)
+    )
+  )
+```
+
+Here I told it to ignore the possibility that there was any excess lead-210 inventory in the core before the last known measurement...in reality, this should be considered (you can consider it yourself by creating an exponential model with `pb210_fit_exponential()` and passing it to `model_bottom`).
+
+Now that we have all the parts, we can calculate the ages!
+
+```{r}
+pb210_age_crs(
+  alta_lake_pb210$cumulative_dry_mass,
+  alta_lake_pb210$excess_pb210,
+  inventory = alta_lake_pb210$inventory
+) %>%
+  select(cumulative_dry_mass, age, age_sd)
+```
+
+## Core simulation
+
+To test the package, I included a core simulator, which may be useful to help me improve this package.
+
+```{r}
+pb210_simulate_accumulation() %>%
+  pb210_simulate_core() %>%
+  pb210_simulate_counting()
+```
