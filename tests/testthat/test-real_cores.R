@@ -10,7 +10,7 @@ test_that("dating works on real lead-210 data", {
 
     # load core data
     al_core <- alta_lake_210Pb[is.finite(alta_lake_210Pb$slice_mass_g), ]
-    al_core$cumulative_dry_mass <- cumsum(al_core$slice_mass_g) / 1000
+    al_core$cumulative_dry_mass <- pb210_cumulative_mass(al_core$slice_mass_g) / 1000
     al_core$activity_210Pb_Bq_kg <- al_core$activity_210Pb_Bq_g * 1000
     al_core$activity_210Pb_sd <- al_core$activity_210Pb_Bq_kg * al_core$activity_210Pb_sd_percent / 100
 

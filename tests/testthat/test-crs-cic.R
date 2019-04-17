@@ -8,8 +8,8 @@ test_that("CIC model works on simulated core data", {
       pb210_simulate_counting()
   })
 
-  accumulation$cumulative_dry_mass <- (cumsum(accumulation$slice_mass) + c(0, cumsum(accumulation$slice_mass[-1]))) / 2
-  core$cumulative_dry_mass <- (cumsum(core$slice_mass) + c(0, cumsum(core$slice_mass[-1]))) / 2
+  accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
 
   cic_model_exact <- pb210_age_cic(
     cumulative_dry_mass = accumulation$cumulative_dry_mass,
@@ -50,7 +50,7 @@ test_that("CRS model works on simulated core data", {
   })
 
   # even in a perfect world, the best I can get is 3 years of accuracy in the last 100 years
-  accumulation$cumulative_dry_mass <- (cumsum(accumulation$slice_mass) + c(0, cumsum(accumulation$slice_mass[-1]))) / 2
+  accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
   accumulation$inventory <- rev(cumsum(rev(accumulation$pb210_specific_activity * accumulation$slice_mass)))
 
   crs_model_exact <- pb210_age_crs(
@@ -62,7 +62,7 @@ test_that("CRS model works on simulated core data", {
 
   # a less perfect world: a core with varying sedimentation rate
   # the best this gets is 12 years in the last 100 (with the defaults)
-  core$cumulative_dry_mass <- (cumsum(core$slice_mass) + c(0, cumsum(core$slice_mass[-1]))) / 2
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
   crs_model <- pb210_age_crs(
     cumulative_dry_mass = core$cumulative_dry_mass,
     excess_pb210 = core$pb210_specific_activity_estimate,
@@ -93,7 +93,7 @@ test_that("inventory calculation works with wildly varying sedimentation rates",
       pb210_simulate_counting()
   })
 
-  core$cumulative_dry_mass <- (cumsum(core$slice_mass) + c(0, cumsum(core$slice_mass[-1]))) / 2
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
 
   inventory <- pb210_inventory(
     core$cumulative_dry_mass,
