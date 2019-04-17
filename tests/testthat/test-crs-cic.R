@@ -86,14 +86,33 @@ test_that("inventory calculation works", {
   })
 })
 
+test_that("inventory calculation works with wildly varying sedimentation rates", {
+  core <- withr::with_seed(4817, {
+    accumulation <- pb210_simulate_accumulation(pb210_mass_accumulation_rlnorm(sd = 1)) %>%
+      pb210_simulate_core(core_area = 1) %>%
+      pb210_simulate_counting()
+  })
+
+  core$cumulative_dry_mass <- (cumsum(core$slice_mass) + c(0, cumsum(core$slice_mass[-1]))) / 2
+
+  inventory <- pb210_inventory(
+    core$cumulative_dry_mass,
+    core$pb210_specific_activity_estimate,
+    core$pb210_specific_activity_se
+  )
+
+  # must be decreasing everywhere
+  expect_true(all(diff(drop_errors(inventory)) < 0))
+})
+
 test_that("excess function works", {
   expect_equal(as.numeric(pb210_excess(2:11)), 2:11)
   expect_equal(as.numeric(pb210_excess(2:11, 1)), 1:10)
 })
 
 test_that("excess function propogates error", {
-  expect_is(pb210_excess(1:10), "errors")
-  expect_equal(errors(pb210_excess(2:11, 1, 1, 1)), rep(sqrt(2), 10))
+  expect_is(pb210_excess(2:11), "errors")
+  expect_equal(errors(pb210_excess(3:12, 1, 1, 1)), rep(sqrt(2), 10))
 })
 
 test_that("excess function accepts error objects", {

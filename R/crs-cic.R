@@ -45,11 +45,12 @@ pb210_age_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = N
   excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
   decay_constant <- with_errors(decay_constant)
   surface_excess_pb210 <- with_errors(surface_excess_pb210)
+  has_error <- is.finite(errors(excess_pb210)) & (errors(excess_pb210) > 0)
 
   # calculate ages
   age <- with_errors(1) / decay_constant * log(surface_excess_pb210 / excess_pb210)
-  age_sd <- errors(age)
-  age_sd[age_sd == 0] <- NA_real_
+  age_sd <- extract_errors(age)
+  age_sd[!has_error] <- NA_real_
 
   tibble::tibble(
     cumulative_dry_mass,
@@ -62,9 +63,8 @@ pb210_age_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = N
 
 #' @rdname pb210_age_cic
 #' @export
-pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
+pb210_age_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
                           inventory = pb210_inventory(cumulative_dry_mass, excess_pb210, excess_pb210_sd),
-                          excess_pb210_sd = NA_real_,
                           model_top = pb210_fit_exponential(cumulative_dry_mass, inventory),
                           core_area = pb210_core_area(),
                           decay_constant = pb210_decay_constant()) {
@@ -73,7 +73,9 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
   stopifnot(
     is.numeric(inventory), length(inventory) == length(cumulative_dry_mass),
     length(core_area) == 1, is.numeric(core_area),
-    length(decay_constant) == 1, is.numeric(decay_constant)
+    length(decay_constant) == 1, is.numeric(decay_constant),
+    # inventory must be decreasing everywhere
+    all(diff(without_errors(inventory[is.finite(inventory)])) <= 0)
   )
 
   # the CRS model is the CIC model using inventory instead of concentration
@@ -87,11 +89,13 @@ pb210_age_crs <- function(cumulative_dry_mass, excess_pb210,
   excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
   core_area <- with_errors(core_area)
   inventory <- with_errors(inventory)
+  has_error <- is.finite(errors(excess_pb210)) & (errors(excess_pb210) > 0)
 
   # the CRS model lets us estimate the mass accumulation rate directly
+
   mar <- decay_constant * inventory / excess_pb210 / core_area
-  mar_sd <- errors(mar)
-  mar_sd[mar_sd == 0] <- NA_real_
+  mar_sd <- extract_errors(mar)
+  mar_sd[!has_error] <- NA_real_
 
   inventory_sd <- extract_errors(inventory)
 
@@ -176,6 +180,7 @@ pb210_inventory <- function(
   deep_pb210 <- function(mass) unname(exp(coeffs["m"] * mass  + coeffs["b"]) / -coeffs["m"])
 
   # in the middle, approximate the cumulative sum with a bunch of tiny rectangles
+  # for points with known measurements, this is essentially a trapezoid rule
   mass_step <- (last_finite_mass - first_finite_mass) / n_segments # kg
   mass_points <- seq(
     first_finite_mass,
@@ -191,10 +196,13 @@ pb210_inventory <- function(
 
   # combine the two methods to calculate inventory
   inventory <- ifelse(
-    cumulative_dry_mass >= last_finite_mass,
+    cumulative_dry_mass <= last_finite_mass,
     predict(inventory_middle_interp, tibble::tibble(x = cumulative_dry_mass)),
     deep_pb210(cumulative_dry_mass)
-  )
+  ) # Bq
+
+  # Zero inventories aren't allowed because they get logged
+  inventory[inventory <= 0] <- NA_real_
 
   # this error propogation is from R. Jack Cornett's spreadsheet, and should
   # be examined with more scrutiny
@@ -227,7 +235,7 @@ pb210_inventory <- function(
 pb210_excess <- function(total_pb210, background_pb210 = 0, total_pb210_sd = NA_real_, background_pb210_sd = NA_real_) {
   excess <- with_errors(total_pb210, total_pb210_sd) -
     with_errors(background_pb210, background_pb210_sd)
-  excess[drop_errors(excess) <= 0] <- NA_real_
+  excess[(without_errors(excess) - extract_errors(excess)) <= 0] <- NA_real_
   excess
 }
 
