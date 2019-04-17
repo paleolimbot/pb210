@@ -15,14 +15,11 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Suggests: 
-    knitr,
-    rmarkdown,
     dplyr,
     ggplot2,
     testthat,
     withr,
     covr
-VignetteBuilder: knitr
 URL: https://github.com/paleolimbot/pb210
 BugReports: https://github.com/paleolimbot/pb210/issues
 Imports: 

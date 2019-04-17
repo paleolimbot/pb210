@@ -11,7 +11,4 @@
 #' development at Alta Lake, British Columbia, Canada. J Paleolimnol 56:315-330.
 #' doi:10.1007/s10933-016-9919-x
 #'
-"alta_lake_210Pb"
-
-#' @rdname alta_lake_210Pb
-"alta_lake_drying"
+"alta_lake_pb210"

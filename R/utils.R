@@ -72,7 +72,7 @@ pb210_core_area <- function(diameter = 0.063) {
 expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_range = 0:100, na.rm = FALSE) {
   stopifnot(
     is.numeric(calculated_ages),
-    is.numeric(known_ages), all(is.finite(known_ages)),
+    is.numeric(known_ages),
     is.numeric(max_delta), all(is.finite(max_delta)),
     is.numeric(age_range), all(is.finite(age_range))
   )
