@@ -2,22 +2,31 @@
 % Please edit documentation in R/utils.R
 \name{pb210_core_area}
 \alias{pb210_core_area}
+\alias{pb210_slice_volume}
 \title{Calculate core area from an internal diameter}
 \usage{
-pb210_core_area(diameter = 0.063)
+pb210_core_area(diameter = 2 * sqrt(1/pi))
+
+pb210_slice_volume(thickness, core_area = pb210_core_area())
 }
 \arguments{
-\item{diameter}{A diameter in meters. The default is 0.063 m (6.3 cm), which
-is the internal diameter of the core tubes for our trusty 2.5" Glew (1989) corer.}
+\item{diameter}{A diameter in meters. The default is \code{2 * sqrt(1 / pi)},
+such that the default core area is exactly 1 m^2^.}
+
+\item{thickness}{A thickness  in meters.}
+
+\item{core_area}{The cross-sectional area being considered. The default
+is 1 m^2^ such that by default, functions report density and mass on a
+specific area basis.}
 }
 \description{
 Calculate core area from an internal diameter
 }
 \examples{
-pb210_core_area()
+# area of an 8-cm diameter core
+pb210_core_area(0.08)
 
-}
-\references{
-Glew, J.R. 1989. A new trigger mechanism for sediment samplers.
-Journal of Paleolimnology, 2: 241–243. doi:10.1007/BF00195474.
+# 2-cm thick layer over the default 1 m^2
+pb210_slice_volume(0.02)
+
 }

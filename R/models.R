@@ -184,7 +184,12 @@ pb210_as_fit.default <- function(x) {
   # any S3 with a predict method is OK
   predict <- try(utils::getS3method("predict", class(x), optional = FALSE), silent = TRUE)
   if(inherits(predict, "try-error")) {
-    stop("No stats::predict() method for object inheriting ", paste(class(x), collapse = " / "))
+    abort(
+      paste0(
+        "No stats::predict() method for object inheriting ",
+        paste(class(x), collapse = " / ")
+      )
+    )
   }
 
   x

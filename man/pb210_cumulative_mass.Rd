@@ -26,6 +26,6 @@ pb210_cumulative_mass(c(0.1, 0.1, 0.1, 0.1), position = 0)
 pb210_cumulative_mass(c(0.1, 0.1, 0.1, 0.1), position = 0.5)
 
 # bottom of slice
-pb210_cumulative_mass(c(0.1, 0.1, 0.1, 0.1), position = 0.5)
+pb210_cumulative_mass(c(0.1, 0.1, 0.1, 0.1), position = 1)
 
 }

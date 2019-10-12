@@ -31,20 +31,30 @@ pb210_decay_constant <- function(half_life = set_errors(22.20, 0.22)) {
 
 #' Calculate core area from an internal diameter
 #'
-#' @param diameter A diameter in meters. The default is 0.063 m (6.3 cm), which
-#'   is the internal diameter of the core tubes for our trusty 2.5" Glew (1989) corer.
-#'
-#' @references
-#' Glew, J.R. 1989. A new trigger mechanism for sediment samplers.
-#' Journal of Paleolimnology, 2: 241–243. doi:10.1007/BF00195474.
+#' @param diameter A diameter in meters. The default is `2 * sqrt(1 / pi)`,
+#'   such that the default core area is exactly 1 m^2^.
+#' @param thickness A thickness  in meters.
+#' @param core_area The cross-sectional area being considered. The default
+#'   is 1 m^2^ such that by default, functions report density and mass on a
+#'   specific area basis.
 #'
 #' @export
 #'
 #' @examples
-#' pb210_core_area()
+#' # area of an 8-cm diameter core
+#' pb210_core_area(0.08)
 #'
-pb210_core_area <- function(diameter = 0.063) {
+#' # 2-cm thick layer over the default 1 m^2
+#' pb210_slice_volume(0.02)
+#'
+pb210_core_area <- function(diameter = 2 * sqrt(1 / pi)) {
   pi * (diameter / 2)^2
+}
+
+#' @rdname pb210_core_area
+#' @export
+pb210_slice_volume <- function(thickness, core_area = pb210_core_area()) {
+  thickness * core_area
 }
 
 
@@ -86,7 +96,7 @@ expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_
   if(na.rm) {
     tbl <- tbl[is.finite(tbl$calculated_ages), ]
   }
-  if(nrow(tbl) == 0) stop("Zero ages to compare")
+  if(nrow(tbl) == 0) abort("Zero ages to compare")
 
   testthat::expect_true(
     all(abs(tbl$calculated_ages - tbl$known_ages) <= tbl$max_delta),
