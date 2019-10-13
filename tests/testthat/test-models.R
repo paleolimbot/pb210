@@ -84,3 +84,24 @@ test_that("linear interpolator works as intended", {
   expect_identical(predict(interp_fit, tibble::tibble(x = known_x)), known_y)
   expect_identical(predict(interp_fit, tibble::tibble(x = c(0.5, 1.5))), c(11, 14))
 })
+
+test_that("lazy fits work as intended", {
+  fake_depth <- 0:10
+  fake_pb210 <- exp(5 - fake_depth)
+  expect_is(pb210_fit_exponential(fake_depth, fake_pb210), "lm_loglinear")
+
+  lazy_fit <- pb210_fit_lazy(pb210_fit_exponential(fake_depth, fake_pb210))
+  expect_is(lazy_fit, "pb210_fit_lazy")
+  expect_is(pb210_as_fit(lazy_fit), "lm_loglinear")
+
+  lazy_fit2 <- pb210_fit_lazy(pb210_fit_exponential(cumulative_dry_mass, excess_pb210))
+  expect_is(lazy_fit2, "pb210_fit_lazy")
+  expect_error(pb210_as_fit(lazy_fit2), "'cumulative_dry_mass' not found")
+  expect_is(
+    pb210_as_fit(
+      lazy_fit,
+      data = tibble::tibble(cumulative_dry_mass = fake_depth, excess_pb210 = fake_pb210)
+    ),
+    "lm_loglinear"
+  )
+})

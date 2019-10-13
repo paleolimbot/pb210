@@ -162,6 +162,8 @@ is_perfect_lm_fit <- function(fit_obj, epsilon = .Machine$double.eps^0.5) {
 #' numeric constants will be common as input.
 #'
 #' @param x An object
+#' @param data For lazy fits, this object is a tibble with
+#'   `cumulative_dry_mass`, `excess_pb210`, and `excess_pb210_sd`.
 #'
 #' @return An object with a [stats::predict()] method.
 #' @export
@@ -174,13 +176,13 @@ is_perfect_lm_fit <- function(fit_obj, epsilon = .Machine$double.eps^0.5) {
 #' pb210_as_fit(1)
 #' pb210_as_fit(0)
 #'
-pb210_as_fit <- function(x) {
+pb210_as_fit <- function(x, ...) {
   UseMethod("pb210_as_fit")
 }
 
 #' @rdname pb210_as_fit
 #' @export
-pb210_as_fit.default <- function(x) {
+pb210_as_fit.default <- function(x, ...) {
   # any S3 with a predict method is OK
   predict <- try(utils::getS3method("predict", class(x), optional = FALSE), silent = TRUE)
   if(inherits(predict, "try-error")) {
@@ -197,10 +199,22 @@ pb210_as_fit.default <- function(x) {
 
 #' @rdname pb210_as_fit
 #' @export
-pb210_as_fit.numeric <- function(x) {
+pb210_as_fit.numeric <- function(x, ...) {
   pb210_fit_exponential_constant(x)
 }
 
+#' @rdname pb210_as_fit
+#' @export
+pb210_fit_lazy <- function(x) {
+  expr <- enquo(x)
+  structure(list(expr = enquo(x)), class = "pb210_fit_lazy")
+}
+
+#' @rdname pb210_as_fit
+#' @export
+pb210_as_fit.pb210_fit_lazy <- function(x, data = NULL, ...) {
+  pb210_as_fit(eval_tidy(x$expr, data = data))
+}
 
 #' Fit an interpolator
 #'

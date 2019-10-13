@@ -13,7 +13,7 @@ pb210_cic(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
 
 pb210_crs(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
   inventory = pb210_inventory(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd),
+  excess_pb210_sd), inventory_sd = NA_real_,
   model_top = pb210_fit_exponential(cumulative_dry_mass, inventory),
   core_area = pb210_core_area(),
   decay_constant = pb210_decay_constant())

@@ -43,7 +43,6 @@ pb210_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_re
 
   # validate the top model fit, combine errors for pb210
   model_top <- pb210_as_fit(model_top)
-  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
 
   # capture relevant info
   structure(
@@ -51,7 +50,7 @@ pb210_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_re
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
         excess_pb210 = without_errors(!!excess_pb210),
-        excess_pb210_sd = extract_errors(!!excess_pb210)
+        excess_pb210_sd = extract_errors(!!excess_pb210, !!excess_pb210_sd)
       ),
       model_top = model_top,
       decay_constant = with_errors(decay_constant)
@@ -64,6 +63,7 @@ pb210_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_re
 #' @export
 pb210_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
                       inventory = pb210_inventory(cumulative_dry_mass, excess_pb210, excess_pb210_sd),
+                      inventory_sd = NA_real_,
                       model_top = pb210_fit_exponential(cumulative_dry_mass, inventory),
                       core_area = pb210_core_area(),
                       decay_constant = pb210_decay_constant()) {
@@ -77,25 +77,15 @@ pb210_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_re
     all(diff(without_errors(inventory[is.finite(inventory)])) <= 0)
   )
 
-  # the CRS model is the CIC model using inventory instead of concentration
-  tbl <- pb210_age_cic(
-    cumulative_dry_mass, inventory,
-    model_top = model_top, decay_constant = decay_constant
-  )
-
-  # add errors
-  decay_constant <- with_errors(decay_constant)
-  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
-
   # capture relevant info
   structure(
     list(
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
         excess_pb210 = without_errors(!!excess_pb210),
-        excess_pb210_sd = extract_errors(!!excess_pb210),
+        excess_pb210_sd = extract_errors(!!excess_pb210, !!excess_pb210_sd),
         inventory = without_errors(!!inventory),
-        inventory_sd = extract_errors(!!inventory)
+        inventory_sd = extract_errors(!!inventory, !!inventory_sd)
       ),
       model_top = model_top,
       core_area = core_area,
@@ -300,83 +290,71 @@ pb210_inventory <- function(
   model_top = max(excess_pb210, na.rm = TRUE),
   model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210)
 ) {
-  fit <- pb210_inventory_fit(
-    cumulative_dry_mass = cumulative_dry_mass,
-    excess_pb210 = excess_pb210,
-    excess_pb210_sd = excess_pb210_sd,
-    model_top = model_top,
-    model_bottom = model_bottom
+  fit <- pb210_inventory_calculator(
+    model_top = {{ model_top }},
+    model_bottom = {{ model_bottom }}
   )
 
-  inventory <- predict.pb210_fit_inventory(fit)
+  inventory <- predict.pb210_fit_inventory(
+    fit,
+    cumulative_dry_mass = cumulative_dry_mass,
+    excess_pb210 = excess_pb210,
+    excess_pb210_sd = excess_pb210_sd
+  )
 
   with_errors(inventory$inventory, inventory$inventory_sd)
 }
 
-pb210_inventory_fit <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
-                                model_top = max(excess_pb210, na.rm = TRUE),
-                                model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210)) {
-  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
-  model_top <- pb210_as_fit(model_top)
-  model_bottom <- pb210_as_fit(model_bottom)
-
+pb210_inventory_calculator <- function(model_top, model_bottom) {
   structure(
     list(
-      data = tibble::tibble(
-        cumulative_dry_mass,
-        excess_pb210 = without_errors(!!excess_pb210),
-        excess_pb210_sd = extract_errors(!!excess_pb210, !!excess_pb210_sd)
-      ),
-      model_top = model_top,
-      model_bottom = model_bottom
+      model_top = pb210_fit_lazy({{ model_top }}),
+      model_bottom = pb210_fit_lazy({{ model_bottom }})
     ),
     class = c("pb210_fit_inventory", "pb210_fit")
   )
 }
 
-predict.pb210_fit_inventory <- function(object, cumulative_dry_mass = NULL) {
-  if (is.null(cumulative_dry_mass)) {
-    cumulative_dry_mass <- object$data$cumulative_dry_mass
-  }
+predict.pb210_fit_inventory <- function(object, cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_) {
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
 
-  excess_pb210 <- stats::approx(
-    object$data$cumulative_dry_mass,
-    object$data$excess_pb210,
-    xout = cumulative_dry_mass
-  )$y
-
-  # use errors for exact matches of cumulative_dry_mass to the original
-  original_matches <- match(cumulative_dry_mass, object$data$cumulative_dry_mass)
-  excess_pb210_sd <- object$data$excess_pb210_sd[original_matches]
-
-  finite_pb210_indices <- which(
-    is.finite(excess_pb210) & (excess_pb210 > 0)
+  data <- tibble::tibble(
+    cumulative_dry_mass,
+    excess_pb210 = without_errors(!!excess_pb210),
+    excess_pb210_sd = extract_errors(!!excess_pb210, !!excess_pb210_sd)
   )
 
-  first_finite_mass <- cumulative_dry_mass[min(finite_pb210_indices)] # kg
-  last_finite_mass <- cumulative_dry_mass[max(finite_pb210_indices)] # kg
+  model_bottom <- pb210_as_fit(object$model_bottom, data = data)
+  model_top <- pb210_as_fit(object$model_top, data = data)
+
+  finite_pb210_indices <- which(
+    is.finite(data$excess_pb210) & (data$excess_pb210 > 0)
+  )
+
+  first_finite_mass <- data$cumulative_dry_mass[min(finite_pb210_indices)] # kg
+  last_finite_mass <- data$cumulative_dry_mass[max(finite_pb210_indices)] # kg
 
   # approximate the surface activities first
-  excess_pb210[cumulative_dry_mass < first_finite_mass] <- stats::predict(
-    object$model_top,
-    tibble::tibble(x = cumulative_dry_mass[cumulative_dry_mass < first_finite_mass])
+  data$excess_pb210[data$cumulative_dry_mass < first_finite_mass] <- stats::predict(
+    model_top,
+    tibble::tibble(x = data$cumulative_dry_mass[data$cumulative_dry_mass < first_finite_mass])
   )
 
   # recalculate finite indices, so the surface can be used in the trapezoidal approximation
   finite_pb210_indices <- which(
-    is.finite(excess_pb210) & (excess_pb210 > 0)
+    is.finite(data$excess_pb210) & (data$excess_pb210 > 0)
   )
 
   # the model exp(m*x + b),
   # integrated, is exp(m*x + b) / m, and because at x = infinity the integral is 0
   # the definite integral from [background] to infinity is exp(m * [background] + b) / -m
-  coeffs <- stats::coefficients(object$model_bottom)
+  coeffs <- stats::coefficients(model_bottom)
   deep_pb210 <- function(mass) unname(exp(coeffs["m"] * mass  + coeffs["b"]) / -coeffs["m"])
 
   # in the middle, approximate the cumulative sum as trapezoids using
   # finite values
-  finite_pb210 <- excess_pb210[finite_pb210_indices]
-  finite_mass <- cumulative_dry_mass[finite_pb210_indices]
+  finite_pb210 <- data$excess_pb210[finite_pb210_indices]
+  finite_mass <- data$cumulative_dry_mass[finite_pb210_indices]
   trapezoidal_area <- (finite_pb210[-1] + finite_pb210[-length(finite_pb210)]) / 2 * diff(finite_mass)
   cumulative_mass <- c(rev(cumsum(rev(trapezoidal_area))), 0) + deep_pb210(last_finite_mass)
 
@@ -384,9 +362,9 @@ predict.pb210_fit_inventory <- function(object, cumulative_dry_mass = NULL) {
 
   # combine the two methods to calculate inventory
   inventory <- ifelse(
-    cumulative_dry_mass <= last_finite_mass,
-    predict(inventory_middle_interp, tibble::tibble(x = cumulative_dry_mass)),
-    deep_pb210(cumulative_dry_mass)
+    data$cumulative_dry_mass <= last_finite_mass,
+    predict(inventory_middle_interp, tibble::tibble(x = data$cumulative_dry_mass)),
+    deep_pb210(data$cumulative_dry_mass)
   ) # Bq
 
   # Zero inventories aren't allowed because they get logged
@@ -394,7 +372,7 @@ predict.pb210_fit_inventory <- function(object, cumulative_dry_mass = NULL) {
 
   # this error propogation is from R. Jack Cornett's spreadsheet, and should
   # be examined with more scrutiny
-  pb210_relative_sd <- excess_pb210_sd / excess_pb210
+  pb210_relative_sd <- data$excess_pb210_sd / data$excess_pb210
   inventory_sd <- inventory * sqrt(2 * pb210_relative_sd^2 + 0.02^2)
 
   tibble::tibble(inventory, inventory_sd)
