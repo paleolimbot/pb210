@@ -21,6 +21,8 @@ pb210_fit_lazy(x)
 \arguments{
 \item{x}{An object}
 
+\item{...}{Unused.}
+
 \item{data}{For lazy fits, this object is a tibble with
 \code{cumulative_dry_mass}, \code{excess_pb210}, and \code{excess_pb210_sd}.}
 }

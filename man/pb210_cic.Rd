@@ -53,6 +53,8 @@ use different decay constants. See \code{\link[=pb210_decay_constant]{pb210_deca
 \item{inventory}{The cumulative excess lead-210 activity (in Bq), starting at the bottom
 of the core. By default, this is estimated by \code{\link[=pb210_inventory]{pb210_inventory()}}.}
 
+\item{inventory_sd}{The standard error of the cumulative excess lead-210 activity (in Bq).}
+
 \item{core_area}{The internal area of the corer (in m^2^). This can be calculated
 from an internal diameter using \code{\link[=pb210_core_area]{pb210_core_area()}}.}
 }
