@@ -183,7 +183,7 @@ test_that("CRS calculations for real core data do not change", {
   expect_ages_similar(
     ages$age[1:9],
     c(1.7997, 4.45888, 8.1515, 12.48042, 25.59803, 41.63099, 61.26054, 83.31264, 127.34372),
-    max_delta = 0.00001
+    max_delta = 0.0001
   )
 
   expect_identical(
@@ -198,6 +198,6 @@ test_that("CRS calculations for real core data do not change", {
   expect_ages_similar(
     ages$age_sd[c(1, 3:9)],
     c(1.8076, 1.77354, 1.71348, 1.81861, 2.49783, 3.71956, 4.75733, 10.86162),
-    max_delta = 0.00001
+    max_delta = 0.0001
   )
 })

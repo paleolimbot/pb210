@@ -35,3 +35,13 @@ test_that("with_errors() warns when multiple error types are specified", {
   )
   expect_warning(with_errors(set_errors(1, 1), 1), "Two errors")
 })
+
+test_that("extract_errors() warns when multiple error types are specified", {
+  expect_silent(extract_errors(1, 1))
+  expect_silent(extract_errors(set_errors(1, 1), NA_real_))
+  expect_equal(
+    extract_errors(1, 1),
+    extract_errors(set_errors(1, 1), NA_real_)
+  )
+  expect_warning(extract_errors(set_errors(1, 1), 1), "Two errors")
+})

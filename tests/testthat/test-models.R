@@ -36,6 +36,12 @@ test_that("exponential model fits", {
   })
 })
 
+test_that("exponential model fits even with perfect data", {
+  fake_depth <- 0:10
+  fake_pb210 <- exp(5 - fake_depth)
+  expect_is(pb210_fit_exponential(fake_depth, fake_pb210), "lm_loglinear")
+})
+
 test_that("manual model fits", {
   fake_depth <- 0:10
   fake_pb210 <- exp(5 - fake_depth)

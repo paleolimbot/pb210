@@ -128,7 +128,7 @@ without_errors <- function(x) {
 
 extract_errors <- function(x, default = NA_real_) {
   if(inherits(x, "errors") && any(!is.na(default))) {
-    warning("Two errors included. Using error internal to x.")
+    warn("Two errors included. Using error internal to x.")
     errors(x)
   } else if(inherits(x, "errors")) {
     errors(x)
