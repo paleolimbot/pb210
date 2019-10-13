@@ -138,3 +138,66 @@ test_that("cumulative mass and excess_pb210 assumptions are checked", {
   expect_error(check_mass_and_activity(mass, c(pb210, 0.01)), "is not TRUE")
   expect_error(check_mass_and_activity(mass, pb210, c(1, 2)), "is not TRUE")
 })
+
+test_that("CRS calculations for real core data do not change", {
+  df <- alta_lake_pb210
+  core_area <- pb210_core_area(0.063)
+
+  df_background <- df %>%
+    dplyr::filter(depth_cm > 8) %>%
+    dplyr::summarise(
+      background = mean(total_pb210_Bq_kg, na.rm = TRUE),
+      background_sd = sd(total_pb210_Bq_kg, na.rm = TRUE)
+    )
+
+  df$excess_pb210 <- pb210_excess(
+    set_errors(df$total_pb210_Bq_kg, df$total_pb210_sd),
+    set_errors(df_background$background, df_background$background_sd)
+  )
+
+  df$excess_pb210[df$depth_cm > 8] <- NA
+
+  # cumulative dry mass on a per-core area basis are most useful
+  df$cumulative_dry_mass <- pb210_cumulative_mass(df$slice_mass_g / 1000 / core_area)
+  df$inventory <- pb210_inventory(
+    df$cumulative_dry_mass,
+    df$excess_pb210,
+    model_bottom = 0
+  )
+
+  ages <- pb210_age_crs(
+    df$cumulative_dry_mass,
+    df$excess_pb210,
+    inventory = df$inventory
+  )
+
+  expect_identical(
+    is.na(ages$age),
+    is.na(
+      c(1.7997, 4.45888, 8.1515, 12.48042, 25.59803, 41.63099, 61.26054,
+        83.31264, 127.34372, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+        NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
+    )
+  )
+
+  expect_ages_similar(
+    ages$age[1:9],
+    c(1.7997, 4.45888, 8.1515, 12.48042, 25.59803, 41.63099, 61.26054, 83.31264, 127.34372),
+    max_delta = 0.00001
+  )
+
+  expect_identical(
+    is.na(ages$age_sd),
+    is.na(
+      c(1.8076, NA, 1.77354, 1.71348, 1.81861, 2.49783, 3.71956, 4.75733,
+        10.86162, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+        NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
+    )
+  )
+
+  expect_ages_similar(
+    ages$age_sd[c(1, 3:9)],
+    c(1.8076, 1.77354, 1.71348, 1.81861, 2.49783, 3.71956, 4.75733, 10.86162),
+    max_delta = 0.00001
+  )
+})
