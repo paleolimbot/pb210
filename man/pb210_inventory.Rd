@@ -36,7 +36,7 @@ A vector with \code{\link[errors:errors]{errors::errors()}} of cumulative lead-2
 }
 \description{
 The cumulative content of lead-210 from the bottom of the core is the basis for the
-constant rate of supply model, and is a required input to \code{\link[=pb210_age_crs]{pb210_age_crs()}}. There are
+constant rate of supply model, and is a required input to \code{\link[=pb210_crs]{pb210_crs()}}. There are
 as many ways to calculate this as there are people who interpret lead-210 activities.
 This function models the bottom (below measured lead-210), middle (between measured
 values of lead-210), and top (above measured lead-210) with separate models to
