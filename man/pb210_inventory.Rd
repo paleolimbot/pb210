@@ -2,12 +2,15 @@
 % Please edit documentation in R/crs-cic.R
 \name{pb210_inventory}
 \alias{pb210_inventory}
+\alias{pb210_inventory_calculator}
 \title{Calculate cumulative lead-210 activity}
 \usage{
 pb210_inventory(cumulative_dry_mass, excess_pb210,
   excess_pb210_sd = NA_real_, model_top = max(excess_pb210, na.rm =
   TRUE), model_bottom = pb210_fit_exponential(cumulative_dry_mass,
   excess_pb210))
+
+pb210_inventory_calculator(model_top = NULL, model_bottom = NULL)
 }
 \arguments{
 \item{cumulative_dry_mass}{The cumulative dry mass of the core (in kg), starting at the
