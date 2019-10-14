@@ -36,7 +36,7 @@ test_that("inventory calculation works with wildly varying sedimentation rates",
 test_that("lazy inventory calculator and inventory function defaults are identical", {
 
   core <- withr::with_seed(4817, {
-    accumulation <- pb210_simulate_accumulation(pb210_mass_accumulation_rlnorm(sd = 1)) %>%
+    pb210_simulate_accumulation(pb210_mass_accumulation_rlnorm(sd = 1)) %>%
       pb210_simulate_core(core_area = 1) %>%
       pb210_simulate_counting()
   })
