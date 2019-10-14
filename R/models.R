@@ -207,14 +207,35 @@ pb210_as_fit.numeric <- function(x, ...) {
 #' @rdname pb210_as_fit
 #' @export
 pb210_fit_lazy <- function(x) {
-  expr <- enquo(x)
-  structure(list(expr = enquo(x)), class = "pb210_fit_lazy")
+  x <- rlang::as_function(x, env = rlang::caller_env())
+  structure(list(fun = x), class = "pb210_fit_lazy")
+}
+
+#' @rdname pb210_as_fit
+#' @export
+pb210_as_fit.function <- function(x, ...) {
+  pb210_fit_lazy(x)
+}
+
+#' @rdname pb210_as_fit
+#' @export
+pb210_as_fit.formula <- function(x, ...) {
+  pb210_fit_lazy(x)
 }
 
 #' @rdname pb210_as_fit
 #' @export
 pb210_as_fit.pb210_fit_lazy <- function(x, data = NULL, ...) {
-  pb210_as_fit(eval_tidy(x$expr, data = data))
+  if (is.null(data)) {
+    x
+  } else {
+    pb210_as_fit(rlang::exec(x$fun, !!!data))
+  }
+}
+
+#' @export
+predict.pb210_fit_lazy <- function(object, ...) {
+  abort("Lazy fit needs to be resolved by calling pb210_as_fit(x, data = ...)")
 }
 
 #' Fit an interpolator

@@ -15,7 +15,7 @@ pb210_cic(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
 
 pb210_crs(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
   inventory = pb210_inventory_calculator(), inventory_sd = NA_real_,
-  model_top = pb210_fit_exponential(cumulative_dry_mass, inventory),
+  model_top = ~pb210_fit_exponential(..1, ..2),
   core_area = pb210_core_area(),
   decay_constant = pb210_decay_constant())
 
@@ -29,10 +29,8 @@ pb210_age_cic(cumulative_dry_mass, excess_pb210,
   decay_constant = pb210_decay_constant())
 
 pb210_age_crs(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd = NA_real_,
-  inventory = pb210_inventory(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd),
-  model_top = pb210_fit_exponential(cumulative_dry_mass, inventory),
+  excess_pb210_sd = NA_real_, inventory = pb210_inventory_calculator(),
+  model_top = ~pb210_fit_exponential(..1, ..2),
   core_area = pb210_core_area(),
   decay_constant = pb210_decay_constant())
 }
@@ -56,7 +54,7 @@ rather than a constant because we have found that different spreadsheets in the 
 use different decay constants. See \code{\link[=pb210_decay_constant]{pb210_decay_constant()}}.}
 
 \item{inventory}{The cumulative excess lead-210 activity (in Bq), starting at the bottom
-of the core. By default, this is estimated by \code{\link[=pb210_inventory]{pb210_inventory()}}.}
+of the core. By default, this is estimated by the default \code{\link[=pb210_inventory_calculator]{pb210_inventory_calculator()}}.}
 
 \item{inventory_sd}{The standard error of the cumulative excess lead-210 activity (in Bq).}
 

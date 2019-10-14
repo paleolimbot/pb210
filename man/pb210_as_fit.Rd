@@ -5,6 +5,8 @@
 \alias{pb210_as_fit.default}
 \alias{pb210_as_fit.numeric}
 \alias{pb210_fit_lazy}
+\alias{pb210_as_fit.function}
+\alias{pb210_as_fit.formula}
 \alias{pb210_as_fit.pb210_fit_lazy}
 \title{Coerce objects to exponential fits}
 \usage{
@@ -15,6 +17,10 @@ pb210_as_fit(x, ...)
 \method{pb210_as_fit}{numeric}(x, ...)
 
 pb210_fit_lazy(x)
+
+\method{pb210_as_fit}{function}(x, ...)
+
+\method{pb210_as_fit}{formula}(x, ...)
 
 \method{pb210_as_fit}{pb210_fit_lazy}(x, data = NULL, ...)
 }
