@@ -4,7 +4,7 @@
 # The following block is used by usethis to automatically manage
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
-#' @importFrom rlang abort warn quo enquo eval_tidy
+#' @importFrom rlang abort warn quo enquo
 ## usethis namespace: end
 NULL
 
@@ -23,4 +23,8 @@ errors::set_errors
 #' @importFrom errors errors
 #' @export
 errors::errors
+
+#' @importFrom stats predict
+#' @export
+stats::predict
 

@@ -36,7 +36,7 @@ pb210_fit_lazy(x)
 An object with a \code{\link[stats:predict]{stats::predict()}} method.
 }
 \description{
-This is used to sanitize input for \code{\link[=pb210_age_cic]{pb210_age_cic()}} and \code{\link[=pb210_age_crs]{pb210_age_crs()}},
+This is used to sanitize input for \code{\link[=pb210_cic]{pb210_cic()}} and \code{\link[=pb210_crs]{pb210_crs()}},
 where fit objects are required but where it is anticipated that
 numeric constants will be common as input.
 }

@@ -79,10 +79,10 @@ use \code{\link[=pb210_error_from_specific_activity]{pb210_error_from_specific_a
 time, returning a data frame with one row per \code{time_step}, whereas
 \code{pb210_simulate_core()} returns a data frame with one row per \code{depth_step}
 (like extruding a core). These functions were created to test the
-\code{\link[=pb210_age_crs]{pb210_age_crs()}} and \code{\link[=pb210_age_cic]{pb210_age_cic()}} functions, and to create
+\code{\link[=pb210_crs]{pb210_crs()}} and \code{\link[=pb210_cic]{pb210_cic()}} functions, and to create
 the lead-210 theory vignette. Ages are in years, depths are in cm,
 masses are in kg, densities are in kg / m^3^, and specific activities
-are in Bq / kg. \code{pb210_simulate_counting()} simulates putting a subsample
+are in Bq / kg. \code{\link[=pb210_simulate_counting]{pb210_simulate_counting()}} simulates putting a subsample
 of each slice on a counter for a specified amount of time. This allows
 assigning an error to the known lead-210 activity, as well as provide
 more realistic data for simulations. See \code{\link[=pb210_error_from_specific_activity]{pb210_error_from_specific_activity()}}

@@ -5,10 +5,10 @@
 #' time, returning a data frame with one row per `time_step`, whereas
 #' `pb210_simulate_core()` returns a data frame with one row per `depth_step`
 #' (like extruding a core). These functions were created to test the
-#' [pb210_age_crs()] and [pb210_age_cic()] functions, and to create
+#' [pb210_crs()] and [pb210_cic()] functions, and to create
 #' the lead-210 theory vignette. Ages are in years, depths are in cm,
 #' masses are in kg, densities are in kg / m^3^, and specific activities
-#' are in Bq / kg. `pb210_simulate_counting()` simulates putting a subsample
+#' are in Bq / kg. [pb210_simulate_counting()] simulates putting a subsample
 #' of each slice on a counter for a specified amount of time. This allows
 #' assigning an error to the known lead-210 activity, as well as provide
 #' more realistic data for simulations. See [pb210_error_from_specific_activity()]
@@ -277,7 +277,7 @@ pb210_supply_constant <- function(value = 100)  {
 #' @param value,mean An accumulation rate, in kg / m2 / year.
 #' @param sd For random (log)normal accumulation rates, the log standard deviation.
 #'   The default is 1, which results in highly variable sedimentation rates. This is
-#'   useful for testing [pb210_age_crs()].
+#'   useful for testing [pb210_crs()].
 #'
 #' @return A function of a single parameter, `age`, which is a (decreasing) vector of ages.
 #' @export

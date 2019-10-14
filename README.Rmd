@@ -135,11 +135,15 @@ Here I told it to ignore the possibility that there was any excess lead-210 inve
 Now that we have all the parts, we can calculate the ages!
 
 ```{r}
-pb210_age_crs(
+crs_ages <- pb210_crs(
   alta_lake_pb210$cumulative_dry_mass,
   alta_lake_pb210$excess_pb210,
   inventory = alta_lake_pb210$inventory
 ) %>%
+  predict() 
+
+alta_lake_pb210 %>%
+  bind_cols(crs_ages) %>%
   select(cumulative_dry_mass, age, age_sd)
 ```
 

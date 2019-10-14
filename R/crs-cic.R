@@ -37,6 +37,32 @@
 #'   `mar` and `mar_sd` (in kg / m^2^ / year).
 #' @export
 #'
+#' @examples
+#' # simulate a core
+#' core <- pb210_simulate_accumulation(
+#'   mass_accumulation = pb210_mass_accumulation_constant()
+#' ) %>%
+#'   pb210_simulate_core() %>%
+#'   pb210_simulate_counting()
+#'
+#' # calculate ages using the CIC model
+#' cic <- pb210_cic(
+#'   pb210_cumulative_mass(core$slice_mass, position = 0.5),
+#'   core$pb210_specific_activity_estimate,
+#'   core$pb210_specific_activity_se
+#' )
+#'
+#' predict(cic)
+#'
+#' # calculate ages using the CRS model
+#' crs <- pb210_crs(
+#'   pb210_cumulative_mass(core$slice_mass),
+#'   core$pb210_specific_activity_estimate,
+#'   core$pb210_specific_activity_se
+#' )
+#'
+#' predict(crs)
+#'
 pb210_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
                       model_top = ~pb210_fit_exponential(..1, ..2),
                       decay_constant = pb210_decay_constant()) {
@@ -219,60 +245,4 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
   ages$inventory_sd <- extract_errors(inventory)
 
   ages
-}
-
-#' @rdname pb210_cic
-#' @export
-pb210_age_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
-                          model_top = ~pb210_fit_exponential(..1, ..2),
-                          decay_constant = pb210_decay_constant()) {
-  fit <- pb210_cic(
-    cumulative_dry_mass = cumulative_dry_mass,
-    excess_pb210 = excess_pb210,
-    excess_pb210_sd = excess_pb210_sd,
-    model_top = model_top,
-    decay_constant = decay_constant
-  )
-
-  ages <- predict.pb210_fit_cic(fit)
-
-  tibble::tibble(
-    cumulative_dry_mass = fit$data$cumulative_dry_mass,
-    excess_pb210 = fit$data$excess_pb210,
-    excess_pb210_sd = fit$data$excess_pb210_sd,
-    age = ages$age,
-    age_sd = ages$age_sd
-  )
-}
-
-#' @rdname pb210_cic
-#' @export
-pb210_age_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
-                          inventory = pb210_inventory_calculator(),
-                          model_top = ~pb210_fit_exponential(..1, ..2),
-                          core_area = pb210_core_area(),
-                          decay_constant = pb210_decay_constant()) {
-  fit <- pb210_crs(
-    cumulative_dry_mass = cumulative_dry_mass,
-    excess_pb210 = excess_pb210,
-    excess_pb210_sd = excess_pb210_sd,
-    inventory = inventory,
-    model_top = model_top,
-    core_area = core_area,
-    decay_constant = decay_constant
-  )
-
-  ages <- predict.pb210_fit_crs(fit)
-
-  tibble::tibble(
-    cumulative_dry_mass = fit$data$cumulative_dry_mass,
-    excess_pb210 = fit$data$excess_pb210,
-    excess_pb210_sd = fit$data$excess_pb210_sd,
-    inventory = ages$inventory,
-    inventory_sd = ages$inventory_sd,
-    age = ages$age,
-    age_sd = ages$age_sd,
-    mar = ages$mar,
-    mar_sd = ages$mar_sd
-  )
 }

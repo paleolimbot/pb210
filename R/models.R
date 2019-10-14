@@ -157,7 +157,7 @@ is_perfect_lm_fit <- function(fit_obj, epsilon = .Machine$double.eps^0.5) {
 
 #' Coerce objects to exponential fits
 #'
-#' This is used to sanitize input for [pb210_age_cic()] and [pb210_age_crs()],
+#' This is used to sanitize input for [pb210_cic()] and [pb210_crs()],
 #' where fit objects are required but where it is anticipated that
 #' numeric constants will be common as input.
 #'

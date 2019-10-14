@@ -11,27 +11,31 @@ test_that("CIC model works on simulated core data", {
   accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
   core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
 
-  cic_model_exact <- pb210_age_cic(
+  cic_model_exact <- pb210_cic(
     cumulative_dry_mass = accumulation$cumulative_dry_mass,
     excess_pb210 = accumulation$pb210_specific_activity
-  )
+  ) %>%
+    predict()
+
   expect_ages_similar(cic_model_exact$age, accumulation$age, 0.1)
 
-  cic_model <- pb210_age_cic(
+  cic_model <- pb210_cic(
     cumulative_dry_mass = core$cumulative_dry_mass,
     excess_pb210 = core$pb210_specific_activity_estimate,
     excess_pb210_sd = core$pb210_specific_activity_se
-  )
+  ) %>%
+    predict()
 
   # not quite within 1 year for all samples
   expect_ages_similar(cic_model$age, core$age, max_delta = 2)
 
   # CRS model is also valid here
-  crs_model <- pb210_age_crs(
+  crs_model <- pb210_crs(
     cumulative_dry_mass = core$cumulative_dry_mass,
     excess_pb210 = core$pb210_specific_activity_estimate,
     excess_pb210_sd = core$pb210_specific_activity_se
-  )
+  ) %>%
+    predict()
 
   # CRS model does quite well here
   expect_ages_similar(crs_model$age, core$age, max_delta = 0.8)
@@ -53,21 +57,25 @@ test_that("CRS model works on simulated core data", {
   accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
   accumulation$inventory <- rev(cumsum(rev(accumulation$pb210_specific_activity * accumulation$slice_mass)))
 
-  crs_model_exact <- pb210_age_crs(
+  crs_model_exact <- pb210_crs(
     cumulative_dry_mass = accumulation$cumulative_dry_mass,
     excess_pb210 = accumulation$pb210_specific_activity,
     inventory = accumulation$inventory
-  )
+  ) %>%
+    predict()
+
   expect_ages_similar(crs_model_exact$age, accumulation$age, max_delta = 3)
 
   # a less perfect world: a core with varying sedimentation rate
   # the best this gets is 12 years in the last 100 (with the defaults)
   core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
-  crs_model <- pb210_age_crs(
+  crs_model <- pb210_crs(
     cumulative_dry_mass = core$cumulative_dry_mass,
     excess_pb210 = core$pb210_specific_activity_estimate,
     excess_pb210_sd = core$pb210_specific_activity_se
-  )
+  ) %>%
+    predict()
+
   expect_ages_similar(crs_model$age, core$age, max_delta = 12)
 })
 
@@ -97,11 +105,12 @@ test_that("CRS calculations for real core data do not change", {
     model_bottom = 0
   )
 
-  ages <- pb210_age_crs(
+  ages <- pb210_crs(
     df$cumulative_dry_mass,
     df$excess_pb210,
     inventory = df$inventory
-  )
+  ) %>%
+    predict()
 
   expect_identical(
     is.na(ages$age),

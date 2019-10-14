@@ -14,7 +14,7 @@ pb210_mass_accumulation_rlnorm(mean = 0.15, sd = 1)
 
 \item{sd}{For random (log)normal accumulation rates, the log standard deviation.
 The default is 1, which results in highly variable sedimentation rates. This is
-useful for testing \code{\link[=pb210_age_crs]{pb210_age_crs()}}.}
+useful for testing \code{\link[=pb210_crs]{pb210_crs()}}.}
 }
 \value{
 A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.

@@ -110,11 +110,15 @@ it to `model_bottom`).
 Now that we have all the parts, we can calculate the ages\!
 
 ``` r
-pb210_age_crs(
+crs_ages <- pb210_crs(
   alta_lake_pb210$cumulative_dry_mass,
   alta_lake_pb210$excess_pb210,
   inventory = alta_lake_pb210$inventory
 ) %>%
+  predict() 
+
+alta_lake_pb210 %>%
+  bind_cols(crs_ages) %>%
   select(cumulative_dry_mass, age, age_sd)
 #> # A tibble: 32 x 3
 #>    cumulative_dry_mass    age age_sd

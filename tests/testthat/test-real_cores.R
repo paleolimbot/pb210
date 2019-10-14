@@ -37,12 +37,13 @@ test_that("dating works on real lead-210 data", {
     lines(al_core$depth_cm, drop_errors(alta_lake_inv) + errors(alta_lake_inv), col = "red")
     lines(al_core$depth_cm, drop_errors(alta_lake_inv) - errors(alta_lake_inv), col = "red")
 
-    al_crs <- pb210_age_crs(
+    al_crs <- pb210_crs(
       al_core$cumulative_dry_mass,
       al_core$excess_pb210,
       inventory = alta_lake_inv,
       model_top = max(alta_lake_inv, na.rm = TRUE)
-    )
+    ) %>%
+      predict()
 
     plot(al_core$depth_cm, al_crs$age, type = "l")
     lines(al_core$depth_cm, al_crs$age + al_crs$age_sd, col = "red")
@@ -50,6 +51,5 @@ test_that("dating works on real lead-210 data", {
 
     # at the moment, within 8 years is where we're at
     expect_ages_similar(al_crs$age, al_core$published_age_yr, 8, na.rm = TRUE)
-    plot(al_core$depth_cm, al_crs$age - al_core$published_age_yr)
   })
 })

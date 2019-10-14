@@ -5,8 +5,6 @@
 \alias{pb210_crs}
 \alias{predict.pb210_fit_cic}
 \alias{predict.pb210_fit_crs}
-\alias{pb210_age_cic}
-\alias{pb210_age_crs}
 \title{Apply the Constant Rate of Supply or Constant Initial Concentration model}
 \usage{
 pb210_cic(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
@@ -22,16 +20,6 @@ pb210_crs(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
 \method{predict}{pb210_fit_cic}(object, cumulative_dry_mass = NULL, ...)
 
 \method{predict}{pb210_fit_crs}(object, cumulative_dry_mass = NULL, ...)
-
-pb210_age_cic(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd = NA_real_, model_top = ~pb210_fit_exponential(..1,
-  ..2), decay_constant = pb210_decay_constant())
-
-pb210_age_crs(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd = NA_real_, inventory = pb210_inventory_calculator(),
-  model_top = ~pb210_fit_exponential(..1, ..2),
-  core_area = pb210_core_area(),
-  decay_constant = pb210_decay_constant())
 }
 \arguments{
 \item{cumulative_dry_mass}{The cumulative dry mass of the core (in kg), starting at the
@@ -72,6 +60,33 @@ CRS model \code{predict()} function output also contains \code{inventory}, \code
 }
 \description{
 Apply the Constant Rate of Supply or Constant Initial Concentration model
+}
+\examples{
+# simulate a core
+core <- pb210_simulate_accumulation(
+  mass_accumulation = pb210_mass_accumulation_constant()
+) \%>\%
+  pb210_simulate_core() \%>\%
+  pb210_simulate_counting()
+
+# calculate ages using the CIC model
+cic <- pb210_cic(
+  pb210_cumulative_mass(core$slice_mass, position = 0.5),
+  core$pb210_specific_activity_estimate,
+  core$pb210_specific_activity_se
+)
+
+predict(cic)
+
+# calculate ages using the CRS model
+crs <- pb210_crs(
+  pb210_cumulative_mass(core$slice_mass),
+  core$pb210_specific_activity_estimate,
+  core$pb210_specific_activity_se
+)
+
+predict(crs)
+
 }
 \references{
 Appleby, P.G., and Oldfield, F. 1983. The assessment of ^210^Pb data from sites with
