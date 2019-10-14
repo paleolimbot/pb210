@@ -65,8 +65,9 @@ from an internal diameter using \code{\link[=pb210_core_area]{pb210_core_area()}
 \item{...}{Unused.}
 }
 \value{
-A table with (at least) components \code{age} and \code{age_sd} (both in years).
-CRS model output also contains \code{inventory}, \code{inventory_sd},
+\code{predict()} methods return a tibble with (at least)
+components \code{age} and \code{age_sd} (both in years).
+CRS model \code{predict()} function output also contains \code{inventory}, \code{inventory_sd},
 \code{mar} and \code{mar_sd} (in kg / m^2^ / year).
 }
 \description{

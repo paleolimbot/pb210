@@ -45,3 +45,20 @@ test_that("extract_errors() warns when multiple error types are specified", {
   )
   expect_warning(extract_errors(set_errors(1, 1), 1), "Two errors")
 })
+
+test_that("cumulative mass and excess_pb210 assumptions are checked", {
+  mass <- 0:2
+  pb210 <- c(10, 1, 0.1)
+  expect_silent(check_mass_and_activity(mass, pb210))
+  # no non-finite values
+  expect_error(check_mass_and_activity(c(0, 1, NA), pb210), "is not TRUE")
+  # negative excess values
+  expect_error(check_mass_and_activity(mass, c(10, 1, -1)), "is not TRUE")
+  # not enough finite values
+  expect_error(check_mass_and_activity(mass, c(10, 1, NA)), "is not TRUE")
+  expect_error(check_mass_and_activity(mass, c(10, 1, 0)), "is not TRUE")
+  # inconsistent lengths
+  expect_error(check_mass_and_activity(0:3, pb210), "is not TRUE")
+  expect_error(check_mass_and_activity(mass, c(pb210, 0.01)), "is not TRUE")
+  expect_error(check_mass_and_activity(mass, pb210, c(1, 2)), "is not TRUE")
+})
