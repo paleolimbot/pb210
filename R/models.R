@@ -163,7 +163,7 @@ is_perfect_lm_fit <- function(fit_obj, epsilon = .Machine$double.eps^0.5) {
 #'
 #' @param x An object
 #' @param data For lazy fits, this object is a tibble with
-#'   `cumulative_dry_mass`, `excess_pb210`, and `excess_pb210_sd`.
+#'   `cumulative_dry_mass` and `excess`.
 #' @param ... Unused.
 #'
 #' @return An object with a [stats::predict()] method.

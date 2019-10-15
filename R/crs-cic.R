@@ -4,7 +4,7 @@
 #' @param cumulative_dry_mass The cumulative dry mass of the core (in kg), starting at the
 #'   surface sample and including all samples in the core.
 #'   These must be greater than 0 and in increasing order.
-#' @param excess_pb210 An excess (non-erosional) lead-210 specific activity (in Bq/kg)
+#' @param excess An excess (non-erosional) lead-210 specific activity (in Bq/kg)
 #'   for samples where this was measured, and NA where lead-210 was not measured. Use
 #'   [errors::set_errors()] to use automatic error propogation.
 #' @param inventory The cumulative excess lead-210 activity (in Bq), starting at the bottom
@@ -65,10 +65,10 @@
 #'
 #' predict(crs)
 #'
-pb210_cic <- function(cumulative_dry_mass, excess_pb210,
+pb210_cic <- function(cumulative_dry_mass, excess,
                       model_top = ~pb210_fit_exponential(..1, ..2),
                       decay_constant = pb210_decay_constant()) {
-  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210))
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess))
   stopifnot(
     is.numeric(decay_constant), length(decay_constant) == 1,
     without_errors(decay_constant) > 0
@@ -82,7 +82,7 @@ pb210_cic <- function(cumulative_dry_mass, excess_pb210,
     list(
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
-        excess_pb210 = with_errors(excess_pb210)
+        excess = with_errors(excess)
       ),
       model_top = model_top,
       decay_constant = with_errors(decay_constant)
@@ -93,13 +93,13 @@ pb210_cic <- function(cumulative_dry_mass, excess_pb210,
 
 #' @rdname pb210_cic
 #' @export
-pb210_crs <- function(cumulative_dry_mass, excess_pb210,
+pb210_crs <- function(cumulative_dry_mass, excess,
                       inventory = pb210_inventory_calculator(),
                       model_top = ~pb210_fit_exponential(..1, ..2),
                       core_area = pb210_core_area(),
                       decay_constant = pb210_decay_constant()) {
 
-  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210))
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess))
   stopifnot(
     inherits(inventory, "inventory_calculator") || is.numeric(inventory),
     length(core_area) == 1, is.numeric(core_area),
@@ -116,7 +116,7 @@ pb210_crs <- function(cumulative_dry_mass, excess_pb210,
     list(
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
-        excess_pb210 = with_errors(excess_pb210)
+        excess = with_errors(excess)
       ),
       # inventory could be an inventory calculator
       inventory = inventory,
@@ -135,30 +135,30 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  excess_pb210 <- stats::approx(
+  excess <- stats::approx(
     object$data$cumulative_dry_mass,
-    without_errors(object$data$excess_pb210),
+    without_errors(object$data$excess),
     xout = cumulative_dry_mass
   )$y
 
   # use errors for exact matches of cumulative_dry_mass to the original
   original_matches <- match(cumulative_dry_mass, object$data$cumulative_dry_mass)
-  excess_pb210_sd <- extract_errors(object$data$excess_pb210)[original_matches]
+  excess_sd <- extract_errors(object$data$excess)[original_matches]
 
   # assign errors
-  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
+  excess <- with_errors(excess, excess_sd)
 
   # resolve the top model
   model_top <- pb210_as_fit(
     object$model_top,
-    data = tibble::tibble(cumulative_dry_mass, excess_pb210)
+    data = tibble::tibble(cumulative_dry_mass, excess)
   )
-  surface_excess_pb210 <- with_errors(stats::predict(model_top, tibble::tibble(x = 0)))
+  surface_excess <- with_errors(stats::predict(model_top, tibble::tibble(x = 0)))
 
   # calculate ages
-  age <- with_errors(1) / object$decay_constant * log(surface_excess_pb210 / excess_pb210)
+  age <- with_errors(1) / object$decay_constant * log(surface_excess / excess)
   age_sd <- extract_errors(age)
-  has_error <- is.finite(errors(excess_pb210)) & (errors(excess_pb210) > 0)
+  has_error <- is.finite(errors(excess)) & (errors(excess) > 0)
   age_sd[!has_error] <- NA_real_
 
   tibble::tibble(
@@ -174,22 +174,22 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  excess_pb210 <- stats::approx(
+  excess <- stats::approx(
     object$data$cumulative_dry_mass,
-    without_errors(object$data$excess_pb210),
+    without_errors(object$data$excess),
     xout = cumulative_dry_mass
   )$y
 
   # use errors for exact matches of cumulative_dry_mass to the original
   original_matches <- match(cumulative_dry_mass, object$data$cumulative_dry_mass)
-  excess_pb210_sd <- extract_errors(object$data$excess_pb210)[original_matches]
-  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
+  excess_sd <- extract_errors(object$data$excess)[original_matches]
+  excess <- with_errors(excess, excess_sd)
 
   if (inherits(object$inventory, "inventory_calculator")) {
     inventory <- predict.inventory_calculator(
       object$inventory,
       cumulative_dry_mass = cumulative_dry_mass,
-      excess_pb210 = excess_pb210
+      excess = excess
     )
     inventory_sd <- extract_errors(inventory)
     inventory <- without_errors(inventory)
@@ -227,10 +227,10 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
   ages <- predict.pb210_fit_cic(fit_cic, cumulative_dry_mass)
 
   # add errors
-  has_error <- is.finite(errors(excess_pb210)) & (errors(excess_pb210) > 0)
+  has_error <- is.finite(errors(excess)) & (errors(excess) > 0)
 
   # the CRS model lets us estimate the mass accumulation rate directly
-  mar <- object$decay_constant * inventory / excess_pb210 / object$core_area
+  mar <- object$decay_constant * inventory / excess / object$core_area
 
   ages$mar <- without_errors(mar)
   ages$mar_sd <- extract_errors(mar)

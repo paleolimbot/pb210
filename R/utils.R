@@ -137,15 +137,15 @@ extract_errors <- function(x, default = NA_real_) {
   }
 }
 
-check_mass_and_activity <- function(cumulative_dry_mass, excess_pb210) {
+check_mass_and_activity <- function(cumulative_dry_mass, excess) {
   stopifnot(
     is.numeric(cumulative_dry_mass),
     all(is.finite(cumulative_dry_mass)),
     all(cumulative_dry_mass >= 0),
     all(diff(cumulative_dry_mass) > 0),
-    is.numeric(excess_pb210),
-    sum(is.finite(excess_pb210) & (excess_pb210 > 0)) >= 3,
-    length(cumulative_dry_mass) == length(excess_pb210),
-    all(excess_pb210 >= 0, na.rm = TRUE)
+    is.numeric(excess),
+    sum(is.finite(excess) & (excess > 0)) >= 3,
+    length(cumulative_dry_mass) == length(excess),
+    all(excess >= 0, na.rm = TRUE)
   )
 }

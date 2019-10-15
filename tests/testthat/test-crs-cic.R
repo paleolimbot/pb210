@@ -12,8 +12,8 @@ test_that("CIC model works on simulated core data", {
   core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
 
   cic_model_exact <- pb210_cic(
-    cumulative_dry_mass = accumulation$cumulative_dry_mass,
-    excess_pb210 = accumulation$pb210_specific_activity
+    accumulation$cumulative_dry_mass,
+    accumulation$pb210_specific_activity
   ) %>%
     predict()
 
@@ -62,8 +62,8 @@ test_that("CRS model works on simulated core data", {
   accumulation$inventory <- rev(cumsum(rev(accumulation$pb210_specific_activity * accumulation$slice_mass)))
 
   crs_model_exact <- pb210_crs(
-    cumulative_dry_mass = accumulation$cumulative_dry_mass,
-    excess_pb210 = accumulation$pb210_specific_activity,
+    accumulation$cumulative_dry_mass,
+    accumulation$pb210_specific_activity,
     inventory = accumulation$inventory
   ) %>%
     predict()

@@ -7,11 +7,11 @@
 \alias{predict.pb210_fit_crs}
 \title{Apply the Constant Rate of Supply or Constant Initial Concentration model}
 \usage{
-pb210_cic(cumulative_dry_mass, excess_pb210,
+pb210_cic(cumulative_dry_mass, excess,
   model_top = ~pb210_fit_exponential(..1, ..2),
   decay_constant = pb210_decay_constant())
 
-pb210_crs(cumulative_dry_mass, excess_pb210,
+pb210_crs(cumulative_dry_mass, excess,
   inventory = pb210_inventory_calculator(),
   model_top = ~pb210_fit_exponential(..1, ..2),
   core_area = pb210_core_area(),
@@ -26,7 +26,7 @@ pb210_crs(cumulative_dry_mass, excess_pb210,
 surface sample and including all samples in the core.
 These must be greater than 0 and in increasing order.}
 
-\item{excess_pb210}{An excess (non-erosional) lead-210 specific activity (in Bq/kg)
+\item{excess}{An excess (non-erosional) lead-210 specific activity (in Bq/kg)
 for samples where this was measured, and NA where lead-210 was not measured. Use
 \code{\link[errors:set_errors]{errors::set_errors()}} to use automatic error propogation.}
 

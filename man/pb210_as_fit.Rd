@@ -30,7 +30,7 @@ pb210_fit_lazy(x)
 \item{...}{Unused.}
 
 \item{data}{For lazy fits, this object is a tibble with
-\code{cumulative_dry_mass}, \code{excess_pb210}, and \code{excess_pb210_sd}.}
+\code{cumulative_dry_mass} and \code{excess}.}
 }
 \value{
 An object with a \code{\link[stats:predict]{stats::predict()}} method.
