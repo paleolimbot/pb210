@@ -8,8 +8,8 @@ test_that("CIC model works on simulated core data", {
       pb210_simulate_counting()
   })
 
-  accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
-  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
+  accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass)
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
 
   cic_model_exact <- pb210_cic(
     accumulation$cumulative_dry_mass,
@@ -58,7 +58,7 @@ test_that("CRS model works on simulated core data", {
   })
 
   # even in a perfect world, the best I can get is 3 years of accuracy in the last 100 years
-  accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
+  accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass)
   accumulation$inventory <- rev(cumsum(rev(accumulation$activity * accumulation$slice_mass)))
 
   crs_model_exact <- pb210_crs(
@@ -72,7 +72,7 @@ test_that("CRS model works on simulated core data", {
 
   # a less perfect world: a core with varying sedimentation rate
   # the best this gets is 12 years in the last 100 (with the defaults)
-  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
   crs_model <- pb210_crs(
     core$cumulative_dry_mass,
     set_errors(
@@ -104,7 +104,7 @@ test_that("CRS calculations for real core data do not change", {
   df$excess_pb210[df$depth_cm > 8] <- NA
 
   # cumulative dry mass on a per-core area basis are most useful
-  df$cumulative_dry_mass <- pb210_cumulative_mass(df$slice_mass_g / 1000 / core_area)
+  df$cumulative_dry_mass <- pb210_cumulative_mass(df$slice_mass_g / 1000 / core_area, 0.5)
   df$inventory <- pb210_inventory(
     df$cumulative_dry_mass,
     df$excess_pb210,
@@ -121,30 +121,30 @@ test_that("CRS calculations for real core data do not change", {
   expect_identical(
     is.na(ages$age),
     is.na(
-      c(1.7997, 4.45888, 8.1515, 12.48042, 25.59803, 41.63099, 61.26054,
-        83.31264, 127.34372, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+      c(4.60283, 7.43505, 10.95463, 15.28355, 28.40116, 44.43412, 64.06367,
+        86.11577, 130.14685, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
         NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
     )
   )
 
   expect_ages_similar(
     ages$age[1:9],
-    c(1.74603, 4.57826, 8.09783, 12.42675, 25.54436, 41.57732, 61.20688, 83.25898, 127.29005),
+    c(4.60283, 7.43505, 10.95463, 15.28355, 28.40116, 44.43412, 64.06367, 86.11577, 130.14685),
     max_delta = 0.0001
   )
 
   expect_identical(
     is.na(ages$age_sd),
     is.na(
-      c(1.8076, NA, 1.77354, 1.71348, 1.81861, 2.49783, 3.71956, 4.75733,
-        10.86162, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+      c(1.80809, NA, 1.77502, 1.71571, 1.82269, 2.50257, 3.7242, 4.76223,
+        10.86489, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
         NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
     )
   )
 
   expect_ages_similar(
     ages$age_sd[c(1, 3:9)],
-    c(1.8076, 1.77354, 1.71348, 1.81861, 2.49783, 3.71956, 4.75733, 10.86162),
+    c(1.80809, 1.77502, 1.71571, 1.82269, 2.50257, 3.7242, 4.76223, 10.86489),
     max_delta = 0.0001
   )
 })

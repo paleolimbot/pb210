@@ -4,13 +4,14 @@
 \alias{pb210_cumulative_mass}
 \title{Calculate cumulative mass}
 \usage{
-pb210_cumulative_mass(masses, position = 0)
+pb210_cumulative_mass(masses, position = 0.5)
 }
 \arguments{
 \item{masses}{A vector of sequential masses}
 
-\item{position}{0 for the cumulative mass at the bottom of the section
-and 1 for the cumulative mass}
+\item{position}{0 for the cumulative mass at the top of the section
+and 1 for the cumulative mass at the bottom of the section (0.5
+for the middle, which is the default).}
 }
 \value{
 A vector of cumulative masses

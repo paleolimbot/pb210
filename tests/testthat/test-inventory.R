@@ -21,7 +21,7 @@ test_that("inventory calculation works with wildly varying sedimentation rates",
       pb210_simulate_counting()
   })
 
-  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
 
   inventory <- pb210_inventory(
     core$cumulative_dry_mass,
@@ -43,7 +43,7 @@ test_that("lazy inventory calculator and inventory function defaults are identic
       pb210_simulate_counting()
   })
 
-  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
 
   calc <- pb210_inventory_calculator()
   expect_is(calc, "inventory_calculator")

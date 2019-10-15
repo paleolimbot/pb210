@@ -27,7 +27,7 @@ This is currently in experimental mode and under heavy development, so use it wi
 
 ## Installation
 
-You can install the development version of pb210 from github with:
+You can install the development version of *pb210* from github with:
 
 ``` r
 # install.package("remotes")

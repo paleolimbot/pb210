@@ -2,8 +2,9 @@
 #' Calculate cumulative mass
 #'
 #' @param masses A vector of sequential masses
-#' @param position 0 for the cumulative mass at the bottom of the section
-#'   and 1 for the cumulative mass
+#' @param position 0 for the cumulative mass at the top of the section
+#'   and 1 for the cumulative mass at the bottom of the section (0.5
+#'   for the middle, which is the default).
 #'
 #' @return A vector of cumulative masses
 #' @export
@@ -18,7 +19,7 @@
 #' # bottom of slice
 #' pb210_cumulative_mass(c(0.1, 0.1, 0.1, 0.1), position = 1)
 #'
-pb210_cumulative_mass <- function(masses, position = 0) {
+pb210_cumulative_mass <- function(masses, position = 0.5) {
   stopifnot(
     all(is.finite(masses)),
     all(is.finite(position)),

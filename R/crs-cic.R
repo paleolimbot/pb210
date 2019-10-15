@@ -42,7 +42,7 @@
 #'
 #' # calculate ages using the CIC model
 #' cic <- pb210_cic(
-#'   pb210_cumulative_mass(core$slice_mass, position = 0.5),
+#'   pb210_cumulative_mass(core$slice_mass),
 #'   set_errors(
 #'     core$activity_estimate,
 #'     core$activity_se

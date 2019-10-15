@@ -20,7 +20,7 @@ use it with caution\!
 
 ## Installation
 
-You can install the development version of pb210 from github with:
+You can install the development version of *pb210* from github with:
 
 ``` r
 # install.package("remotes")
@@ -124,16 +124,16 @@ alta_lake_pb210 %>%
 #> # A tibble: 32 x 3
 #>    cumulative_dry_mass    age age_sd
 #>                  <dbl>  <dbl>  <dbl>
-#>  1             0         1.75   1.81
-#>  2             0.00211   4.58  NA   
-#>  3             0.00449   8.10   1.77
-#>  4             0.00683  12.4    1.71
-#>  5             0.0125   25.5    1.82
-#>  6             0.0184   41.6    2.50
-#>  7             0.0255   61.2    3.72
-#>  8             0.0323   83.3    4.76
-#>  9             0.0407  127.    10.9 
-#> 10             0.0466   NA     NA   
+#>  1             0.00132   4.60   1.81
+#>  2             0.00343   7.44  NA   
+#>  3             0.00581  11.0    1.78
+#>  4             0.00815  15.3    1.72
+#>  5             0.0139   28.4    1.82
+#>  6             0.0197   44.4    2.50
+#>  7             0.0268   64.1    3.72
+#>  8             0.0336   86.1    4.76
+#>  9             0.0420  130.    10.9 
+#> 10             0.0479   NA     NA   
 #> # … with 22 more rows
 ```
 
