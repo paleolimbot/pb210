@@ -82,7 +82,7 @@ pb210_inventory_calculator <- function(model_top = ~max(..2, na.rm = TRUE),
 #' @export
 predict.inventory_calculator <- function(object, cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
                                          ...) {
-  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210))
 
   data <- tibble::tibble(
     cumulative_dry_mass,

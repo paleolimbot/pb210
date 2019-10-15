@@ -48,8 +48,10 @@
 #' # calculate ages using the CIC model
 #' cic <- pb210_cic(
 #'   pb210_cumulative_mass(core$slice_mass, position = 0.5),
-#'   core$pb210_specific_activity_estimate,
-#'   core$pb210_specific_activity_se
+#'   set_errors(
+#'     core$pb210_specific_activity_estimate,
+#'     core$pb210_specific_activity_se
+#'   )
 #' )
 #'
 #' predict(cic)
@@ -57,16 +59,18 @@
 #' # calculate ages using the CRS model
 #' crs <- pb210_crs(
 #'   pb210_cumulative_mass(core$slice_mass),
-#'   core$pb210_specific_activity_estimate,
-#'   core$pb210_specific_activity_se
+#'   set_errors(
+#'     core$pb210_specific_activity_estimate,
+#'     core$pb210_specific_activity_se
+#'   )
 #' )
 #'
 #' predict(crs)
 #'
-pb210_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
+pb210_cic <- function(cumulative_dry_mass, excess_pb210,
                       model_top = ~pb210_fit_exponential(..1, ..2),
                       decay_constant = pb210_decay_constant()) {
-  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210))
   stopifnot(
     is.numeric(decay_constant), length(decay_constant) == 1,
     without_errors(decay_constant) > 0
@@ -80,8 +84,7 @@ pb210_cic <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_re
     list(
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
-        excess_pb210 = without_errors(!!excess_pb210),
-        excess_pb210_sd = extract_errors(!!excess_pb210, !!excess_pb210_sd)
+        excess_pb210 = with_errors(excess_pb210)
       ),
       model_top = model_top,
       decay_constant = with_errors(decay_constant)
@@ -99,7 +102,7 @@ pb210_crs <- function(cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_re
                       core_area = pb210_core_area(),
                       decay_constant = pb210_decay_constant()) {
 
-  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210), excess_pb210_sd)
+  check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210))
   stopifnot(
     inherits(inventory, "inventory_calculator") || is.numeric(inventory),
     length(core_area) == 1, is.numeric(core_area),
@@ -140,22 +143,22 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
 
   excess_pb210 <- stats::approx(
     object$data$cumulative_dry_mass,
-    object$data$excess_pb210,
+    without_errors(object$data$excess_pb210),
     xout = cumulative_dry_mass
   )$y
 
   # use errors for exact matches of cumulative_dry_mass to the original
   original_matches <- match(cumulative_dry_mass, object$data$cumulative_dry_mass)
-  excess_pb210_sd <- object$data$excess_pb210_sd[original_matches]
+  excess_pb210_sd <- extract_errors(object$data$excess_pb210)[original_matches]
+
+  # assign errors
+  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
 
   # resolve the top model
   model_top <- pb210_as_fit(
     object$model_top,
-    data = tibble::tibble(cumulative_dry_mass, excess_pb210, excess_pb210_sd)
+    data = tibble::tibble(cumulative_dry_mass, excess_pb210)
   )
-
-  # assign errors
-  excess_pb210 <- with_errors(excess_pb210, excess_pb210_sd)
   surface_excess_pb210 <- with_errors(stats::predict(model_top, tibble::tibble(x = 0)))
 
   # calculate ages
@@ -220,7 +223,7 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
 
   # the CRS model is the CIC model using inventory instead of concentration
   fit_cic <- pb210_cic(
-    cumulative_dry_mass, inventory, inventory_sd,
+    cumulative_dry_mass, with_errors(inventory, inventory_sd),
     model_top = model_top, decay_constant = object$decay_constant
   )
 

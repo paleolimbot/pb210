@@ -60,5 +60,4 @@ test_that("cumulative mass and excess_pb210 assumptions are checked", {
   # inconsistent lengths
   expect_error(check_mass_and_activity(0:3, pb210), "is not TRUE")
   expect_error(check_mass_and_activity(mass, c(pb210, 0.01)), "is not TRUE")
-  expect_error(check_mass_and_activity(mass, pb210, c(1, 2)), "is not TRUE")
 })

@@ -20,9 +20,11 @@ test_that("CIC model works on simulated core data", {
   expect_ages_similar(cic_model_exact$age, accumulation$age, 0.1)
 
   cic_model <- pb210_cic(
-    cumulative_dry_mass = core$cumulative_dry_mass,
-    excess_pb210 = core$pb210_specific_activity_estimate,
-    excess_pb210_sd = core$pb210_specific_activity_se
+    core$cumulative_dry_mass,
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    )
   ) %>%
     predict()
 
