@@ -132,18 +132,11 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  excess <- stats::approx(
+  excess <- approx_error(
     object$data$cumulative_dry_mass,
-    without_errors(object$data$excess),
+    object$data$excess,
     xout = cumulative_dry_mass
-  )$y
-
-  # use errors for exact matches of cumulative_dry_mass to the original
-  original_matches <- match(cumulative_dry_mass, object$data$cumulative_dry_mass)
-  excess_sd <- extract_errors(object$data$excess)[original_matches]
-
-  # assign errors
-  excess <- with_errors(excess, excess_sd)
+  )
 
   # resolve the top model
   model_top <- pb210_as_fit(
@@ -171,16 +164,11 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  excess <- stats::approx(
+  excess <- approx_error(
     object$data$cumulative_dry_mass,
-    without_errors(object$data$excess),
+    object$data$excess,
     xout = cumulative_dry_mass
-  )$y
-
-  # use errors for exact matches of cumulative_dry_mass to the original
-  original_matches <- match(cumulative_dry_mass, object$data$cumulative_dry_mass)
-  excess_sd <- extract_errors(object$data$excess)[original_matches]
-  excess <- with_errors(excess, excess_sd)
+  )
 
   if (inherits(object$inventory, "inventory_calculator")) {
     inventory <- predict.inventory_calculator(
@@ -188,15 +176,12 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
       cumulative_dry_mass = cumulative_dry_mass,
       excess = excess
     )
-    inventory_sd <- extract_errors(inventory)
-    inventory <- without_errors(inventory)
   } else {
-    inventory <- stats::approx(
+    inventory <- approx_error(
       object$data$cumulative_dry_mass,
-      without_errors(object$inventory),
+      object$inventory,
       xout = cumulative_dry_mass
-    )$y
-    inventory_sd <- extract_errors(object$inventory)[original_matches]
+    )
   }
 
   # check inventory
@@ -205,8 +190,6 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     # inventory must be decreasing everywhere
     all(diff(without_errors(inventory[is.finite(inventory)])) <= 0)
   )
-
-  inventory <- with_errors(inventory, inventory_sd)
 
   # resolve the top model
   model_top <- pb210_as_fit(

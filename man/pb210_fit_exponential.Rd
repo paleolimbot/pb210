@@ -10,7 +10,6 @@
 \alias{coef.exponential_manual}
 \alias{predict.lm_loglinear}
 \alias{coef.lm_loglinear}
-\alias{predict.linear_interpolator}
 \title{Fit an exponential model}
 \usage{
 pb210_fit_exponential(x, y)
@@ -30,8 +29,6 @@ pb210_fit_exponential_constant(value)
 \method{predict}{lm_loglinear}(object, newdata, ...)
 
 \method{coef}{lm_loglinear}(object, ...)
-
-\method{predict}{linear_interpolator}(object, newdata, ...)
 }
 \arguments{
 \item{x}{An independent variable like depth or cumulative dry mass.}

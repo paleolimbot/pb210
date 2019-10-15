@@ -46,7 +46,17 @@ test_that("extract_errors() warns when multiple error types are specified", {
   expect_warning(extract_errors(set_errors(1, 1), 1), "Two errors")
 })
 
-test_that("cumulative mass and excess_pb210 assumptions are checked", {
+test_that("approx_error() works", {
+  x <- 1:10
+  y <- seq(10, 100, by = 10)
+  err <- seq(0.1, 1, by = 0.1)
+  yerr <- set_errors(y, err)
+
+  expect_equal(approx_error(x, yerr, xout = x), yerr)
+  expect_equal(sum(is.finite(errors(approx_error(x, yerr, seq(1, 10, by = 0.5))))), 10)
+})
+
+test_that("cumulative mass and excess assumptions are checked", {
   mass <- 0:2
   pb210 <- c(10, 1, 0.1)
   expect_silent(check_mass_and_activity(mass, pb210))

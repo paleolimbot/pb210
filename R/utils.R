@@ -107,6 +107,12 @@ expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_
   )
 }
 
+approx_error <- function(x, y, xout) {
+  value <- stats::approx(without_errors(x), without_errors(y), xout = xout)$y
+  error <- extract_errors(y)[match(xout, x)]
+  with_errors(value, error)
+}
+
 with_errors <- function(x, error = NA_real_) {
   if(inherits(x, "errors") && any(!is.na(error))) {
     warning("Two errors included. Using error internal to x.")

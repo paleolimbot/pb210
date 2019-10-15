@@ -76,15 +76,6 @@ test_that("fit coersion works as expected", {
   expect_error(pb210_as_fit("I'm not a fit"), "method for object")
 })
 
-test_that("linear interpolator works as intended", {
-  known_x <- c(0, 1, 2)
-  known_y <- c(10, 12, 16)
-  interp_fit <- pb210_fit_interpolator_linear(known_x, known_y)
-
-  expect_identical(predict(interp_fit, tibble::tibble(x = known_x)), known_y)
-  expect_identical(predict(interp_fit, tibble::tibble(x = c(0.5, 1.5))), c(11, 14))
-})
-
 test_that("as_fit works as intended with lazy fits", {
   expect_is(pb210_as_fit(~max(..1)), "pb210_fit_lazy")
   expect_is(pb210_as_fit(max), "pb210_fit_lazy")
