@@ -33,9 +33,11 @@ test_that("CIC model works on simulated core data", {
 
   # CRS model is also valid here
   crs_model <- pb210_crs(
-    cumulative_dry_mass = core$cumulative_dry_mass,
-    excess_pb210 = core$pb210_specific_activity_estimate,
-    excess_pb210_sd = core$pb210_specific_activity_se
+    core$cumulative_dry_mass,
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    )
   ) %>%
     predict()
 
@@ -72,9 +74,11 @@ test_that("CRS model works on simulated core data", {
   # the best this gets is 12 years in the last 100 (with the defaults)
   core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, 0.5)
   crs_model <- pb210_crs(
-    cumulative_dry_mass = core$cumulative_dry_mass,
-    excess_pb210 = core$pb210_specific_activity_estimate,
-    excess_pb210_sd = core$pb210_specific_activity_se
+    core$cumulative_dry_mass,
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    )
   ) %>%
     predict()
 

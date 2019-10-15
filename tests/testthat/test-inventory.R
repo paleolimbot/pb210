@@ -25,8 +25,10 @@ test_that("inventory calculation works with wildly varying sedimentation rates",
 
   inventory <- pb210_inventory(
     core$cumulative_dry_mass,
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_se
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    )
   )
 
   # must be decreasing everywhere
@@ -50,31 +52,39 @@ test_that("lazy inventory calculator and inventory function defaults are identic
 
   inventory <- pb210_inventory(
     core$cumulative_dry_mass,
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_se
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    )
   )
 
   inventory_lazy <- pb210_inventory_calculator() %>%
     predict(
       core$cumulative_dry_mass,
-      core$pb210_specific_activity_estimate,
-      core$pb210_specific_activity_se
+      set_errors(
+        core$pb210_specific_activity_estimate,
+        core$pb210_specific_activity_se
+      )
     )
 
   expect_equal(inventory, inventory_lazy)
 
   crs <- pb210_crs(
     core$cumulative_dry_mass,
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_se,
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    ),
     inventory = inventory
   ) %>%
     predict()
 
   crs_lazy <- pb210_crs(
     core$cumulative_dry_mass,
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_se,
+    set_errors(
+      core$pb210_specific_activity_estimate,
+      core$pb210_specific_activity_se
+    ),
     inventory = pb210_inventory_calculator()
   ) %>%
     predict()

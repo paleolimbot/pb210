@@ -140,7 +140,7 @@ crs_ages <- pb210_crs(
   alta_lake_pb210$excess_pb210,
   inventory = alta_lake_pb210$inventory
 ) %>%
-  predict() 
+  predict()
 
 alta_lake_pb210 %>%
   bind_cols(crs_ages) %>%

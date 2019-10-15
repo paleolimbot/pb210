@@ -47,11 +47,9 @@
 #' # exp(5 - fake_mass) to +Inf
 #' exp(-1 * fake_mass  + 5) / -(-1)
 #'
-pb210_inventory <- function(
-  cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
-  model_top = max(excess_pb210, na.rm = TRUE),
-  model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210)
-) {
+pb210_inventory <- function(cumulative_dry_mass, excess_pb210,
+                            model_top = max(excess_pb210, na.rm = TRUE),
+                            model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess_pb210)) {
   fit <- pb210_inventory_calculator(
     model_top = model_top,
     model_bottom = model_bottom
@@ -60,8 +58,7 @@ pb210_inventory <- function(
   predict.inventory_calculator(
     fit,
     cumulative_dry_mass = cumulative_dry_mass,
-    excess_pb210 = excess_pb210,
-    excess_pb210_sd = excess_pb210_sd
+    excess_pb210 = excess_pb210
   )
 }
 
@@ -80,18 +77,17 @@ pb210_inventory_calculator <- function(model_top = ~max(..2, na.rm = TRUE),
 
 #' @rdname pb210_inventory
 #' @export
-predict.inventory_calculator <- function(object, cumulative_dry_mass, excess_pb210, excess_pb210_sd = NA_real_,
-                                         ...) {
+predict.inventory_calculator <- function(object, cumulative_dry_mass, excess_pb210, ...) {
   check_mass_and_activity(cumulative_dry_mass, without_errors(excess_pb210))
 
-  data <- tibble::tibble(
-    cumulative_dry_mass,
-    excess_pb210 = without_errors(!!excess_pb210),
-    excess_pb210_sd = extract_errors(!!excess_pb210, !!excess_pb210_sd)
-  )
-
+  # model bottom/top functions expect errors as input
+  data <- tibble::tibble(cumulative_dry_mass, excess_pb210 = with_errors(excess_pb210))
   model_bottom <- pb210_as_fit(object$model_bottom, data = data)
   model_top <- pb210_as_fit(object$model_top, data = data)
+
+  # the rest of this function needs errors separate from values
+  data$excess_pb210_sd <- extract_errors(excess_pb210)
+  data$excess_pb210 <-  without_errors(data$excess_pb210)
 
   finite_pb210_indices <- which(
     is.finite(data$excess_pb210) & (data$excess_pb210 > 0)

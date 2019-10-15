@@ -7,15 +7,15 @@
 \title{Calculate cumulative lead-210 activity}
 \usage{
 pb210_inventory(cumulative_dry_mass, excess_pb210,
-  excess_pb210_sd = NA_real_, model_top = max(excess_pb210, na.rm =
-  TRUE), model_bottom = pb210_fit_exponential(cumulative_dry_mass,
+  model_top = max(excess_pb210, na.rm = TRUE),
+  model_bottom = pb210_fit_exponential(cumulative_dry_mass,
   excess_pb210))
 
 pb210_inventory_calculator(model_top = ~max(..2, na.rm = TRUE),
   model_bottom = ~pb210_fit_exponential(..1, ..2))
 
 \method{predict}{inventory_calculator}(object, cumulative_dry_mass,
-  excess_pb210, excess_pb210_sd = NA_real_, ...)
+  excess_pb210, ...)
 }
 \arguments{
 \item{cumulative_dry_mass}{The cumulative dry mass of the core (in kg), starting at the
@@ -25,9 +25,6 @@ These must be greater than 0 and in increasing order.}
 \item{excess_pb210}{An excess lead-210 activity for samples where this was
 measured, and NA where lead-210 was not measured. NA values will be
 estimated using \code{model_top}, \code{model_middle}, and \code{model_bottom}.}
-
-\item{excess_pb210_sd}{The standard error of the excess lead-210 specific activity (in Bq/kg).
-Can be NA if error is not known.}
 
 \item{model_top}{A fit object or constant that will be used to model
 activities above the first positive finite lead-210 activity. Use NULL for
