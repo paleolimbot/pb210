@@ -1,32 +1,4 @@
 
-#' Calculate excess (unsupported) lead-210
-#'
-#' @param total_pb210,total_pb210_sd A vector of measured lead-210 specific activities (in Bq/kg) and
-#'   associated error. These can have [errors::errors()].
-#' @param background_pb210,background_pb210_sd A vector of estimated background
-#'   lead-210 specific activity (in Bq/kg) and associated error.
-#'
-#' @return A vector with [errors::errors()] of the excess lead-210 specific activity.
-#' @export
-#'
-#' @examples
-#' core <- pb210_simulate_core(depth_step = rep(1, 30)) %>%
-#'   pb210_simulate_counting()
-#'
-#' pb210_excess(
-#'   core$pb210_specific_activity_estimate,
-#'   background_pb210 = 10,
-#'   core$pb210_specific_activity_sd
-#' )
-#'
-pb210_excess <- function(total_pb210, background_pb210 = 0,
-                         total_pb210_sd = NA_real_, background_pb210_sd = NA_real_) {
-  excess <- with_errors(total_pb210, total_pb210_sd) -
-    with_errors(background_pb210, background_pb210_sd)
-  excess[(without_errors(excess) - extract_errors(excess)) <= 0] <- NA_real_
-  excess
-}
-
 #' Calculate cumulative mass
 #'
 #' @param masses A vector of sequential masses
