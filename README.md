@@ -15,7 +15,8 @@ measurements. I am not an expert on <sup>210</sup>Pb, but occasionally
 need to interpret these data and would love input on how to make this
 package better (open an issue on the issues page or email me\!).
 
-This is currently in experimental mode, so use it with caution\!
+This is currently in experimental mode and under heavy development, so
+use it with caution\!
 
 ## Installation
 
@@ -146,19 +147,18 @@ pb210_simulate_accumulation() %>%
   pb210_simulate_core() %>%
   pb210_simulate_counting()
 #> # A tibble: 60 x 11
-#>      age depth pb210_specific_… age_top age_bottom depth_top depth_bottom
-#>    <dbl> <dbl>            <dbl>   <dbl>      <dbl>     <dbl>        <dbl>
-#>  1  2.51  0.25             617.    0          5.01       0            0.5
-#>  2  7.55  0.75             527.    5.01      10.1        0.5          1  
-#>  3 12.6   1.25             450.   10.1       15.2        1            1.5
-#>  4 17.7   1.75             384.   15.2       20.3        1.5          2  
-#>  5 22.9   2.25             327.   20.3       25.5        2            2.5
-#>  6 28.1   2.75             278.   25.5       30.7        2.5          3  
-#>  7 33.3   3.25             236.   30.7       35.9        3            3.5
-#>  8 38.6   3.75             200.   35.9       41.2        3.5          4  
-#>  9 43.9   4.25             170.   41.2       46.6        4            4.5
-#> 10 49.2   4.75             143.   46.6       51.9        4.5          5  
+#>      age depth activity age_top age_bottom depth_top depth_bottom
+#>    <dbl> <dbl>    <dbl>   <dbl>      <dbl>     <dbl>        <dbl>
+#>  1  2.51  0.25     617.    0          5.01       0            0.5
+#>  2  7.55  0.75     527.    5.01      10.1        0.5          1  
+#>  3 12.6   1.25     450.   10.1       15.2        1            1.5
+#>  4 17.7   1.75     384.   15.2       20.3        1.5          2  
+#>  5 22.9   2.25     327.   20.3       25.5        2            2.5
+#>  6 28.1   2.75     278.   25.5       30.7        2.5          3  
+#>  7 33.3   3.25     236.   30.7       35.9        3            3.5
+#>  8 38.6   3.75     200.   35.9       41.2        3.5          4  
+#>  9 43.9   4.25     170.   41.2       46.6        4            4.5
+#> 10 49.2   4.75     143.   46.6       51.9        4.5          5  
 #> # … with 50 more rows, and 4 more variables: slice_mass <dbl>,
-#> #   slice_density <dbl>, pb210_specific_activity_estimate <dbl>,
-#> #   pb210_specific_activity_se <dbl>
+#> #   slice_density <dbl>, activity_estimate <dbl>, activity_se <dbl>
 ```

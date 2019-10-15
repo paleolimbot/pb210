@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 The goal of pb210 is to provide a reproducible R-based workflow to create sediment core chronologies from ^210^Pb activity measurements. I am not an expert on ^210^Pb, but occasionally need to interpret these data and would love input on how to make this package better (open an issue on the issues page or email me!).
 
-This is currently in experimental mode, so use it with caution!
+This is currently in experimental mode and under heavy development, so use it with caution!
 
 ## Installation
 

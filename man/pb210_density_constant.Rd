@@ -7,7 +7,7 @@
 pb210_density_constant(value = 150)
 }
 \arguments{
-\item{value}{A density at the time of deposition, in kg / m3}
+\item{value}{A density at the time of deposition, in kg / m^3^}
 }
 \value{
 A function of a single parameter, \code{age}, which is a (decreasing) vector of ages.

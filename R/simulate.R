@@ -310,7 +310,7 @@ pb210_mass_accumulation_rlnorm <- function(mean = 0.150, sd = 1) {
 #'
 #' Note that this refers to dry density at the time of deposition.
 #'
-#' @param value A density at the time of deposition, in kg / m3
+#' @param value A density at the time of deposition, in kg / m^3^
 #'
 #' @return A function of a single parameter, `age`, which is a (decreasing) vector of ages.
 #' @export
