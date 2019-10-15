@@ -11,7 +11,7 @@
 #' are in Bq / kg. [pb210_simulate_counting()] simulates putting a subsample
 #' of each slice on a counter for a specified amount of time. This allows
 #' assigning an error to the known lead-210 activity, as well as provide
-#' more realistic data for simulations. See [pb210_error_from_specific_activity()]
+#' more realistic data for simulations. See [pb210_error_from_activity()]
 #' for details.
 #'
 #' @param max_age The maximum age of the simulation (years)
@@ -29,13 +29,13 @@
 #' @param depth_step A vector of depth steps to consider, from the top to the bottom
 #'   of the core. There should be one element in the vector for each slice considered.
 #' @param core_area The internal area of the core in m^2^.
-#' @inheritParams pb210_error_from_specific_activity
+#' @inheritParams pb210_error_from_activity
 #'
 #' @return A tibble with columns:
 #'
 #'   - **age** (years): the mean age of the slice (weighted by mass)
 #'   - **depth** (cm): the midpoint depth of the slice
-#'   - **pb210_specific_activity** (Bq/kg)
+#'   - **activity** (Bq/kg)
 #'   - **age_top**, **age_bottom** (years)
 #'   - **depth_top**, **depth_bottom** (cm)
 #'   - **slice_mass** (kg)
@@ -43,11 +43,11 @@
 #'
 #'   The output of `pb210_simulate_counting()` also includes the columns:
 #'
-#'   - **pb210_specific_activity_estimate** (Bq/kg): A plausible activity that might be
+#'   - **activity_estimate** (Bq/kg): A plausible activity that might be
 #'     obtained by a lead-210 counting method, sampled using [stats::rpois()].
-#'   - **pb210_specific_activity_se** (Bq/kg): The standard error (estimate of the standard
-#'     deviation) of **pb210_specific_activity_estimate**. For the expected error,
-#'     use [pb210_error_from_specific_activity()] on
+#'   - **activity_se** (Bq/kg): The standard error (estimate of the standard
+#'     deviation) of **activity_estimate**. For the expected error,
+#'     use [pb210_error_from_activity()] on
 #'
 #'
 #' @importFrom rlang .data
@@ -96,7 +96,7 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
     initial_density = initial_density(.data$age), # kg / m^3
 
     # radioactive decay of pb210, normalized to mass
-    pb210_specific_activity = .data$initial_pb210_content * exp(-decay_constant * .data$age) /
+    activity = .data$initial_pb210_content * exp(-decay_constant * .data$age) /
       .data$slice_mass, # Bq / kg
 
     # compression of sediment
@@ -125,7 +125,7 @@ pb210_simulate_accumulation <- function(mass_accumulation = pb210_mass_accumulat
   tbl[
     order(tbl$depth),
     c(
-      "age", "depth", "pb210_specific_activity", "age_top", "age_bottom",
+      "age", "depth", "activity", "age_top", "age_bottom",
       "depth_top", "depth_bottom", "slice_mass", "slice_density"
     )
   ]
@@ -141,7 +141,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
     all(
       c(
         "age", "depth_top", "depth_bottom", "age_top", "age_bottom",
-        "pb210_specific_activity", "slice_mass",
+        "activity", "slice_mass",
         "slice_density"
       ) %in% colnames(accumulation)
     ),
@@ -158,7 +158,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
   accumulation$thickness <- accumulation$depth_bottom - accumulation$depth_top # cm
   accumulation$slice_volume <- accumulation$slice_mass / accumulation$slice_density # m^3
 
-  accumulation$pb210_specific_activity_total <- accumulation$pb210_specific_activity * accumulation$slice_mass # Bq
+  accumulation$activity_total <- accumulation$activity * accumulation$slice_mass # Bq
   accumulation$age_total <- accumulation$age_bottom - accumulation$age_top # yr
   accumulation$sediment_accumulation_rate <- accumulation$age_total / accumulation$thickness # yr
 
@@ -182,7 +182,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
         # return a 1-row tibble of summary values
         tibble::tibble(
           slice_mass = sum(mass_in_slice),
-          pb210_specific_activity = sum(accumulation$pb210_specific_activity_total * proportion_in_slice) /
+          activity = sum(accumulation$activity_total * proportion_in_slice) /
             .data$slice_mass,
           age = stats::weighted.mean(accumulation$age, mass_in_slice),
           slice_volume = (bottom - top) / 100 * core_area,
@@ -211,7 +211,7 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
   tbl[
     order(tbl$depth),
     c(
-      "age", "depth", "pb210_specific_activity", "age_top", "age_bottom",
+      "age", "depth", "activity", "age_top", "age_bottom",
       "depth_top", "depth_bottom", "slice_mass", "slice_density"
     )
   ]
@@ -222,25 +222,25 @@ pb210_simulate_core <- function(accumulation = pb210_simulate_accumulation(),
 pb210_simulate_counting <- function(accumulation = pb210_simulate_core(),
                                     count_mass = 0.5 / 1000,
                                     count_time = lubridate::ddays(1)) {
-  stopifnot("pb210_specific_activity" %in% colnames(accumulation))
-  check_count_params(accumulation$pb210_specific_activity, count_mass, count_time)
+  stopifnot("activity" %in% colnames(accumulation))
+  check_count_params(accumulation$activity, count_mass, count_time)
   count_time <- count_time_seconds(count_time)
 
   # model counts as a poisson distribution with lambda = the expected number of counts
-  expected_decays <- pb210_counts_from_specific_activity(
-    accumulation$pb210_specific_activity,
+  expected_decays <- pb210_counts_from_activity(
+    accumulation$activity,
     count_mass,
     count_time
   )
   sampled_decays <- stats::rpois(nrow(accumulation), lambda = expected_decays) # counts
 
   # add estimate and standard error to the
-  accumulation$pb210_specific_activity_estimate <- pb210_specific_activity_from_counts(
+  accumulation$activity_estimate <- pb210_activity_from_counts(
     sampled_decays,
     count_mass,
     count_time
   )
-  accumulation$pb210_specific_activity_se <- pb210_error_from_counts(
+  accumulation$activity_se <- pb210_error_from_counts(
     sampled_decays,
     count_mass,
     count_time

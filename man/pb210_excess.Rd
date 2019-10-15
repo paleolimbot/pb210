@@ -25,8 +25,8 @@ core <- pb210_simulate_core(depth_step = rep(1, 30)) \%>\%
 
 pb210_excess(
   set_errors(
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_sd
+    core$activity_estimate,
+    core$activity_sd
   ),
   background = 10
 )

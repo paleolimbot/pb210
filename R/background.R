@@ -15,8 +15,8 @@
 #'
 #' pb210_excess(
 #'   set_errors(
-#'     core$pb210_specific_activity_estimate,
-#'     core$pb210_specific_activity_sd
+#'     core$activity_estimate,
+#'     core$activity_sd
 #'   ),
 #'   background = 10
 #' )

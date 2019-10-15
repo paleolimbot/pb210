@@ -58,7 +58,7 @@ A tibble with columns:
 \itemize{
 \item \strong{age} (years): the mean age of the slice (weighted by mass)
 \item \strong{depth} (cm): the midpoint depth of the slice
-\item \strong{pb210_specific_activity} (Bq/kg)
+\item \strong{activity} (Bq/kg)
 \item \strong{age_top}, \strong{age_bottom} (years)
 \item \strong{depth_top}, \strong{depth_bottom} (cm)
 \item \strong{slice_mass} (kg)
@@ -67,11 +67,11 @@ A tibble with columns:
 
 The output of \code{pb210_simulate_counting()} also includes the columns:
 \itemize{
-\item \strong{pb210_specific_activity_estimate} (Bq/kg): A plausible activity that might be
+\item \strong{activity_estimate} (Bq/kg): A plausible activity that might be
 obtained by a lead-210 counting method, sampled using \code{\link[stats:rpois]{stats::rpois()}}.
-\item \strong{pb210_specific_activity_se} (Bq/kg): The standard error (estimate of the standard
-deviation) of \strong{pb210_specific_activity_estimate}. For the expected error,
-use \code{\link[=pb210_error_from_specific_activity]{pb210_error_from_specific_activity()}} on
+\item \strong{activity_se} (Bq/kg): The standard error (estimate of the standard
+deviation) of \strong{activity_estimate}. For the expected error,
+use \code{\link[=pb210_error_from_activity]{pb210_error_from_activity()}} on
 }
 }
 \description{
@@ -85,7 +85,7 @@ masses are in kg, densities are in kg / m^3^, and specific activities
 are in Bq / kg. \code{\link[=pb210_simulate_counting]{pb210_simulate_counting()}} simulates putting a subsample
 of each slice on a counter for a specified amount of time. This allows
 assigning an error to the known lead-210 activity, as well as provide
-more realistic data for simulations. See \code{\link[=pb210_error_from_specific_activity]{pb210_error_from_specific_activity()}}
+more realistic data for simulations. See \code{\link[=pb210_error_from_activity]{pb210_error_from_activity()}}
 for details.
 }
 \examples{

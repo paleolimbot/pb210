@@ -59,18 +59,15 @@ Apply the Constant Rate of Supply or Constant Initial Concentration model
 }
 \examples{
 # simulate a core
-core <- pb210_simulate_accumulation(
-  mass_accumulation = pb210_mass_accumulation_constant()
-) \%>\%
-  pb210_simulate_core() \%>\%
+core <- pb210_simulate_core() \%>\%
   pb210_simulate_counting()
 
 # calculate ages using the CIC model
 cic <- pb210_cic(
   pb210_cumulative_mass(core$slice_mass, position = 0.5),
   set_errors(
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_se
+    core$activity_estimate,
+    core$activity_se
   )
 )
 
@@ -80,8 +77,8 @@ predict(cic)
 crs <- pb210_crs(
   pb210_cumulative_mass(core$slice_mass),
   set_errors(
-    core$pb210_specific_activity_estimate,
-    core$pb210_specific_activity_se
+    core$activity_estimate,
+    core$activity_se
   )
 )
 

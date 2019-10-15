@@ -1,13 +1,13 @@
 context("test-counts")
 
-test_that("pb210_count/specific_activity functions are inverses", {
+test_that("pb210_count/activity functions are inverses", {
   mass <- 0.5 / 1000
   time <- lubridate::ddays(1)
   specific_activities <- c(500, 100, 12)
   expect_identical(
     specific_activities %>%
-      pb210_counts_from_specific_activity(mass, time) %>%
-      pb210_specific_activity_from_counts(mass, time),
+      pb210_counts_from_activity(mass, time) %>%
+      pb210_activity_from_counts(mass, time),
     specific_activities
   )
 })
@@ -18,10 +18,10 @@ test_that("pb210_error functions give consistent information", {
   specific_activities <- c(500, 100, 12)
   expect_identical(
     specific_activities %>%
-      pb210_counts_from_specific_activity(mass, time) %>%
+      pb210_counts_from_activity(mass, time) %>%
       pb210_error_from_counts(mass, time),
     specific_activities %>%
-      pb210_error_from_specific_activity(mass, time)
+      pb210_error_from_activity(mass, time)
   )
 })
 

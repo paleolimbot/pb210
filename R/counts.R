@@ -5,7 +5,7 @@
 #' specific activity and associated error. In an imperfect world, these functions
 #' are here to calculate specific activity and error given the required information.
 #'
-#' @param pb210_specific_activity A specific activity of lead-210, in Bq / kg.
+#' @param activity A specific activity of lead-210, in Bq / kg.
 #' @param counts The number of measured decays
 #' @param count_mass The amount of mass each sample that was counted (kg). Can be
 #'   a vector to specify different masses for each sample.
@@ -18,7 +18,7 @@
 #' @export
 #'
 #' @examples
-#' pb210_error_from_specific_activity(
+#' pb210_error_from_activity(
 #'   c(500, 100, 10, 5),
 #'   count_mass = 0.5 / 1000,
 #'   count_time = lubridate::ddays(1)
@@ -30,24 +30,24 @@
 #'   count_time = lubridate::ddays(1)
 #' )
 #'
-#' pb210_specific_activity_from_counts(
+#' pb210_activity_from_counts(
 #'   c(21600, 4320, 432, 216),
 #'   count_mass = 0.5 / 1000,
 #'   count_time = lubridate::ddays(1)
 #' )
 #'
-#' pb210_counts_from_specific_activity(
+#' pb210_counts_from_activity(
 #'   c(500, 100, 10, 5),
 #'   count_mass = 0.5 / 1000,
 #'   count_time = lubridate::ddays(1)
 #' )
 #'
-pb210_error_from_specific_activity <- function(pb210_specific_activity, count_mass, count_time) {
-  counts <- pb210_counts_from_specific_activity(pb210_specific_activity, count_mass, count_time)
+pb210_error_from_activity <- function(activity, count_mass, count_time) {
+  counts <- pb210_counts_from_activity(activity, count_mass, count_time)
   pb210_error_from_counts(counts, count_mass, count_time)
 }
 
-#' @rdname pb210_error_from_specific_activity
+#' @rdname pb210_error_from_activity
 #' @export
 pb210_error_from_counts <- function(counts, count_mass, count_time) {
   check_count_params(counts, count_mass, count_time)
@@ -57,21 +57,21 @@ pb210_error_from_counts <- function(counts, count_mass, count_time) {
   sqrt(counts) / count_time / count_mass # Bq / kg
 }
 
-#' @rdname pb210_error_from_specific_activity
+#' @rdname pb210_error_from_activity
 #' @export
-pb210_specific_activity_from_counts <- function(counts, count_mass, count_time) {
+pb210_activity_from_counts <- function(counts, count_mass, count_time) {
   check_count_params(counts, count_mass, count_time)
   count_time <- count_time_seconds(count_time)
 
   counts / count_time / count_mass # Bq / kg
 }
 
-#' @rdname pb210_error_from_specific_activity
+#' @rdname pb210_error_from_activity
 #' @export
-pb210_counts_from_specific_activity <- function(pb210_specific_activity, count_mass, count_time) {
-  check_count_params(pb210_specific_activity, count_mass, count_time)
+pb210_counts_from_activity <- function(activity, count_mass, count_time) {
+  check_count_params(activity, count_mass, count_time)
   count_time <- count_time_seconds(count_time)
-  pb210_specific_activity * count_mass * count_time # counts
+  activity * count_mass * count_time # counts
 }
 
 

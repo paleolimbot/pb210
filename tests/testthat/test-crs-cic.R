@@ -13,7 +13,7 @@ test_that("CIC model works on simulated core data", {
 
   cic_model_exact <- pb210_cic(
     accumulation$cumulative_dry_mass,
-    accumulation$pb210_specific_activity
+    accumulation$activity
   ) %>%
     predict()
 
@@ -22,8 +22,8 @@ test_that("CIC model works on simulated core data", {
   cic_model <- pb210_cic(
     core$cumulative_dry_mass,
     set_errors(
-      core$pb210_specific_activity_estimate,
-      core$pb210_specific_activity_se
+      core$activity_estimate,
+      core$activity_se
     )
   ) %>%
     predict()
@@ -35,8 +35,8 @@ test_that("CIC model works on simulated core data", {
   crs_model <- pb210_crs(
     core$cumulative_dry_mass,
     set_errors(
-      core$pb210_specific_activity_estimate,
-      core$pb210_specific_activity_se
+      core$activity_estimate,
+      core$activity_se
     )
   ) %>%
     predict()
@@ -59,11 +59,11 @@ test_that("CRS model works on simulated core data", {
 
   # even in a perfect world, the best I can get is 3 years of accuracy in the last 100 years
   accumulation$cumulative_dry_mass <- pb210_cumulative_mass(accumulation$slice_mass, 0.5)
-  accumulation$inventory <- rev(cumsum(rev(accumulation$pb210_specific_activity * accumulation$slice_mass)))
+  accumulation$inventory <- rev(cumsum(rev(accumulation$activity * accumulation$slice_mass)))
 
   crs_model_exact <- pb210_crs(
     accumulation$cumulative_dry_mass,
-    accumulation$pb210_specific_activity,
+    accumulation$activity,
     inventory = accumulation$inventory
   ) %>%
     predict()
@@ -76,8 +76,8 @@ test_that("CRS model works on simulated core data", {
   crs_model <- pb210_crs(
     core$cumulative_dry_mass,
     set_errors(
-      core$pb210_specific_activity_estimate,
-      core$pb210_specific_activity_se
+      core$activity_estimate,
+      core$activity_se
     )
   ) %>%
     predict()

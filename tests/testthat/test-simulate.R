@@ -83,7 +83,7 @@ test_that("accumulation simulation for constant rate of supply works", {
   })
 
   # the CRS model should work here for the last 150 years
-  crs_sim$inventory <- rev(cumsum(rev(crs_sim$pb210_specific_activity * crs_sim$slice_mass)))
+  crs_sim$inventory <- rev(cumsum(rev(crs_sim$activity * crs_sim$slice_mass)))
   inventory_surface <- max(crs_sim$inventory)
   crs_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / crs_sim$inventory)
 
@@ -100,12 +100,12 @@ test_that("accumulation simulation for constant initial concentration works", {
 
   # the CIC model to calculate ages should work exactly
   expect_equal(
-    1 / drop_errors(pb210_decay_constant()) * log(1000 / cic_sim$pb210_specific_activity),
+    1 / drop_errors(pb210_decay_constant()) * log(1000 / cic_sim$activity),
     cic_sim$age
   )
 
   # the CRS model should approximately work here for the last 100 years
-  cic_sim$inventory <- rev(cumsum(rev(cic_sim$pb210_specific_activity * cic_sim$slice_mass)))
+  cic_sim$inventory <- rev(cumsum(rev(cic_sim$activity * cic_sim$slice_mass)))
   inventory_surface <- max(cic_sim$inventory)
   cic_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / cic_sim$inventory)
 
@@ -121,7 +121,7 @@ test_that("core simulation for constant rate of supply works", {
   })
 
   # the CRS model should work here for the last 100 years
-  crs_sim$inventory <- rev(cumsum(rev(crs_sim$pb210_specific_activity * crs_sim$slice_mass)))
+  crs_sim$inventory <- rev(cumsum(rev(crs_sim$activity * crs_sim$slice_mass)))
   inventory_surface <- max(crs_sim$inventory)
   crs_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / crs_sim$inventory)
 
@@ -137,15 +137,15 @@ test_that("core simulation for constant initial concentration works", {
     pb210_simulate_core()
 
   # the CIC model to calculate ages should work exactly for the last 100 years
-  pb210_surface <- max(cic_sim$pb210_specific_activity)
-  cic_sim$cic_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(pb210_surface / cic_sim$pb210_specific_activity)
+  pb210_surface <- max(cic_sim$activity)
+  cic_sim$cic_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(pb210_surface / cic_sim$activity)
   expect_equal(
     cic_sim$cic_age_top[cic_sim$age < 100],
     cic_sim$age_top[cic_sim$age < 100]
   )
 
   # the CRS model should approximately work here for the last 100 years
-  cic_sim$inventory <- rev(cumsum(rev(cic_sim$pb210_specific_activity * cic_sim$slice_mass)))
+  cic_sim$inventory <- rev(cumsum(rev(cic_sim$activity * cic_sim$slice_mass)))
   inventory_surface <- max(cic_sim$inventory)
   cic_sim$crs_age_top <- 1 / drop_errors(pb210_decay_constant()) * log(inventory_surface / cic_sim$inventory)
 
@@ -175,7 +175,7 @@ test_that("count simulation outputs the expected type and column names", {
   expect_is(sim, "tbl_df")
   expect_true(
     all(
-      c("pb210_specific_activity_estimate", "pb210_specific_activity_se") %in%
+      c("activity_estimate", "activity_se") %in%
         colnames(sim)
     )
   )
@@ -185,7 +185,7 @@ test_that("count simulation outputs identical counts when counting time is infin
   withr::with_seed(4938, {
     sim <- pb210_simulate_counting(count_time = 1e9)
     expect_true(
-      all(abs(sim$pb210_specific_activity - sim$pb210_specific_activity_estimate) < 0.1)
+      all(abs(sim$activity - sim$activity_estimate) < 0.1)
     )
   })
 })
