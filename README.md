@@ -50,7 +50,7 @@ measurements of <sup>226</sup>Ra activity).
 
 ``` r
 alta_lake_background <- alta_lake_pb210 %>%
-  filter(depth_cm > 8) %>%
+  filter(depth_cm > 8, depth_cm < 13) %>%
   summarise(
     background = mean(total_pb210_Bq_kg, na.rm = TRUE),
     background_sd = sd(total_pb210_Bq_kg, na.rm = TRUE)
@@ -60,7 +60,7 @@ alta_lake_background
 #> # A tibble: 1 x 2
 #>   background background_sd
 #>        <dbl>         <dbl>
-#> 1       32.5          7.38
+#> 1       38.0          4.00
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
@@ -77,8 +77,6 @@ alta_lake_pb210$excess_pb210 <- pb210_excess(
   set_errors(alta_lake_pb210$total_pb210_Bq_kg, alta_lake_pb210$total_pb210_sd),
   set_errors(alta_lake_background$background, alta_lake_background$background_sd)
 )
-
-alta_lake_pb210$excess_pb210[alta_lake_pb210$depth_cm > 8] <- NA
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
@@ -92,7 +90,9 @@ cumulative dry mass in kilograms as an input (as do the other dating
 functions).
 
 ``` r
-alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(alta_lake_pb210$slice_mass_g / 1000)
+alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(
+  alta_lake_pb210$slice_mass_g / 1000 / pb210_core_area(diameter = 0.063)
+)
 alta_lake_pb210$inventory <- pb210_inventory(
   alta_lake_pb210$cumulative_dry_mass,
   alta_lake_pb210$excess_pb210,
@@ -124,23 +124,24 @@ alta_lake_pb210 %>%
 #> # A tibble: 32 x 3
 #>    cumulative_dry_mass    age age_sd
 #>                  <dbl>  <dbl>  <dbl>
-#>  1             0.00132   4.60   1.81
-#>  2             0.00343   7.44  NA   
-#>  3             0.00581  11.0    1.78
-#>  4             0.00815  15.3    1.72
-#>  5             0.0139   28.4    1.82
-#>  6             0.0197   44.4    2.50
-#>  7             0.0268   64.1    3.72
-#>  8             0.0336   86.1    4.76
-#>  9             0.0420  130.    10.9 
-#> 10             0.0479   NA     NA   
+#>  1               0.422   4.70   1.58
+#>  2               1.10    7.58  NA   
+#>  3               1.86   11.2    1.64
+#>  4               2.61   15.6    1.57
+#>  5               4.44   29.0    1.65
+#>  6               6.32   45.7    2.14
+#>  7               8.61   66.1    2.92
+#>  8              10.8    89.3    3.65
+#>  9              13.5   136.     8.68
+#> 10              15.4    NA     NA   
 #> # … with 22 more rows
 ```
 
 ## Core simulation
 
-To test the package, I included a core simulator, which may be useful to
-help me improve this package.
+To test the package, I included a core simulator, which simulate the
+accumulation, sectioning, and measurement of <sup>210</sup>Pb
+accumulation.
 
 ``` r
 pb210_simulate_accumulation() %>%

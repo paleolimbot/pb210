@@ -62,7 +62,7 @@ First, you have to decide where "background" is. For these data, one might choos
 
 ```{r}
 alta_lake_background <- alta_lake_pb210 %>%
-  filter(depth_cm > 8) %>%
+  filter(depth_cm > 8, depth_cm < 13) %>%
   summarise(
     background = mean(total_pb210_Bq_kg, na.rm = TRUE),
     background_sd = sd(total_pb210_Bq_kg, na.rm = TRUE)
@@ -77,7 +77,8 @@ alta_pb210_plot <- alta_pb210_plot +
   annotate(
     "rect", 
     xmin = -Inf, xmax = Inf,
-    ymin = 32.45 - 7.38, ymax = 32.45 + 7.38,
+    ymin = alta_lake_background$background - alta_lake_background$background_sd, 
+    ymax = alta_lake_background$background + alta_lake_background$background_sd,
     alpha = 0.3
   )
 
@@ -91,8 +92,6 @@ alta_lake_pb210$excess_pb210 <- pb210_excess(
   set_errors(alta_lake_pb210$total_pb210_Bq_kg, alta_lake_pb210$total_pb210_sd),
   set_errors(alta_lake_background$background, alta_lake_background$background_sd)
 )
-
-alta_lake_pb210$excess_pb210[alta_lake_pb210$depth_cm > 8] <- NA
 ```
 
 ```{r, warning=FALSE, echo=FALSE}
@@ -111,7 +110,9 @@ alta_pb210_plot +
 For the constant rate of supply model (CRS; the most widely used model), we also need to calculate the *inventory*, or the cumulative activity of lead-210 starting at the bottom of the core. There are as many ways to do this as there are paleolimnologists, but the `pb210_inventory()` function should get you started. Note that this function requires the cumulative dry mass in kilograms as an input (as do the other dating functions).
 
 ```{r}
-alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(alta_lake_pb210$slice_mass_g / 1000)
+alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(
+  alta_lake_pb210$slice_mass_g / 1000 / pb210_core_area(diameter = 0.063)
+)
 alta_lake_pb210$inventory <- pb210_inventory(
   alta_lake_pb210$cumulative_dry_mass,
   alta_lake_pb210$excess_pb210,
@@ -149,7 +150,7 @@ alta_lake_pb210 %>%
 
 ## Core simulation
 
-To test the package, I included a core simulator, which may be useful to help me improve this package.
+To test the package, I included a core simulator, which simulate the accumulation, sectioning, and measurement of ^210^Pb accumulation.
 
 ```{r}
 pb210_simulate_accumulation() %>%
