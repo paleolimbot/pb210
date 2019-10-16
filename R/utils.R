@@ -1,25 +1,30 @@
 
 #' Calculate a decay constant
 #'
-#' The most commonly cited value is 22.26 with 2-sigma uncertainty of
-#' 0.22 (Hohndorf 1969), however Holden
-#' (1990) recommended using a value of 22.6(0.1). Most recently, Basunia (2014)
-#' recommended using a value of 22.20 with Hohndorf's (1969) uncertainty of 0.22
-#' years. The default value is the most recently reccomended value (Basunia 2014).
+#' The most commonly cited half-life for ^210^Pb is 22.26 with 2-sigma
+#' uncertainty of 0.22 (Hohndorf 1969), however Holden (1990) recommended using
+#' a value of 22.6(1). Most recently, Basunia (2014) recommended using a value
+#' of 22.20 with Hohndorf's (1969) uncertainty of 0.22 years. Sanchez-Cabeza et
+#' al. (2014) use the half life and uncertainty reported by Chiste and Be (2007)
+#' of 22.23(15). The default value is the most recently reccomended value
+#' (Basunia 2014).
 #'
 #' @param half_life A half-life value (in years).
 #'
 #' @export
 #'
-#' @references
-#' Holden, N.E. 1990. Total half-lives for selected nuclides. Pure
-#' and Applied Chemistry, 62: 941–958. doi:10.1351/pac199062050941.
+#' @references Basunia, M.S. 2014. Nuclear Data Sheets for A = 210. Nuclear Data
+#' Sheets, 121: 561–694. doi:10.1016/j.nds.2014.09.004.
+#'
+#' Chisté, V., and Bé, M.M. 2007. 210Pb - Comments on evaluation of decay data.
+#' Laboratoire National Henri Becquerel, Gif-sur-Yvette Cedex, France. Available
+#' from http://www.lnhb.fr/nuclear-data/nuclear-data-table/.
 #'
 #' Hohndorf, A. 1969. Bestimmung der Halbwertszeit von ^210^Pb. Zeitschrift fur
 #' Naturforschung A, 24: 612–615. doi:10.1515/zna-1969-0419.
 #'
-#' Basunia, M.S. 2014. Nuclear Data Sheets for A = 210. Nuclear Data Sheets,
-#' 121: 561–694. doi:10.1016/j.nds.2014.09.004.
+#' Holden, N.E. 1990. Total half-lives for selected nuclides. Pure and Applied
+#' Chemistry, 62: 941–958. doi:10.1351/pac199062050941.
 #'
 #' @examples
 #' pb210_decay_constant()
