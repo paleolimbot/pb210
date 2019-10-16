@@ -132,18 +132,22 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
+  # resolve the top model
+  model_top <- pb210_as_fit(
+    object$model_top,
+    data = tibble::tibble(
+      cumulative_dry_mass = object$data$cumulative_dry_mass,
+      excess = object$data$excess
+    )
+  )
+  surface_excess <- with_errors(stats::predict(model_top, tibble::tibble(x = 0)))
+
+  # interpolate excess for all mass values
   excess <- approx_error(
     object$data$cumulative_dry_mass,
     object$data$excess,
     xout = cumulative_dry_mass
   )
-
-  # resolve the top model
-  model_top <- pb210_as_fit(
-    object$model_top,
-    data = tibble::tibble(cumulative_dry_mass, excess)
-  )
-  surface_excess <- with_errors(stats::predict(model_top, tibble::tibble(x = 0)))
 
   # calculate ages
   age <- with_errors(1) / object$decay_constant * log(surface_excess / excess)
@@ -164,29 +168,20 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  excess <- approx_error(
-    object$data$cumulative_dry_mass,
-    object$data$excess,
-    xout = cumulative_dry_mass
-  )
-
   if (inherits(object$inventory, "inventory_calculator")) {
     inventory <- predict.inventory_calculator(
       object$inventory,
-      cumulative_dry_mass = cumulative_dry_mass,
-      excess = excess
+      cumulative_dry_mass = object$data$cumulative_dry_mass,
+      excess = object$data$excess
     )
   } else {
-    inventory <- approx_error(
-      object$data$cumulative_dry_mass,
-      object$inventory,
-      xout = cumulative_dry_mass
-    )
+    inventory <- object$inventory
   }
 
   # check inventory
   stopifnot(
-    is.numeric(inventory), length(inventory) == length(cumulative_dry_mass),
+    is.numeric(inventory),
+    length(inventory) == length(object$data$cumulative_dry_mass),
     # inventory must be decreasing everywhere
     all(diff(without_errors(inventory[is.finite(inventory)])) <= 0)
   )
@@ -194,20 +189,34 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
   # resolve the top model
   model_top <- pb210_as_fit(
     object$model_top,
-    data = tibble::tibble(cumulative_dry_mass, inventory)
+    data = tibble::tibble(
+      cumulative_dry_mass = object$data$cumulative_dry_mass,
+      inventory
+    )
   )
 
   # the CRS model is the CIC model using inventory instead of concentration
   fit_cic <- pb210_cic(
-    cumulative_dry_mass, inventory,
+    object$data$cumulative_dry_mass,
+    inventory,
     model_top = model_top,
     decay_constant = object$decay_constant
   )
 
+  # now we need to calculate outputs to the length of the the input cumulative_dry_mass
   ages <- predict.pb210_fit_cic(fit_cic, cumulative_dry_mass)
+  excess <- approx_error(
+    object$data$cumulative_dry_mass,
+    object$data$excess,
+    xout = cumulative_dry_mass
+  )
+  inventory <- approx_error(
+    object$data$cumulative_dry_mass,
+    inventory,
+    xout = cumulative_dry_mass
+  )
 
-  # add errors
-  has_error <- is.finite(errors(excess)) & (errors(excess) > 0)
+  has_error <- is.finite(extract_errors(excess)) & (extract_errors(excess) > 0)
 
   # the CRS model lets us estimate the mass accumulation rate directly
   mar <- object$decay_constant * inventory / excess / object$core_area
