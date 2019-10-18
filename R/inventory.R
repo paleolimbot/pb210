@@ -110,14 +110,11 @@ predict.inventory_calculator <- function(object, cumulative_dry_mass, excess, ..
   # finite values
   finite_pb210 <- data$excess[finite_pb210_indices]
   finite_mass <- data$cumulative_dry_mass[finite_pb210_indices]
-  trapezoidal_area <- (finite_pb210[-1] + finite_pb210[-length(finite_pb210)]) / 2 * diff(finite_mass)
-  finite_inventory <- c(rev(cumsum(rev(trapezoidal_area))), 0) + deep_pb210(last_finite_mass)
-
-  inventory_middle_interp <- stats::approx(
-    finite_mass,
-    finite_inventory,
-    xout = data$cumulative_dry_mass
-  )$y
+  inventory_middle_interp <- integrate_trapezoid(
+    finite_mass, finite_pb210,
+    xout = data$cumulative_dry_mass,
+    from = "right"
+  ) + with_errors(deep_pb210(last_finite_mass))
 
   # combine the two methods to calculate inventory
   inventory <- ifelse(

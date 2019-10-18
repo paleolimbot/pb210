@@ -46,6 +46,33 @@ test_that("extract_errors() warns when multiple error types are specified", {
   expect_warning(extract_errors(set_errors(1, 1), 1), "Two errors")
 })
 
+test_that("trapezoidal integration works", {
+  x <- c(1, 2, 3)
+  y <- set_errors(c(1, 3, 7), c(1, 1, 1))
+  expect_equal(without_errors(integrate_trapezoid(x, y)), c(0, 2, 7))
+  expect_equal(without_errors(integrate_trapezoid(x, y, xout = c(1.5, 2.5))), c(1, 4.5))
+  expect_equal(extract_errors(integrate_trapezoid(x, y)), c(NA, sqrt(2) / 2, sqrt(4) / 2))
+  expect_equal(extract_errors(integrate_trapezoid(x, y, xout = c(1.5, 2.5))), c(NA_real_, NA_real_))
+})
+
+test_that("input order doesn't matter in trapezoidal integration", {
+  x <- c(1, 2, 3)
+  y <- c(1, 3, 7)
+  expect_equal(
+    integrate_trapezoid(x, y),
+    integrate_trapezoid(rev(x), rev(y), xout = x)
+  )
+})
+
+test_that("trapezidal integration works in both directions", {
+  x <- c(1, 2, 3)
+  y <- c(1, 3, 7)
+  expect_equal(
+    integrate_trapezoid(x, y, from = "left"),
+    integrate_trapezoid(rev(x), y, from = "right")
+  )
+})
+
 test_that("approx_error() works", {
   x <- 1:10
   y <- seq(10, 100, by = 10)

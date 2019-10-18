@@ -112,6 +112,21 @@ expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_
   )
 }
 
+integrate_trapezoid <- function(x, y, xout = x, from = c("left", "right")) {
+  from <- match.arg(from)
+  if (from == "right") {
+    return(integrate_trapezoid(-x, y, xout = -xout))
+  }
+
+  constant <- with_errors(0)
+  x_order <- order(x)
+  y <- with_errors(y[x_order])
+
+  area <- (y[-1] + y[-length(y)]) / with_errors(2) * with_errors(diff(x[x_order]))
+  cumulative_area <- c(constant, constant + cumsum(area))
+  approx_error(x[x_order], cumulative_area, xout = xout)
+}
+
 approx_error <- function(x, y, xout) {
   value <- stats::approx(without_errors(x), without_errors(y), xout = xout)$y
   error <- extract_errors(y)[match(xout, x)]
