@@ -68,26 +68,4 @@ test_that("lazy inventory calculator and inventory function defaults are identic
     )
 
   expect_equal(inventory, inventory_lazy)
-
-  crs <- pb210_crs(
-    core$cumulative_dry_mass,
-    set_errors(
-      core$activity_estimate,
-      core$activity_se
-    ),
-    inventory = inventory
-  ) %>%
-    predict()
-
-  crs_lazy <- pb210_crs(
-    core$cumulative_dry_mass,
-    set_errors(
-      core$activity_estimate,
-      core$activity_se
-    ),
-    inventory = pb210_inventory_calculator()
-  ) %>%
-    predict()
-
-  expect_equal(crs, crs_lazy)
 })

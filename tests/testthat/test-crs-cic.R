@@ -105,31 +105,26 @@ test_that("CRS calculations for real core data do not change", {
 
   # cumulative dry mass on a per-core area basis are most useful
   df$cumulative_dry_mass <- pb210_cumulative_mass(df$slice_mass_g / 1000 / core_area, 0.5)
-  df$inventory <- pb210_inventory(
-    df$cumulative_dry_mass,
-    df$excess_pb210,
-    model_bottom = 0
-  )
 
   ages <- pb210_crs(
     df$cumulative_dry_mass,
     df$excess_pb210,
-    inventory = df$inventory
+    inventory = pb210_inventory_calculator(model_bottom = 0)
   ) %>%
     predict()
 
   expect_identical(
     is.na(ages$age),
     is.na(
-      c(4.60283, 7.43505, 10.95463, 15.28355, 28.40116, 44.43412, 64.06367,
-        86.11577, 130.14685, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+      c(1.67829, 4.51052, 8.03009, 12.35901, 25.47662, 41.50958, 61.13913,
+        83.19123, 127.22231, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
         NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
     )
   )
 
   expect_ages_similar(
     ages$age[1:9],
-    c(4.60283, 7.43505, 10.95463, 15.28355, 28.40116, 44.43412, 64.06367, 86.11577, 130.14685),
+    c(1.67829, 4.51052, 8.03009, 12.35901, 25.47662, 41.50958, 61.13913, 83.19123, 127.22231),
     max_delta = 0.0001
   )
 
@@ -144,7 +139,7 @@ test_that("CRS calculations for real core data do not change", {
 
   expect_ages_similar(
     ages$age_sd[c(1, 3:9)],
-    c(1.80809, 1.77502, 1.71571, 1.82269, 2.50257, 3.7242, 4.76223, 10.86489),
+    c(1.80759, 1.77348, 1.7134, 1.81844, 2.49763, 3.71937, 4.75712, 10.86148),
     max_delta = 0.0001
   )
 })
@@ -188,8 +183,7 @@ test_that("dating works on real lead-210 data", {
   al_crs <- pb210_crs(
     al_core$cumulative_dry_mass,
     al_core$excess_pb210,
-    inventory = alta_lake_inv,
-    model_top = max(alta_lake_inv, na.rm = TRUE)
+    inventory = alta_lake_inv
   ) %>%
     predict()
 

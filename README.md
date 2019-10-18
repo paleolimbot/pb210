@@ -36,8 +36,8 @@ library(pb210)
 ## Example
 
 You have some lead-210 measurements, but you want dates\! Included are
-some lead-210 measurements from [Alta Lake, Whistler, British
-Columbia](http://doi.org/10.1007/s10933-016-9919-x).
+some lead-210 measurements from [Alta Lake, Whistler, British Columbia,
+Canada](http://doi.org/10.1007/s10933-016-9919-x).
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
@@ -122,18 +122,18 @@ alta_lake_pb210 %>%
   bind_cols(crs_ages) %>%
   select(cumulative_dry_mass, age, age_sd)
 #> # A tibble: 32 x 3
-#>    cumulative_dry_mass    age age_sd
-#>                  <dbl>  <dbl>  <dbl>
-#>  1               0.422   4.70   1.58
-#>  2               1.10    7.58  NA   
-#>  3               1.86   11.2    1.64
-#>  4               2.61   15.6    1.57
-#>  5               4.44   29.0    1.65
-#>  6               6.32   45.7    2.14
-#>  7               8.61   66.1    2.92
-#>  8              10.8    89.3    3.65
-#>  9              13.5   136.     8.68
-#> 10              15.4    NA     NA   
+#>    cumulative_dry_mass       age age_sd
+#>                  <dbl>     <dbl>  <dbl>
+#>  1               0.422  7.11e-15   1.58
+#>  2               1.10   2.88e+ 0  NA   
+#>  3               1.86   6.45e+ 0   1.63
+#>  4               2.61   1.09e+ 1   1.56
+#>  5               4.44   2.43e+ 1   1.65
+#>  6               6.32   4.10e+ 1   2.13
+#>  7               8.61   6.14e+ 1   2.91
+#>  8              10.8    8.46e+ 1   3.64
+#>  9              13.5    1.32e+ 2   8.67
+#> 10              15.4   NA         NA   
 #> # … with 22 more rows
 ```
 

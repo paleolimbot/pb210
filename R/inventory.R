@@ -13,10 +13,6 @@
 #' estimated using a trapezoidal approximation.
 #'
 #' @inheritParams pb210_cic
-#' @param model_top A fit object or constant that will be used to model
-#'   activities above the first positive finite lead-210 activity. Use NULL for
-#'   the default (use the maximum lead-210 activity). Can also be a
-#'   lambda-function of `cumulative_dry_mass` and `excess`.
 #' @param model_bottom A fit object that will be used to model activities below
 #'   the last positive finite lead-210 activity. Use a constant to specify a custom
 #'   deep inventory of lead-210. Can also be a lambda-function of
@@ -74,12 +70,21 @@ predict.inventory_calculator <- function(object, cumulative_dry_mass, excess, ..
   check_mass_and_activity(cumulative_dry_mass, without_errors(excess))
 
   # model bottom/top functions expect errors as input
-  data <- tibble::tibble(cumulative_dry_mass, excess = with_errors(excess))
+  # always need zero in cumulative dry mass so that the surface is approximated
+  if (0 %in% cumulative_dry_mass) {
+    data <- tibble::tibble(cumulative_dry_mass, excess = with_errors(excess))
+  } else {
+    data <- tibble::tibble(
+      cumulative_dry_mass = c(0, cumulative_dry_mass),
+      excess = c(with_errors(NA_real_), with_errors(excess))
+    )
+  }
+
   model_bottom <- pb210_as_fit(object$model_bottom, data = data)
   model_top <- pb210_as_fit(object$model_top, data = data)
 
   # the rest of this function needs errors separate from values
-  data$excess_sd <- extract_errors(excess)
+  data$excess_sd <- extract_errors(data$excess)
   data$excess <-  without_errors(data$excess)
 
   finite_pb210_indices <- which(
@@ -130,6 +135,11 @@ predict.inventory_calculator <- function(object, cumulative_dry_mass, excess, ..
   # be examined with more scrutiny
   pb210_relative_sd <- data$excess_sd / data$excess
   inventory_sd <- inventory * sqrt(2 * pb210_relative_sd^2 + 0.02^2)
+  inventory <- with_errors(inventory, inventory_sd)
 
-  with_errors(inventory, inventory_sd)
+  if (0 %in% cumulative_dry_mass) {
+    inventory
+  } else {
+    inventory[-1]
+  }
 }

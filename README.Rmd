@@ -43,7 +43,7 @@ library(pb210)
 
 ## Example
 
-You have some lead-210 measurements, but you want dates! Included are some lead-210 measurements from [Alta Lake, Whistler, British Columbia](http://doi.org/10.1007/s10933-016-9919-x).
+You have some lead-210 measurements, but you want dates! Included are some lead-210 measurements from [Alta Lake, Whistler, British Columbia, Canada](http://doi.org/10.1007/s10933-016-9919-x).
 
 ```{r, warning=FALSE, echo=FALSE}
 alta_pb210_plot <- ggplot(alta_lake_pb210, aes(depth_cm, total_pb210_Bq_kg)) +
