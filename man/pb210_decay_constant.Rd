@@ -10,7 +10,7 @@ pb210_decay_constant(half_life = set_errors(22.2, 0.22))
 \item{half_life}{A half-life value (in years).}
 }
 \description{
-The most commonly cited half-life for ^210^Pb is 22.26 with 2-sigma
+The most commonly cited half-life for lead-210 is 22.26 with 2-sigma
 uncertainty of 0.22 (Hohndorf 1969), however Holden (1990) recommended using
 a value of 22.6(1). Most recently, Basunia (2014) recommended using a value
 of 22.20 with Hohndorf's (1969) uncertainty of 0.22 years. Sanchez-Cabeza et
