@@ -4,3 +4,6 @@
 ^data-raw$
 ^pb210\.Rproj$
 ^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
