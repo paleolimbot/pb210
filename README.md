@@ -3,11 +3,14 @@
 
 # pb210
 
+<!-- badges: start -->
+
 [![Travis build
 status](https://travis-ci.org/paleolimbot/pb210.svg?branch=master)](https://travis-ci.org/paleolimbot/pb210)
 [![Coverage
 status](https://codecov.io/gh/paleolimbot/pb210/branch/master/graph/badge.svg)](https://codecov.io/github/paleolimbot/pb210?branch=master)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
 
 The goal of pb210 is to provide a reproducible R-based workflow to
 create sediment core chronologies from <sup>210</sup>Pb activity
