@@ -45,6 +45,72 @@ test_that("CIC model works on simulated core data", {
   expect_ages_similar(crs_model$age, core$age, max_delta = 0.8)
 })
 
+test_that("CIC calculations are identical with and without error", {
+  accumulation <- pb210_simulate_accumulation(
+    mass_accumulation = pb210_mass_accumulation_constant()
+  )
+  core <- withr::with_seed(4817, {
+    accumulation %>%
+      pb210_simulate_core(core_area = 1) %>%
+      pb210_simulate_counting()
+  })
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
+
+  cic_model_with_error <- predict(
+    pb210_cic(
+      core$cumulative_dry_mass,
+      set_errors(core$activity, core$activity_se)
+    )
+  )
+
+  cic_model_without_error <- predict(
+    pb210_cic(
+      core$cumulative_dry_mass,
+      core$activity
+    )
+  )
+
+  expect_equal(cic_model_with_error$age, cic_model_without_error$age)
+  expect_true(any(is.finite(cic_model_with_error$age_sd)))
+  expect_false(any(is.finite(cic_model_without_error$age_sd)))
+})
+
+test_that("CIC calculations are faster without error", {
+  accumulation <- pb210_simulate_accumulation(
+    mass_accumulation = pb210_mass_accumulation_constant()
+  )
+  core <- withr::with_seed(4817, {
+    accumulation %>%
+      pb210_simulate_core(core_area = 1) %>%
+      pb210_simulate_counting()
+  })
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
+
+  predict_error <- function() {
+    predict.pb210_fit_cic(
+      pb210_cic(
+        core$cumulative_dry_mass,
+        set_errors(core$activity, core$activity_se)
+      )
+    )$age
+  }
+
+  predict_no_error <- function() {
+    predict.pb210_fit_cic(
+      pb210_cic(
+        core$cumulative_dry_mass,
+        core$activity
+      )
+    )$age
+  }
+
+  expect_identical(predict_error(), predict_no_error())
+
+  error_yes <- median(sapply(1:10, function(x) system.time(predict_error())[1]))
+  error_no <- median(sapply(1:10, function(x) system.time(predict_no_error())[1]))
+  expect_true(error_yes > error_no)
+})
+
 test_that("CRS model works on simulated core data", {
 
   # this simulation is a wildly varying sedimentation rate

@@ -81,10 +81,10 @@ pb210_cic <- function(cumulative_dry_mass, excess,
     list(
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
-        excess = with_errors(excess)
+        excess = excess
       ),
       model_top = model_top,
-      decay_constant = with_errors(decay_constant)
+      decay_constant = decay_constant
     ),
     class = c("pb210_fit_cic", "pb210_fit")
   )
@@ -140,25 +140,51 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
       excess = object$data$excess
     )
   )
-  surface_excess <- with_errors(stats::predict(model_top, tibble::tibble(x = 0)))
 
-  # interpolate excess for all mass values
-  excess <- approx_error(
-    object$data$cumulative_dry_mass,
-    object$data$excess,
-    xout = cumulative_dry_mass
-  )
+  surface_excess <- stats::predict(model_top, tibble::tibble(x = 0))
+
+  # it's about 2x faster to do these calculations if we don't have to consider
+  # error. this makes a differece during MC simulations
+  use_errors <- any(is.finite(extract_errors(object$data$excess)))
+
+  if (use_errors) {
+    # interpolate excess for all mass values
+    excess <- approx_error(
+      object$data$cumulative_dry_mass,
+      with_errors(object$data$excess),
+      xout = cumulative_dry_mass
+    )
+
+    one <- with_errors(1)
+    decay_constant <- with_errors(object$decay_constant)
+    surface_excess <- with_errors(surface_excess)
+    excess <- with_errors(excess)
+  } else {
+    # interpolate excess for all mass values
+    excess <- approx_no_error(
+      object$data$cumulative_dry_mass,
+      object$data$excess,
+      xout = cumulative_dry_mass
+    )
+
+    one <- 1
+    surface_excess <- without_errors(surface_excess)
+    decay_constant <- without_errors(object$decay_constant)
+  }
 
   # calculate ages
-  age <- with_errors(1) / object$decay_constant * log(surface_excess / excess)
-  age_sd <- extract_errors(age)
-  has_error <- is.finite(errors(excess)) & (errors(excess) > 0)
-  age_sd[!has_error] <- NA_real_
+  age <- one / decay_constant * log(surface_excess / excess)
 
-  tibble::tibble(
-    age = without_errors(age),
-    age_sd = age_sd
-  )
+  if (use_errors) {
+    age_sd <- extract_errors(age)
+    has_error <- is.finite(errors(excess)) & (errors(excess) > 0)
+    age_sd[!has_error] <- NA_real_
+    age <- without_errors(age)
+  } else {
+    age_sd <- NA_real_
+  }
+
+  tibble::tibble(age = age, age_sd = age_sd)
 }
 
 #' @rdname pb210_cic

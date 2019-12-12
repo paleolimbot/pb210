@@ -133,6 +133,10 @@ approx_error <- function(x, y, xout) {
   with_errors(value, error)
 }
 
+approx_no_error <- function(x, y, xout) {
+  stats::approx(x, y, xout = xout)$y
+}
+
 with_errors <- function(x, error = NA_real_) {
   if(inherits(x, "errors") && any(!is.na(error))) {
     warning("Two errors included. Using error internal to x.")
