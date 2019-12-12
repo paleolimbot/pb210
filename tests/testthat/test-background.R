@@ -18,3 +18,10 @@ test_that("excess function accepts error objects", {
     set_errors(3:11, 1) - set_errors(1, 1)
   )
 })
+
+test_that("excess function nixes error after first background", {
+  expect_equal(
+    pb210_excess(c(1, 0, 1)),
+    set_errors(c(1, NA, NA), c(0, NA, NA))
+  )
+})

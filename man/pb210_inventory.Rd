@@ -6,15 +6,19 @@
 \alias{predict.inventory_calculator}
 \title{Calculate cumulative lead-210 activity}
 \usage{
-pb210_inventory(cumulative_dry_mass, excess, model_top = max(excess,
-  na.rm = TRUE),
-  model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess))
+pb210_inventory(
+  cumulative_dry_mass,
+  excess,
+  model_top = max(excess, na.rm = TRUE),
+  model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess)
+)
 
-pb210_inventory_calculator(model_top = ~max(..2, na.rm = TRUE),
-  model_bottom = ~pb210_fit_exponential(..1, ..2))
+pb210_inventory_calculator(
+  model_top = ~max(..2, na.rm = TRUE),
+  model_bottom = ~pb210_fit_exponential(..1, ..2)
+)
 
-\method{predict}{inventory_calculator}(object, cumulative_dry_mass, excess,
-  ...)
+\method{predict}{inventory_calculator}(object, cumulative_dry_mass, excess, ...)
 }
 \arguments{
 \item{cumulative_dry_mass}{The cumulative dry mass of the core (in kg), starting at the

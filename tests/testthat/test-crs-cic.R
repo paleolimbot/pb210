@@ -157,7 +157,7 @@ test_that("dating works on real lead-210 data", {
   # plot(al_core$depth_cm, al_core$total_pb210_Bq_kg, type = "l")
 
   # assign background
-  al_core$is_background <- al_core$depth_cm > 8
+  al_core$is_background <- al_core$depth_cm > 10
   background <- mean(al_core$total_pb210_Bq_kg[al_core$is_background])
   background_sd <- sd(al_core$total_pb210_Bq_kg[al_core$is_background])
 
@@ -191,6 +191,6 @@ test_that("dating works on real lead-210 data", {
   # lines(al_core$depth_cm, al_crs$age + al_crs$age_sd, col = "red")
   # lines(al_core$depth_cm, al_crs$age - al_crs$age_sd, col = "red")
 
-  # at the moment, within 8 years is where we're at
-  expect_ages_similar(al_crs$age, al_core$published_age_yr, 8, na.rm = TRUE)
+  # at the moment, within 7 years is where we're at
+  expect_ages_similar(al_crs$age, al_core$published_age_yr, 7, na.rm = TRUE)
 })

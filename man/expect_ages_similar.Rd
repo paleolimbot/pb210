@@ -4,8 +4,13 @@
 \alias{expect_ages_similar}
 \title{Test age similarity}
 \usage{
-expect_ages_similar(calculated_ages, known_ages, max_delta = 1,
-  age_range = 0:100, na.rm = FALSE)
+expect_ages_similar(
+  calculated_ages,
+  known_ages,
+  max_delta = 1,
+  age_range = 0:100,
+  na.rm = FALSE
+)
 }
 \arguments{
 \item{calculated_ages}{The ages that we aren't sure about}

@@ -15,7 +15,7 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{errors}{\code{\link[errors]{drop_errors}}, \code{\link[errors]{set_errors}}, \code{\link[errors]{errors}}}
+  \item{errors}{\code{\link[errors]{drop_errors}}, \code{\link[errors]{errors}}, \code{\link[errors]{set_errors}}}
 
   \item{magrittr}{\code{\link[magrittr]{\%>\%}}}
 

@@ -9,14 +9,23 @@
 \usage{
 pb210_bulk_density(slice_mass, thickness, core_area = pb210_core_area())
 
-pb210_bulk_density_estimate(water_content, organic_content,
-  density_water = 1000, density_organic = 1570,
-  density_inorganic = 2830)
+pb210_bulk_density_estimate(
+  water_content,
+  organic_content,
+  density_water = 1000,
+  density_organic = 1570,
+  density_inorganic = 2830
+)
 
 pb210_slice_mass(bulk_density, thickness, core_area = pb210_core_area())
 
-pb210_porosity(water_content, organic_content, density_water = 1000,
-  density_organic = 1600, density_inorganic = 2830)
+pb210_porosity(
+  water_content,
+  organic_content,
+  density_water = 1000,
+  density_organic = 1600,
+  density_inorganic = 2830
+)
 }
 \arguments{
 \item{slice_mass}{The mass of a sediment slice, in kg.}

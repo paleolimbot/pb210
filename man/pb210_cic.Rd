@@ -7,14 +7,20 @@
 \alias{predict.pb210_fit_crs}
 \title{Apply the Constant Rate of Supply or Constant Initial Concentration model}
 \usage{
-pb210_cic(cumulative_dry_mass, excess,
+pb210_cic(
+  cumulative_dry_mass,
+  excess,
   model_top = ~pb210_fit_exponential(..1, ..2),
-  decay_constant = pb210_decay_constant())
+  decay_constant = pb210_decay_constant()
+)
 
-pb210_crs(cumulative_dry_mass, excess,
+pb210_crs(
+  cumulative_dry_mass,
+  excess,
   inventory = pb210_inventory_calculator(),
   core_area = pb210_core_area(),
-  decay_constant = pb210_decay_constant())
+  decay_constant = pb210_decay_constant()
+)
 
 \method{predict}{pb210_fit_cic}(object, cumulative_dry_mass = NULL, ...)
 

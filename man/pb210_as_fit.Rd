@@ -18,7 +18,7 @@ pb210_as_fit(x, ...)
 
 pb210_fit_lazy(x)
 
-\method{pb210_as_fit}{function}(x, ...)
+\method{pb210_as_fit}{`function`}(x, ...)
 
 \method{pb210_as_fit}{formula}(x, ...)
 
