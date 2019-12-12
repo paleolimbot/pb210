@@ -106,7 +106,6 @@ pb210_crs <- function(cumulative_dry_mass, excess,
 
   if (is.numeric(inventory)) {
     stopifnot(length(inventory) == length(cumulative_dry_mass))
-    inventory <- with_errors(inventory)
   }
 
   # capture relevant info
@@ -114,12 +113,12 @@ pb210_crs <- function(cumulative_dry_mass, excess,
     list(
       data = tibble::tibble(
         cumulative_dry_mass = cumulative_dry_mass,
-        excess = with_errors(excess)
+        excess = excess
       ),
       # inventory could be an inventory calculator
       inventory = inventory,
-      core_area = with_errors(core_area),
-      decay_constant = with_errors(decay_constant)
+      core_area = core_area,
+      decay_constant = decay_constant
     ),
     class = c("pb210_fit_crs", "pb210_fit")
   )
@@ -194,20 +193,42 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
+  use_errors <- any(is.finite(extract_errors(object$data$excess)))
+
+  if (use_errors) {
+    excess_raw <- with_errors(object$data$excess)
+    na <- with_errors(NA_real_)
+    if (inherits(object$inventory, "inventory_calculator")) {
+      inventory_raw <- object$inventory
+    } else {
+      inventory_raw <- with_errors(object$inventory)
+      max_inventory <- with_errors(max(without_errors(inventory_raw), na.rm = TRUE))
+    }
+  } else {
+    excess_raw <- without_errors(object$data$excess)
+    na <- NA_real_
+    if (inherits(object$inventory, "inventory_calculator")) {
+      inventory_raw <- object$inventory
+    } else {
+      inventory_raw <- without_errors(object$inventory)
+      max_inventory <- max(inventory_raw, na.rm = TRUE)
+    }
+  }
+
   # need a zero for cumulative dry mass for calculation purposes
   if (0 %in% object$data$cumulative_dry_mass) {
     cumulative_dry_mass_calc <- object$data$cumulative_dry_mass
-    excess_calc <- object$data$excess
-    inventory <- object$inventory
+    excess_calc <- excess_raw
+    inventory <- inventory_raw
   } else {
     cumulative_dry_mass_calc <- c(0, cumulative_dry_mass)
-    excess_calc <- c(with_errors(NA_real_), object$data$excess)
-    if (!inherits(object$inventory, "inventory_calculator")) {
+    excess_calc <- c(na, excess_raw)
+    if (!inherits(inventory_raw, "inventory_calculator")) {
       # this is an issue with manually specified inventories...not possible to specify
       # surface inventory currently (assuming max() for now)
-      inventory <- c(with_errors(max(without_errors(object$inventory), na.rm = TRUE)), object$inventory)
+      inventory <- c(max_inventory, inventory_raw)
     } else {
-      inventory <- object$inventory
+      inventory <- inventory_raw
     }
   }
 
@@ -251,7 +272,7 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
   has_error <- is.finite(extract_errors(excess)) & (extract_errors(excess) > 0)
 
   # the CRS model lets us estimate the mass accumulation rate directly
-  mar <- object$decay_constant * inventory / excess / object$core_area
+  mar <- object$decay_constant * inventory / excess / with_errors(object$core_area)
 
   ages$mar <- without_errors(mar)
   ages$mar_sd <- extract_errors(mar)
