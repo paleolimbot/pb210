@@ -17,7 +17,7 @@ These can have \code{\link[errors:errors]{errors::errors()}}.}
 \value{
 A vector with \code{\link[errors:errors]{errors::errors()}} of the excess lead-210 specific activity.
 Background is determined by the first point at which \code{activity} is less than
-or equal to \code{background}. All excess values are set to \code{NA} below
+or equal to \code{background}. All excess values are set to \code{NA} below (after)
 this point.
 }
 \description{
@@ -31,7 +31,7 @@ core <- pb210_simulate_core(depth_step = rep(1, 30)) \%>\%
 pb210_excess(
   set_errors(
     core$activity_estimate,
-    core$activity_sd
+    core$activity_se
   ),
   background = 10
 )

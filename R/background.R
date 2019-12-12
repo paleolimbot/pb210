@@ -12,7 +12,7 @@
 #'
 #' @return A vector with [errors::errors()] of the excess lead-210 specific activity.
 #'    Background is determined by the first point at which `activity` is less than
-#'    or equal to `background`. All excess values are set to `NA` below
+#'    or equal to `background`. All excess values are set to `NA` below (after)
 #'    this point.
 #' @export
 #'
@@ -23,7 +23,7 @@
 #' pb210_excess(
 #'   set_errors(
 #'     core$activity_estimate,
-#'     core$activity_sd
+#'     core$activity_se
 #'   ),
 #'   background = 10
 #' )
