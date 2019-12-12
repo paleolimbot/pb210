@@ -138,7 +138,7 @@ These can have <code><a href='https://rdrr.io/pkg/errors/man/errors.html'>errors
 
     <p>A vector with <code><a href='https://rdrr.io/pkg/errors/man/errors.html'>errors::errors()</a></code> of the excess lead-210 specific activity.
 Background is determined by the first point at which <code>activity</code> is less than
-or equal to <code>background</code>. All excess values are set to <code>NA</code> below
+or equal to <code>background</code>. All excess values are set to <code>NA</code> below (after)
 this point.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -148,10 +148,10 @@ this point.</p>
 <span class='fu'>pb210_excess</span>(
   <span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(
     <span class='no'>core</span>$<span class='no'>activity_estimate</span>,
-    <span class='no'>core</span>$<span class='no'>activity_sd</span>
+    <span class='no'>core</span>$<span class='no'>activity_se</span>
   ),
   <span class='kw'>background</span> <span class='kw'>=</span> <span class='fl'>10</span>
-)</div><div class='output co'>#&gt; <span class='warning'>Warning: Unknown or uninitialised column: 'activity_sd'.</span></div><div class='output co'>#&gt; Errors: 0 0 0 0 0 ...
+)</div><div class='output co'>#&gt; Errors: 3.654769 3.116415 2.647302 2.276182 1.893768 ...
 #&gt;  [1] 567.037037 409.560185 292.754630 213.819444 144.930556 103.356481
 #&gt;  [7]  65.601852  46.504630  28.819444  17.453704   9.421296   3.379630
 #&gt; [13]         NA         NA         NA         NA         NA         NA
