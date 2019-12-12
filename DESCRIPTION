@@ -20,7 +20,7 @@ Suggests:
     testthat (>= 2.1.0),
     withr,
     covr
-URL: https://github.com/paleolimbot/pb210
+URL: https://paleolimbot.github.io/pb210/, https://github.com/paleolimbot/pb210
 BugReports: https://github.com/paleolimbot/pb210/issues
 Imports: 
     tibble,

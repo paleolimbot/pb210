@@ -12,6 +12,7 @@ Utilities to create chronologies for sediment cores using
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://paleolimbot.github.io/pb210/}
   \item \url{https://github.com/paleolimbot/pb210}
   \item Report bugs at \url{https://github.com/paleolimbot/pb210/issues}
 }
