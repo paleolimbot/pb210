@@ -73,17 +73,25 @@ pb210_cic <- function(cumulative_dry_mass, excess,
     without_errors(decay_constant) > 0
   )
 
-  # validate the top model fit, combine errors for pb210
-  model_top <- pb210_as_fit(model_top)
+  # it's about 2x faster to do these calculations if we don't have to consider
+  # error. this makes a differece during MC simulations
+  use_errors <- any(is.finite(extract_errors(excess)))
+
+  data <- tibble::tibble(
+    cumulative_dry_mass = cumulative_dry_mass,
+    excess = excess
+  )
+
+  # resolve the top model  and surface excess
+  model_top <- pb210_as_fit(pb210_as_fit(model_top), data = data)
+  surface_excess <- stats::predict(model_top, tibble::tibble(x = 0))
 
   # capture relevant info
   structure(
     list(
-      data = tibble::tibble(
-        cumulative_dry_mass = cumulative_dry_mass,
-        excess = excess
-      ),
-      model_top = model_top,
+      data = data,
+      surface_excess = surface_excess,
+      use_errors = use_errors,
       decay_constant = decay_constant
     ),
     class = c("pb210_fit_cic", "pb210_fit")
@@ -131,22 +139,7 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  # resolve the top model
-  model_top <- pb210_as_fit(
-    object$model_top,
-    data = tibble::tibble(
-      cumulative_dry_mass = object$data$cumulative_dry_mass,
-      excess = object$data$excess
-    )
-  )
-
-  surface_excess <- stats::predict(model_top, tibble::tibble(x = 0))
-
-  # it's about 2x faster to do these calculations if we don't have to consider
-  # error. this makes a differece during MC simulations
-  use_errors <- any(is.finite(extract_errors(object$data$excess)))
-
-  if (use_errors) {
+  if (object$use_errors) {
     # interpolate excess for all mass values
     excess <- approx_error(
       object$data$cumulative_dry_mass,
@@ -156,7 +149,7 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
 
     one <- with_errors(1)
     decay_constant <- with_errors(object$decay_constant)
-    surface_excess <- with_errors(surface_excess)
+    surface_excess <- with_errors(object$surface_excess)
     excess <- with_errors(excess)
   } else {
     # interpolate excess for all mass values
@@ -167,14 +160,14 @@ predict.pb210_fit_cic <- function(object, cumulative_dry_mass = NULL, ...) {
     )
 
     one <- 1
-    surface_excess <- without_errors(surface_excess)
+    surface_excess <- without_errors(object$surface_excess)
     decay_constant <- without_errors(object$decay_constant)
   }
 
   # calculate ages
   age <- one / decay_constant * log(surface_excess / excess)
 
-  if (use_errors) {
+  if (object$use_errors) {
     age_sd <- extract_errors(age)
     has_error <- is.finite(errors(excess)) & (errors(excess) > 0)
     age_sd[!has_error] <- NA_real_
