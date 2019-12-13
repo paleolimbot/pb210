@@ -135,7 +135,7 @@ estimated using a trapezoidal approximation.</p>
     <pre class="usage"><span class='fu'>pb210_inventory</span>(
   <span class='no'>cumulative_dry_mass</span>,
   <span class='no'>excess</span>,
-  <span class='kw'>model_top</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>excess</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),
+  <span class='kw'>model_top</span> <span class='kw'>=</span> <span class='fu'><a href='max_finite.html'>max_finite</a></span>(<span class='no'>excess</span>),
   <span class='kw'>model_bottom</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_exponential</a></span>(<span class='no'>cumulative_dry_mass</span>, <span class='no'>excess</span>)
 )
 
