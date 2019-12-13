@@ -112,9 +112,73 @@ pb210_crs <- function(cumulative_dry_mass, excess,
     length(decay_constant) == 1, is.numeric(decay_constant)
   )
 
-  if (is.numeric(inventory)) {
-    stopifnot(length(inventory) == length(cumulative_dry_mass))
+  # it's about 2x faster to do these calculations if we don't have to consider
+  # error. this makes a differece during MC simulations
+  use_errors <- any(is.finite(extract_errors(excess)))
+
+  if (use_errors) {
+    excess_raw <- with_errors(excess)
+    na <- with_errors(NA_real_)
+    if (inherits(inventory, "inventory_calculator")) {
+      inventory_raw <- inventory
+    } else {
+      inventory_raw <- with_errors(inventory)
+      max_inventory <- with_errors(max_finite(inventory_raw))
+    }
+  } else {
+    excess_raw <- without_errors(excess)
+    na <- NA_real_
+    if (inherits(inventory, "inventory_calculator")) {
+      inventory_raw <- inventory
+    } else {
+      inventory_raw <- without_errors(inventory)
+      max_inventory <- max(inventory_raw, na.rm = TRUE)
+    }
   }
+
+  # need a surface value in cumulative dry mass for calculation purposes
+  if (0 %in% cumulative_dry_mass) {
+    cumulative_dry_mass_calc <- cumulative_dry_mass
+    excess_calc <- excess_raw
+    inventory <- inventory_raw
+  } else {
+    cumulative_dry_mass_calc <- c(0, cumulative_dry_mass)
+    excess_calc <- c(na, excess_raw)
+    if (!inherits(inventory_raw, "inventory_calculator")) {
+      # this is an issue with manually specified inventories...not possible to specify
+      # surface inventory currently (assuming max() for now)
+      inventory <- c(max_inventory, inventory_raw)
+    } else {
+      inventory <- inventory_raw
+    }
+  }
+
+  if (inherits(inventory, "inventory_calculator")) {
+    inventory <- predict.inventory_calculator(
+      inventory,
+      cumulative_dry_mass = cumulative_dry_mass_calc,
+      excess = excess_calc
+    )
+
+    # inventory errors may be introduced by the inventory calculator
+    use_errors <- use_errors || any(is.finite(extract_errors(inventory)))
+  }
+
+  # check inventory
+  stopifnot(
+    is.numeric(inventory),
+    length(inventory) == length(cumulative_dry_mass_calc),
+    # inventory must be decreasing everywhere
+    all(diff(without_errors(inventory[is.finite(inventory)])) <= 0)
+  )
+
+  # the CRS model is the CIC model using inventory instead of concentration
+  fit_cic <- pb210_cic(
+    cumulative_dry_mass_calc,
+    inventory,
+    model_top = without_errors(inventory[1]),
+    decay_constant = decay_constant
+  )
 
   # capture relevant info
   structure(
@@ -123,10 +187,14 @@ pb210_crs <- function(cumulative_dry_mass, excess,
         cumulative_dry_mass = cumulative_dry_mass,
         excess = excess
       ),
-      # inventory could be an inventory calculator
-      inventory = inventory,
-      core_area = core_area,
-      decay_constant = decay_constant
+      data_calc = tibble::tibble(
+        cumulative_dry_mass = cumulative_dry_mass_calc,
+        excess = excess_calc,
+        inventory = inventory
+      ),
+      fit_cic = fit_cic,
+      use_errors = use_errors,
+      core_area = core_area
     ),
     class = c("pb210_fit_crs", "pb210_fit")
   )
@@ -186,91 +254,43 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     cumulative_dry_mass <- object$data$cumulative_dry_mass
   }
 
-  use_errors <- any(is.finite(extract_errors(object$data$excess)))
-
-  if (use_errors) {
-    excess_raw <- with_errors(object$data$excess)
-    na <- with_errors(NA_real_)
-    if (inherits(object$inventory, "inventory_calculator")) {
-      inventory_raw <- object$inventory
-    } else {
-      inventory_raw <- with_errors(object$inventory)
-      max_inventory <- with_errors(max(without_errors(inventory_raw), na.rm = TRUE))
-    }
-  } else {
-    excess_raw <- without_errors(object$data$excess)
-    na <- NA_real_
-    if (inherits(object$inventory, "inventory_calculator")) {
-      inventory_raw <- object$inventory
-    } else {
-      inventory_raw <- without_errors(object$inventory)
-      max_inventory <- max(inventory_raw, na.rm = TRUE)
-    }
-  }
-
-  # need a zero for cumulative dry mass for calculation purposes
-  if (0 %in% object$data$cumulative_dry_mass) {
-    cumulative_dry_mass_calc <- object$data$cumulative_dry_mass
-    excess_calc <- excess_raw
-    inventory <- inventory_raw
-  } else {
-    cumulative_dry_mass_calc <- c(0, cumulative_dry_mass)
-    excess_calc <- c(na, excess_raw)
-    if (!inherits(inventory_raw, "inventory_calculator")) {
-      # this is an issue with manually specified inventories...not possible to specify
-      # surface inventory currently (assuming max() for now)
-      inventory <- c(max_inventory, inventory_raw)
-    } else {
-      inventory <- inventory_raw
-    }
-  }
-
-  if (inherits(inventory, "inventory_calculator")) {
-    inventory <- predict.inventory_calculator(
-      inventory,
-      cumulative_dry_mass = cumulative_dry_mass_calc,
-      excess = excess_calc
-    )
-
-    # inventory may be introduced by the inventory calculator
-    use_errors <- use_errors || any(is.finite(extract_errors(inventory)))
-  }
-
-  # check inventory
-  stopifnot(
-    is.numeric(inventory),
-    length(inventory) == length(cumulative_dry_mass_calc),
-    # inventory must be decreasing everywhere
-    all(diff(without_errors(inventory[is.finite(inventory)])) <= 0)
-  )
-
-  # the CRS model is the CIC model using inventory instead of concentration
-  fit_cic <- pb210_cic(
-    cumulative_dry_mass_calc,
-    inventory,
-    model_top = without_errors(inventory[1]),
-    decay_constant = object$decay_constant
-  )
-
-  # now we need to calculate outputs to the length of the the input cumulative_dry_mass
-  ages <- predict.pb210_fit_cic(fit_cic, cumulative_dry_mass)
+  # calculate ages using the CIC fit
+  ages <- predict.pb210_fit_cic(object$fit_cic, cumulative_dry_mass)
 
   # the CRS model lets us estimate the mass accumulation rate directly
-  if (use_errors) {
-    excess <- approx_error(cumulative_dry_mass_calc, excess_calc, cumulative_dry_mass)
-    inventory <- approx_error(cumulative_dry_mass_calc, inventory, cumulative_dry_mass)
+  # this also calculates the inventory specific to each point
+  if (object$use_errors) {
+    excess <- approx_error(
+      object$data_calc$cumulative_dry_mass,
+      object$data_calc$excess,
+      cumulative_dry_mass
+    )
+    inventory <- approx_error(
+      object$data_calc$cumulative_dry_mass,
+      object$data_calc$inventory,
+      cumulative_dry_mass
+    )
     has_error <- is.finite(extract_errors(excess)) & (extract_errors(excess) > 0)
 
-    mar <- object$decay_constant * inventory / excess / with_errors(object$core_area)
+    mar <- object$fit_cic$decay_constant *
+      inventory / excess / with_errors(object$core_area)
 
     ages$mar <- without_errors(mar)
     ages$mar_sd <- extract_errors(mar)
     ages$mar_sd[!has_error] <- NA_real_
   } else {
-    excess <- approx_no_error(cumulative_dry_mass_calc, excess_calc, cumulative_dry_mass)
-    inventory <- approx_no_error(cumulative_dry_mass_calc, inventory, cumulative_dry_mass)
+    excess <- approx_no_error(
+      object$data_calc$cumulative_dry_mass,
+      object$data_calc$excess,
+      cumulative_dry_mass
+    )
+    inventory <- approx_no_error(
+      object$data_calc$cumulative_dry_mass,
+      object$data_calc$inventory,
+      cumulative_dry_mass
+    )
 
-    ages$mar <- without_errors(object$decay_constant) *
+    ages$mar <- without_errors(object$fit_cic$decay_constant) *
       without_errors(inventory) / without_errors(excess) / object$core_area
     ages$mar_sd <- NA_real_
   }
