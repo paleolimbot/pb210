@@ -166,6 +166,48 @@ test_that("CIC/CRS calculations are faster without error", {
   expect_true(error_yes > error_no)
 })
 
+test_that("predict methods can accept any number of inputs", {
+  accumulation <- pb210_simulate_accumulation(
+    mass_accumulation = pb210_mass_accumulation_constant()
+  )
+  core <- withr::with_seed(4817, {
+    accumulation %>%
+      pb210_simulate_core(core_area = 1) %>%
+      pb210_simulate_counting()
+  })
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
+
+  cic <- pb210_cic(core$cumulative_dry_mass, core$activity)
+
+  expect_identical(
+    predict(cic, numeric(0)),
+    tibble::tibble(age = numeric(0), age_sd = numeric(0))
+  )
+  expect_identical(nrow(predict(cic, 0)), 1L)
+  expect_identical(nrow(predict(cic, 1:5)), 5L)
+
+  # make sure order doesn't have to be increasing
+  expect_identical(
+    predict(cic, 1:10)$age,
+    rev(predict(cic, 10:1)$age)
+  )
+
+  crs <- pb210_cic(core$cumulative_dry_mass, core$activity)
+
+  expect_identical(
+    predict(crs, numeric(0)),
+    tibble::tibble(age = numeric(0), age_sd = numeric(0))
+  )
+  expect_identical(nrow(predict(crs, 0)), 1L)
+  expect_identical(nrow(predict(crs, 1:5)), 5L)
+
+  # make sure order doesn't have to be increasing
+  expect_identical(
+    predict(crs, 1:10)$age,
+    rev(predict(crs, 10:1)$age)
+  )
+})
+
 test_that("CRS model works on simulated core data", {
 
   # this simulation is a wildly varying sedimentation rate
