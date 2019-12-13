@@ -117,39 +117,32 @@ pb210_crs <- function(cumulative_dry_mass, excess,
   use_errors <- any(is.finite(extract_errors(excess)))
 
   if (use_errors) {
-    excess_raw <- with_errors(excess)
+    excess <- with_errors(excess)
     na <- with_errors(NA_real_)
-    if (inherits(inventory, "inventory_calculator")) {
-      inventory_raw <- inventory
-    } else {
-      inventory_raw <- with_errors(inventory)
-      max_inventory <- with_errors(max_finite(inventory_raw))
+    if (!inherits(inventory, "inventory_calculator")) {
+      inventory <- with_errors(inventory)
+      max_inventory <- with_errors(max_finite(inventory))
     }
   } else {
-    excess_raw <- without_errors(excess)
+    excess <- without_errors(excess)
     na <- NA_real_
-    if (inherits(inventory, "inventory_calculator")) {
-      inventory_raw <- inventory
-    } else {
-      inventory_raw <- without_errors(inventory)
-      max_inventory <- max(inventory_raw, na.rm = TRUE)
+    if (!inherits(inventory, "inventory_calculator")) {
+      inventory <- without_errors(inventory)
+      max_inventory <- max(inventory, na.rm = TRUE)
     }
   }
 
   # need a surface value in cumulative dry mass for calculation purposes
   if (0 %in% cumulative_dry_mass) {
     cumulative_dry_mass_calc <- cumulative_dry_mass
-    excess_calc <- excess_raw
-    inventory <- inventory_raw
+    excess_calc <- excess
   } else {
     cumulative_dry_mass_calc <- c(0, cumulative_dry_mass)
-    excess_calc <- c(na, excess_raw)
-    if (!inherits(inventory_raw, "inventory_calculator")) {
+    excess_calc <- c(na, excess)
+    if (!inherits(inventory, "inventory_calculator")) {
       # this is an issue with manually specified inventories...not possible to specify
       # surface inventory currently (assuming max() for now)
-      inventory <- c(max_inventory, inventory_raw)
-    } else {
-      inventory <- inventory_raw
+      inventory <- c(max_inventory, inventory)
     }
   }
 

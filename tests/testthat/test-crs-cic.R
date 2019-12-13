@@ -57,41 +57,44 @@ test_that("CIC/CRS calculations are identical with and without error", {
   })
   core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
 
-  cic_model_with_error <- predict(
-    pb210_cic(
-      core$cumulative_dry_mass,
-      set_errors(core$activity, core$activity_se)
-    )
+  cic_fit_with_error <-  pb210_cic(
+    core$cumulative_dry_mass,
+    set_errors(core$activity, core$activity_se)
+  )
+  cic_model_with_error <- predict(cic_fit_with_error)
+
+  cic_fit_without_error <- pb210_cic(
+    core$cumulative_dry_mass,
+    core$activity
   )
 
-  cic_model_without_error <- predict(
-    pb210_cic(
-      core$cumulative_dry_mass,
-      core$activity
-    )
-  )
+  cic_model_without_error <- predict(cic_fit_without_error)
 
   expect_equal(cic_model_with_error$age, cic_model_without_error$age)
   expect_true(any(is.finite(cic_model_with_error$age_sd)))
   expect_false(any(is.finite(cic_model_without_error$age_sd)))
+  expect_true(cic_fit_with_error$use_errors)
+  expect_false(cic_fit_without_error$use_errors)
 
-  crs_model_with_error <- predict(
-    pb210_crs(
-      core$cumulative_dry_mass,
-      set_errors(core$activity, core$activity_se)
-    )
+  crs_fit_with_error <-  pb210_crs(
+    core$cumulative_dry_mass,
+    set_errors(core$activity, core$activity_se)
   )
+  crs_model_with_error <- predict(crs_fit_with_error)
 
-  crs_model_without_error <- predict(
-    pb210_crs(
-      core$cumulative_dry_mass,
-      core$activity
-    )
+  crs_fit_without_error <- pb210_crs(
+    core$cumulative_dry_mass,
+    core$activity
   )
+  crs_model_without_error <- predict(crs_fit_without_error)
 
   expect_equal(crs_model_with_error$age, crs_model_without_error$age)
   expect_equal(crs_model_with_error$mar, crs_model_without_error$mar)
   expect_equal(crs_model_with_error$inventory, crs_model_without_error$inventory)
+  expect_true(crs_fit_with_error$use_errors)
+  expect_true(crs_fit_with_error$fit_cic$use_errors)
+  expect_false(crs_fit_without_error$use_errors)
+  expect_false(crs_fit_without_error$fit_cic$use_errors)
 
   expect_true(any(is.finite(crs_model_with_error$age_sd)))
   expect_false(any(is.finite(crs_model_without_error$age_sd)))
