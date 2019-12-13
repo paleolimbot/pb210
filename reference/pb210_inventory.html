@@ -140,7 +140,7 @@ estimated using a trapezoidal approximation.</p>
 )
 
 <span class='fu'>pb210_inventory_calculator</span>(
-  <span class='kw'>model_top</span> <span class='kw'>=</span> ~<span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>..2</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),
+  <span class='kw'>model_top</span> <span class='kw'>=</span> ~<span class='fu'><a href='max_finite.html'>max_finite</a></span>(<span class='no'>..2</span>),
   <span class='kw'>model_bottom</span> <span class='kw'>=</span> ~<span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_exponential</a></span>(<span class='no'>..1</span>, <span class='no'>..2</span>)
 )
 
@@ -197,8 +197,7 @@ a fit object that can be used to calculate inventory given a
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>fake_mass</span> <span class='kw'>&lt;-</span> <span class='fl'>1</span>:<span class='fl'>10</span>
 <span class='no'>fake_pb210</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(<span class='fl'>5</span> - <span class='no'>fake_mass</span>)
-<span class='fu'>pb210_inventory</span>(<span class='no'>fake_mass</span>, <span class='no'>fake_pb210</span>)</div><div class='output co'>#&gt; Errors: NA NA NA NA NA ...
-#&gt;  [1] 59.073374219 21.731530741  7.994234230  2.940565266  1.081424352
+<span class='fu'>pb210_inventory</span>(<span class='no'>fake_mass</span>, <span class='no'>fake_pb210</span>)</div><div class='output co'>#&gt;  [1] 59.073374219 21.731530741  7.994234230  2.940565266  1.081424352
 #&gt;  [6]  0.397484632  0.145877269  0.053316094  0.019264740  0.006737947</div><div class='input'>
 <span class='co'># compare with known inventory from integrating</span>
 <span class='co'># exp(5 - fake_mass) to +Inf</span>
