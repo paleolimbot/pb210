@@ -14,7 +14,7 @@ pb210_inventory(
 )
 
 pb210_inventory_calculator(
-  model_top = ~max(..2, na.rm = TRUE),
+  model_top = ~max_finite(..2),
   model_bottom = ~pb210_fit_exponential(..1, ..2)
 )
 

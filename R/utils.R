@@ -63,6 +63,18 @@ pb210_slice_volume <- function(thickness, core_area = pb210_core_area()) {
 }
 
 
+#' Max finite value
+#'
+#' @param x A vector of values
+#'
+#' @return The maximum finite value, disregarding  any
+#'   [errors::errors()] that might be present.
+#' @export
+#'
+max_finite <- function(x) {
+  max(without_errors(x), na.rm = TRUE)
+}
+
 #' Test age similarity
 #'
 #' The testing of this package requires a lot of testing whether or not
@@ -110,6 +122,21 @@ expect_ages_similar <- function(calculated_ages, known_ages, max_delta = 1, age_
       calc_ages_label, known_ages_label, max_delta_label, min(age_range), max(age_range)
     )
   )
+}
+
+integrate_trapezoid_no_error <- function(x, y, xout = x, from = c("left", "right")) {
+  from <- match.arg(from)
+  if (from == "right") {
+    return(integrate_trapezoid_no_error(-x, y, xout = -xout))
+  }
+
+  constant <- 0
+  x_order <- order(x)
+  y <- y[x_order]
+
+  area <- (y[-1] + y[-length(y)]) / 2 * diff(x[x_order])
+  cumulative_area <- c(constant, constant + cumsum(area))
+  approx_no_error(x[x_order], cumulative_area, xout = xout)
 }
 
 integrate_trapezoid <- function(x, y, xout = x, from = c("left", "right")) {

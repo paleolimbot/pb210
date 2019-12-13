@@ -38,14 +38,15 @@ test_that("CIC model works on simulated core data", {
       core$activity_estimate,
       core$activity_se
     )
-  ) %>%
-    predict()
+  )
+
+  crs_ages <- predict(crs_model)
 
   # CRS model does quite well here
-  expect_ages_similar(crs_model$age, core$age, max_delta = 0.8)
+  expect_ages_similar(crs_ages$age, core$age, max_delta = 0.8)
 })
 
-test_that("CIC calculations are identical with and without error", {
+test_that("CIC/CRS calculations are identical with and without error", {
   accumulation <- pb210_simulate_accumulation(
     mass_accumulation = pb210_mass_accumulation_constant()
   )
@@ -73,9 +74,34 @@ test_that("CIC calculations are identical with and without error", {
   expect_equal(cic_model_with_error$age, cic_model_without_error$age)
   expect_true(any(is.finite(cic_model_with_error$age_sd)))
   expect_false(any(is.finite(cic_model_without_error$age_sd)))
+
+  crs_model_with_error <- predict(
+    pb210_crs(
+      core$cumulative_dry_mass,
+      set_errors(core$activity, core$activity_se)
+    )
+  )
+
+  crs_model_without_error <- predict(
+    pb210_crs(
+      core$cumulative_dry_mass,
+      core$activity
+    )
+  )
+
+  expect_equal(crs_model_with_error$age, crs_model_without_error$age)
+  expect_equal(crs_model_with_error$mar, crs_model_without_error$mar)
+  expect_equal(crs_model_with_error$inventory, crs_model_without_error$inventory)
+
+  expect_true(any(is.finite(crs_model_with_error$age_sd)))
+  expect_false(any(is.finite(crs_model_without_error$age_sd)))
+  expect_true(any(is.finite(crs_model_with_error$mar_sd)))
+  expect_false(any(is.finite(crs_model_without_error$mar_sd)))
+  expect_true(any(is.finite(crs_model_with_error$inventory_sd)))
+  expect_false(any(is.finite(crs_model_without_error$inventory_sd)))
 })
 
-test_that("CIC calculations are faster without error", {
+test_that("CIC/CRS calculations are faster without error", {
   accumulation <- pb210_simulate_accumulation(
     mass_accumulation = pb210_mass_accumulation_constant()
   )
@@ -86,6 +112,7 @@ test_that("CIC calculations are faster without error", {
   })
   core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass)
 
+  # for CIC
   predict_error <- function() {
     predict.pb210_fit_cic(
       pb210_cic(
@@ -98,6 +125,31 @@ test_that("CIC calculations are faster without error", {
   predict_no_error <- function() {
     predict.pb210_fit_cic(
       pb210_cic(
+        core$cumulative_dry_mass,
+        core$activity
+      )
+    )$age
+  }
+
+  expect_identical(predict_error(), predict_no_error())
+
+  error_yes <- median(sapply(1:10, function(x) system.time(predict_error())[1]))
+  error_no <- median(sapply(1:10, function(x) system.time(predict_no_error())[1]))
+  expect_true(error_yes > error_no)
+
+  # for CRS
+  predict_error <- function() {
+    predict.pb210_fit_crs(
+      pb210_crs(
+        core$cumulative_dry_mass,
+        set_errors(core$activity, core$activity_se)
+      )
+    )$age
+  }
+
+  predict_no_error <- function() {
+    predict.pb210_fit_crs(
+      pb210_crs(
         core$cumulative_dry_mass,
         core$activity
       )
@@ -190,7 +242,7 @@ test_that("CRS calculations for real core data do not change", {
 
   expect_ages_similar(
     ages$age[1:9],
-    c(1.67829, 4.51052, 8.03009, 12.35901, 25.47662, 41.50958, 61.13913, 83.19123, 127.22231),
+    c(1.64582, 4.47804, 7.99762, 12.32654, 25.44415, 41.47711, 61.10666, 83.15876, 127.18984),
     max_delta = 0.0001
   )
 

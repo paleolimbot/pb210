@@ -238,6 +238,9 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
       cumulative_dry_mass = cumulative_dry_mass_calc,
       excess = excess_calc
     )
+
+    # inventory may be introduced by the inventory calculator
+    use_errors <- use_errors || any(is.finite(extract_errors(inventory)))
   }
 
   # check inventory
@@ -258,25 +261,26 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
 
   # now we need to calculate outputs to the length of the the input cumulative_dry_mass
   ages <- predict.pb210_fit_cic(fit_cic, cumulative_dry_mass)
-  excess <- approx_error(
-    cumulative_dry_mass_calc,
-    excess_calc,
-    xout = cumulative_dry_mass
-  )
-  inventory <- approx_error(
-    cumulative_dry_mass_calc,
-    inventory,
-    xout = cumulative_dry_mass
-  )
-
-  has_error <- is.finite(extract_errors(excess)) & (extract_errors(excess) > 0)
 
   # the CRS model lets us estimate the mass accumulation rate directly
-  mar <- object$decay_constant * inventory / excess / with_errors(object$core_area)
+  if (use_errors) {
+    excess <- approx_error(cumulative_dry_mass_calc, excess_calc, cumulative_dry_mass)
+    inventory <- approx_error(cumulative_dry_mass_calc, inventory, cumulative_dry_mass)
+    has_error <- is.finite(extract_errors(excess)) & (extract_errors(excess) > 0)
 
-  ages$mar <- without_errors(mar)
-  ages$mar_sd <- extract_errors(mar)
-  ages$mar_sd[!has_error] <- NA_real_
+    mar <- object$decay_constant * inventory / excess / with_errors(object$core_area)
+
+    ages$mar <- without_errors(mar)
+    ages$mar_sd <- extract_errors(mar)
+    ages$mar_sd[!has_error] <- NA_real_
+  } else {
+    excess <- approx_no_error(cumulative_dry_mass_calc, excess_calc, cumulative_dry_mass)
+    inventory <- approx_no_error(cumulative_dry_mass_calc, inventory, cumulative_dry_mass)
+
+    ages$mar <- without_errors(object$decay_constant) *
+      without_errors(inventory) / without_errors(excess) / object$core_area
+    ages$mar_sd <- NA_real_
+  }
 
   ages$inventory <- without_errors(inventory)
   ages$inventory_sd <- extract_errors(inventory)

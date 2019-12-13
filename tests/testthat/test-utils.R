@@ -55,6 +55,19 @@ test_that("trapezoidal integration works", {
   expect_equal(extract_errors(integrate_trapezoid(x, y, xout = c(1.5, 2.5))), c(NA_real_, NA_real_))
 })
 
+test_that("trapezoidal integration works with no errors", {
+  expect_identical(
+    integrate_trapezoid_no_error(c(1, 2, 3), c(1, 3, 7)),
+    without_errors(integrate_trapezoid(c(1, 2, 3), set_errors(c(1, 3, 7), c(1, 1, 1))))
+  )
+  expect_identical(
+    integrate_trapezoid_no_error(c(1, 2, 3), c(1, 3, 7), from = "right"),
+    without_errors(
+      integrate_trapezoid(c(1, 2, 3), set_errors(c(1, 3, 7), c(1, 1, 1)), from = "right")
+    )
+  )
+})
+
 test_that("input order doesn't matter in trapezoidal integration", {
   x <- c(1, 2, 3)
   y <- c(1, 3, 7)

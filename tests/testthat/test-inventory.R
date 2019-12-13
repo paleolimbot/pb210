@@ -5,7 +5,7 @@ test_that("inventory calculation works", {
     fake_pb210 <- exp(5 - fake_mass) + rnorm(11, sd = 0.005)
     known_coeffs <- c(m = -1, b = 5)
     known_inventory <- unname(exp(known_coeffs["m"] * fake_mass  + known_coeffs["b"]) / -known_coeffs["m"])
-    calc_inventory <- pb210_inventory(fake_mass, fake_pb210) %>% drop_errors()
+    calc_inventory <- pb210_inventory(fake_mass, fake_pb210) %>% without_errors()
 
     expect_true(all(is.finite(calc_inventory)))
     expect_true(

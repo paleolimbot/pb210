@@ -53,7 +53,7 @@ pb210_inventory <- function(cumulative_dry_mass, excess,
 
 #' @rdname pb210_inventory
 #' @export
-pb210_inventory_calculator <- function(model_top = ~max(..2, na.rm = TRUE),
+pb210_inventory_calculator <- function(model_top = ~max_finite(..2),
                                        model_bottom = ~pb210_fit_exponential(..1, ..2)) {
   structure(
     list(
@@ -69,14 +69,23 @@ pb210_inventory_calculator <- function(model_top = ~max(..2, na.rm = TRUE),
 predict.inventory_calculator <- function(object, cumulative_dry_mass, excess, ...) {
   check_mass_and_activity(cumulative_dry_mass, without_errors(excess))
 
+  use_errors <- any(is.finite(extract_errors(excess)))
+  if (use_errors) {
+    excess <- with_errors(excess)
+    na <- with_errors(NA_real_)
+  } else {
+    excess <- without_errors(excess)
+    na <- NA_real_
+  }
+
   # model bottom/top functions expect errors as input
   # always need zero in cumulative dry mass so that the surface is approximated
   if (0 %in% cumulative_dry_mass) {
-    data <- tibble::tibble(cumulative_dry_mass, excess = with_errors(excess))
+    data <- tibble::tibble(cumulative_dry_mass, excess = excess)
   } else {
     data <- tibble::tibble(
       cumulative_dry_mass = c(0, cumulative_dry_mass),
-      excess = c(with_errors(NA_real_), with_errors(excess))
+      excess = c(na, excess)
     )
   }
 
@@ -115,11 +124,11 @@ predict.inventory_calculator <- function(object, cumulative_dry_mass, excess, ..
   # finite values
   finite_pb210 <- data$excess[finite_pb210_indices]
   finite_mass <- data$cumulative_dry_mass[finite_pb210_indices]
-  inventory_middle_interp <- integrate_trapezoid(
+  inventory_middle_interp <- integrate_trapezoid_no_error(
     finite_mass, finite_pb210,
     xout = data$cumulative_dry_mass,
     from = "right"
-  ) + with_errors(deep_pb210(last_finite_mass))
+  ) + without_errors(deep_pb210(last_finite_mass))
 
   # combine the two methods to calculate inventory
   inventory <- ifelse(
@@ -133,9 +142,11 @@ predict.inventory_calculator <- function(object, cumulative_dry_mass, excess, ..
 
   # this error propogation is from R. Jack Cornett's spreadsheet, and should
   # be examined with more scrutiny
-  pb210_relative_sd <- data$excess_sd / data$excess
-  inventory_sd <- inventory * sqrt(2 * pb210_relative_sd^2 + 0.02^2)
-  inventory <- with_errors(inventory, inventory_sd)
+  if (use_errors) {
+    pb210_relative_sd <- data$excess_sd / data$excess
+    inventory_sd <- inventory * sqrt(2 * pb210_relative_sd^2 + 0.02^2)
+    inventory <- with_errors(inventory, inventory_sd)
+  }
 
   if (0 %in% cumulative_dry_mass) {
     inventory
