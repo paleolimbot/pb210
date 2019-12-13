@@ -37,7 +37,7 @@
 #' exp(-1 * fake_mass  + 5) / -(-1)
 #'
 pb210_inventory <- function(cumulative_dry_mass, excess,
-                            model_top = max(excess, na.rm = TRUE),
+                            model_top = max_finite(excess),
                             model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess)) {
   fit <- pb210_inventory_calculator(
     model_top = model_top,
