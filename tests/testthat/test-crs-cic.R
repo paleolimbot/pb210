@@ -208,6 +208,20 @@ test_that("predict methods can accept any number of inputs", {
   )
 })
 
+test_that("if zero is included in cumulative dry mass, CRS works", {
+  accumulation <- pb210_simulate_accumulation(
+    mass_accumulation = pb210_mass_accumulation_constant()
+  )
+  core <- withr::with_seed(4817, {
+    accumulation %>%
+      pb210_simulate_core(core_area = 1) %>%
+      pb210_simulate_counting()
+  })
+  core$cumulative_dry_mass <- pb210_cumulative_mass(core$slice_mass, position = 0)
+
+  expect_is(pb210_crs(core$cumulative_dry_mass, core$activity), "pb210_fit_crs")
+})
+
 test_that("CRS model works on simulated core data", {
 
   # this simulation is a wildly varying sedimentation rate
