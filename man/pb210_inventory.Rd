@@ -9,7 +9,7 @@
 pb210_inventory(
   cumulative_dry_mass,
   excess,
-  model_top = max(excess, na.rm = TRUE),
+  model_top = max_finite(excess),
   model_bottom = pb210_fit_exponential(cumulative_dry_mass, excess)
 )
 

@@ -24,6 +24,8 @@ URL: https://paleolimbot.github.io/pb210/, https://github.com/paleolimbot/pb210
 BugReports: https://github.com/paleolimbot/pb210/issues
 Imports: 
     tibble,
+    purrr,
+    glue,
     stats,
     rlang,
     lubridate,
