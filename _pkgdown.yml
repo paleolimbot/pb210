@@ -1,2 +1,47 @@
 development:
   mode: auto
+
+reference:
+- title: Age-depth models
+  desc: Calculate ages from cumulative masses and lead-210 activities
+  contents:
+  - pb210_crs
+  - pb210_crs_monte_carlo
+  - pb210_cic
+  - pb210_cic_monte_carlo
+- title: Lead-210 helpers
+  desc: Calculate the information required to fit an age-depth model
+  contents:
+  - pb210_cumulative_mass
+  - pb210_excess
+  - pb210_inventory
+  - pb210_inventory_calculator
+  - pb210_decay_constant
+  - pb210_bulk_density
+  - pb210_bulk_density_estimate
+  - pb210_core_area
+  - pb210_slice_volume
+  - pb210_porosity
+  - pb210_slice_mass
+  - pb210_error_from_activity
+
+- title: Statistical helpers
+  desc: Fit exponential and loglinear models to estimate activities above and below measured values
+  contents:
+  - starts_with("pb210_fit_")
+  - max_finite
+  - pb210_sample_norm
+- title: Example data
+  desc: Real lead-210 measurements on which to practice fitting age-depth models
+  contents:
+  - alta_lake_pb210
+- title: Core simulators
+  desc: Simulate a core with a known accumulation rate to test or practice fitting age-depth models
+  contents:
+  - starts_with("pb210_simulate")
+  - pb210_mass_accumulation_constant
+  - pb210_mass_accumulation_rlnorm
+  - pb210_density_constant
+  - pb210_supply_constant
+  - pb210_compressibility_constant
+  - pb210_compressibility_none

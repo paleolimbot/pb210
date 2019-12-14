@@ -259,7 +259,7 @@ pb210_simulate_counting <- function(accumulation = pb210_simulate_core(),
 #'
 #' @references
 #' Appleby, P.G. 2008. Three decades of dating recent sediments by fallout
-#' radionuclides: a review. The Holocene, 18: 83–93. doi:10.1177/0959683607085598.
+#' radionuclides: a review. The Holocene, 18: 83–93. <https://10.1177/0959683607085598>
 #'
 #' @examples
 #' ages <- 150:0

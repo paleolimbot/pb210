@@ -14,11 +14,19 @@ A (errorless) vector of randomly sampled values if \code{x} has
 \code{\link[errors:errors]{errors::errors()}}, otherwise \code{x}, unchanged.
 }
 \description{
-Random samplers
+For use in \code{\link[=pb210_crs_monte_carlo]{pb210_crs_monte_carlo()}}. In the future, other distributions
+may be considered; we approximate mean + standard error as a normal distribution
+because this is done in
 }
 \examples{
 pb210_sample_norm(set_errors(1:10, 1))
 pb210_sample_norm(set_errors(1:10, 1))
 pb210_sample_norm(1:10)
 
+}
+\references{
+Aquino-López, M.A., Blaauw, M., Christen, J.A.,
+and Sanderson, N.K. 2018. Bayesian Analysis of ^210^Pb Dating.
+Journal of Agricultural, Biological and Environmental Statistics, 23: 317–333.
+\url{https://doi.org/10.1007/s13253-018-0328-7}.
 }

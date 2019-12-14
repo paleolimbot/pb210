@@ -231,11 +231,21 @@ transpose_predictions <- function(prediction_results, column) {
 
 #' Random samplers
 #'
+#' For use in [pb210_crs_monte_carlo()]. In the future, other distributions
+#' may be considered; we approximate mean + standard error as a normal distribution
+#' because this is done in
+#'
 #' @param x A vector of values, possibly with [errors::errors()].
 #'
 #' @return A (errorless) vector of randomly sampled values if `x` has
 #'   [errors::errors()], otherwise `x`, unchanged.
 #' @export
+#'
+#' @references
+#' Aquino-López, M.A., Blaauw, M., Christen, J.A.,
+#' and Sanderson, N.K. 2018. Bayesian Analysis of ^210^Pb Dating.
+#' Journal of Agricultural, Biological and Environmental Statistics, 23: 317–333.
+#' <https://doi.org/10.1007/s13253-018-0328-7>.
 #'
 #' @examples
 #' pb210_sample_norm(set_errors(1:10, 1))

@@ -87,7 +87,7 @@ max_finite <- function(x) {
 #' @param age_range The age range we care about
 #' @param na.rm Should missing ages be removed?
 #'
-#' @export
+#' @noRd
 #'
 #' @examples
 #' # similar ages

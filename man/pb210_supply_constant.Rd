@@ -21,5 +21,5 @@ ages <- 150:0
 }
 \references{
 Appleby, P.G. 2008. Three decades of dating recent sediments by fallout
-radionuclides: a review. The Holocene, 18: 83–93. doi:10.1177/0959683607085598.
+radionuclides: a review. The Holocene, 18: 83–93. \url{https://10.1177/0959683607085598}
 }
