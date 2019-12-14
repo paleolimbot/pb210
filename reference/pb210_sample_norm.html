@@ -36,7 +36,9 @@
 
 
 <meta property="og:title" content="Random samplers — pb210_sample_norm" />
-<meta property="og:description" content="Random samplers" />
+<meta property="og:description" content="For use in pb210_crs_monte_carlo(). In the future, other distributions
+may be considered; we approximate mean + standard error as a normal distribution
+because this is done in" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -111,7 +113,9 @@
     </div>
 
     <div class="ref-description">
-    <p>Random samplers</p>
+    <p>For use in <code><a href='pb210_cic_monte_carlo.html'>pb210_crs_monte_carlo()</a></code>. In the future, other distributions
+may be considered; we approximate mean + standard error as a normal distribution
+because this is done in</p>
     </div>
 
     <pre class="usage"><span class='fu'>pb210_sample_norm</span>(<span class='no'>x</span>)</pre>
@@ -129,11 +133,17 @@
 
     <p>A (errorless) vector of randomly sampled values if <code>x</code> has
 <code><a href='https://rdrr.io/pkg/errors/man/errors.html'>errors::errors()</a></code>, otherwise <code>x</code>, unchanged.</p>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Aquino-López, M.A., Blaauw, M., Christen, J.A.,
+and Sanderson, N.K. 2018. Bayesian Analysis of ^210^Pb Dating.
+Journal of Agricultural, Biological and Environmental Statistics, 23: 317–333.
+<a href='https://doi.org/10.1007/s13253-018-0328-7'>https://doi.org/10.1007/s13253-018-0328-7</a>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>pb210_sample_norm</span>(<span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fl'>1</span>))</div><div class='output co'>#&gt;  [1] 2.085617 1.323855 2.625423 2.507766 6.775523 5.793163 6.877327 6.873285
-#&gt;  [9] 9.885409 8.324487</div><div class='input'><span class='fu'>pb210_sample_norm</span>(<span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fl'>1</span>))</div><div class='output co'>#&gt;  [1] 0.09400507 0.99133527 3.89860533 3.26482301 1.80595896 7.80755005
-#&gt;  [7] 5.94224590 6.99327584 8.88394544 9.42694151</div><div class='input'><span class='fu'>pb210_sample_norm</span>(<span class='fl'>1</span>:<span class='fl'>10</span>)</div><div class='output co'>#&gt;  [1]  1  2  3  4  5  6  7  8  9 10</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'>pb210_sample_norm</span>(<span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fl'>1</span>))</div><div class='output co'>#&gt;  [1] 2.034683 3.025472 2.347415 3.611613 4.656589 6.141624 7.529878 8.168900
+#&gt;  [9] 8.870927 9.796054</div><div class='input'><span class='fu'>pb210_sample_norm</span>(<span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fl'>1</span>))</div><div class='output co'>#&gt;  [1]  1.949907  1.206126  4.134915  4.326337  4.530277  6.738547  8.109602
+#&gt;  [8]  9.775468  8.892540 11.284875</div><div class='input'><span class='fu'>pb210_sample_norm</span>(<span class='fl'>1</span>:<span class='fl'>10</span>)</div><div class='output co'>#&gt;  [1]  1  2  3  4  5  6  7  8  9 10</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -141,6 +151,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#references">References</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 
