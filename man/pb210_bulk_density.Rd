@@ -69,14 +69,14 @@ pb210_bulk_density(slice_mass = 0.010, thickness = 0.01, core_area = pb210_core_
 \references{
 Christensen, N.I., and Mooney, W.D. 1995. Seismic velocity structure and composition of the
 continental crust: A global view. Journal of Geophysical Research: Solid Earth, 100: 9761–9788.
-doi:10.1029/95JB00259.
+https://doi.org/10.1029/95JB00259
 
 Malloy, S., and Price, J.S. 2017. Consolidation of gyttja in a rewetted fen peatland:
 Potential implications for restoration. Mires and Peat,: 1–15.
-doi:10.19189/MaP.2015.OMB.200.
+https://doi.org/10.19189/MaP.2015.OMB.200
 
 Meyers, P.A., and Teranes, J.L. 2001. Sediment organic matter.
 In Tracking Environmental Change Using Lake Sediments: Volume 2: Physical and Geochemical Methods.
 Edited by W.M. Last and J.P. Smol. Kluwer Academic Publishers, The Netherlands.
-pp. 239–269. doi:10.1007/0-306-47670-3_9.
+pp. 239–269. https://doi.org/10.1007/0-306-47670-3_9
 }

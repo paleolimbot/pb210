@@ -1,12 +1,19 @@
 
 #' Apply the Constant Rate of Supply or Constant Initial Concentration model
 #'
+#' The CRS model was first published by Robbins (1978) and Appleby and Oldfield (1978),
+#' and is behind nearly every lead-210-based age-depth model. These functions
+#' compute age-depth models based on excess lead-210 activities (perhaps
+#' calculated by [pb210_excess()]) and propagate error in quadrature using the
+#' [errors::errors()] package. For a more robust estimation of error, consider
+#' using [pb210_crs_monte_carlo()] or [pb210_cic_monte_carlo()].
+#'
 #' @param cumulative_dry_mass The cumulative dry mass of the core (in kg), starting at the
 #'   surface sample and including all samples in the core.
 #'   These must be greater than 0 and in increasing order.
 #' @param excess An excess (non-erosional) lead-210 specific activity (in Bq/kg)
 #'   for samples where this was measured, and NA where lead-210 was not measured. Use
-#'   [errors::set_errors()] to use automatic error propogation.
+#'   [errors::set_errors()] to use quadrature error propogation.
 #' @param inventory The cumulative excess lead-210 activity (in Bq), starting at the bottom
 #'   of the core. By default, this is estimated by the default [pb210_inventory_calculator()].
 #'   If specifying a vector of values, ensure  that the surface (0 cumulative mass) value is
@@ -25,11 +32,16 @@
 #' @references
 #' Appleby, P.G., and Oldfield, F. 1983. The assessment of ^210^Pb data from sites with
 #' varying sediment accumulation rates.
-#' Hydrobiologia, 103: 29–35. doi:10.1007/BF00028424.
+#' Hydrobiologia, 103: 29–35. https://doi.org/10.1007/BF00028424
 #'
 #' Appleby, P.G., and Oldfield, F. 1978. The calculation of lead-210 dates assuming a
 #' constant rate of supply of unsupported ^210^Pb to the sediment.
-#' CATENA, 5: 1–8. doi:10.1016/S0341-8162(78)80002-2.
+#' CATENA, 5: 1–8. https://doi.org/10.1016/S0341-8162(78)80002-2
+#'
+#' Robbins, J.A. 1978. Geochemical and geophysical applications of radioactive
+#' lead isotopes. In The Biogeochemistry of lead in the environment.
+#' Edited by J.O. Nriagu. Elsevier/North-Holland Biomedical Press, Amsterdam.
+#' pp. 285–393. https://books.google.com/books?id=N4wMAQAAMAAJ
 #'
 #' @return `predict()` methods return a tibble with (at least)
 #' components `age` and `age_sd` (both in years).

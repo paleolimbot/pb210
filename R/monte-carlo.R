@@ -5,15 +5,17 @@
 #' constrained by the measured activity and estimated background. Excess
 #' is calculated by [pb210_excess()] for each simulation. Prediction
 #' results are presented as the median result and are constrained by
-#' min (5th percentile) and  max (95th percentile) values (instead of
-#' quadrature-propogated error like [pb210_cic()] and [pb210_crs()]).
+#' min (5th percentile) and max (95th percentile) values (instead of
+#' quadrature-propagated error like [pb210_cic()] and [pb210_crs()]). Note
+#' that this may take 10 seconds per 1,000 iterations (depending on
+#' hardware).
 #'
 #' @inheritParams pb210_cic
 #' @inheritParams pb210_excess
 #' @param n The number of permutations. The default is 1,000, as
 #'   Sanchez-Cabeza et al. (2014) found that this was the minimum
 #'   number of iterations needed for Monte-Carlo uncertainty to
-#'   converge on the quadrature-propegated uncertainty. In general,
+#'   converge on the quadrature-propagated uncertainty. In general,
 #'   Sanchez-Cabeza et al. (2014) used n values from 1,000 to 4,000.
 #' @param sample_activity,sample_background,sample_decay_constant Random
 #'   sampler functions such as [pb210_sample_norm()] that are called
@@ -24,17 +26,17 @@
 #' @references
 #' Binford, M.W. 1990. Calculation and uncertainty analysis of ^210^Pb dates for
 #' PIRLA project lake sediment cores. Journal of Paleolimnology, 3: 253–267.
-#' doi:10.1007/BF00219461.
+#' https://doi.org/10.1007/BF00219461
 #'
 #' Sanchez-Cabeza, J.-A., Ruiz-Fernández, A.C., Ontiveros-Cuadras, J.F.,
 #' Pérez Bernal, L.H., and Olid, C. 2014. Monte Carlo uncertainty calculation of ^210^Pb
 #' chronologies and accumulation rates of sediments and peat bogs.
-#' Quaternary Geochronology, 23: 80–93. doi:10.1016/j.quageo.2014.06.002.
+#' Quaternary Geochronology, 23: 80–93. https://doi.org/10.1016/j.quageo.2014.06.002
 #'
 pb210_cic_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
                                   model_top = ~pb210_fit_exponential(..1, ..2),
                                   decay_constant = pb210_decay_constant(),
-                                  n = 100,
+                                  n = 1000,
                                   sample_activity = pb210_sample_norm,
                                   sample_background = pb210_sample_norm,
                                   sample_decay_constant = pb210_sample_norm) {
