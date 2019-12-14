@@ -15,7 +15,7 @@ British Columbia, Canada.
 \references{
 Dunnington DW, Spooner IS, White CE, et al (2016) A geochemical perspective on the impact of
 development at Alta Lake, British Columbia, Canada. J Paleolimnol 56:315-330.
-https://doi.org/10.1007/s10933-016-9919-x
+\url{https://doi.org/10.1007/s10933-016-9919-x}
 }
 \seealso{
 \link[mudata2]{alta_lake}

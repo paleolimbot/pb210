@@ -24,15 +24,15 @@ pb210_decay_constant()
 }
 \references{
 Basunia, M.S. 2014. Nuclear Data Sheets for A = 210. Nuclear Data
-Sheets, 121: 561–694. https://doi.org/10.1016/j.nds.2014.09.004
+Sheets, 121: 561–694. \url{https://doi.org/10.1016/j.nds.2014.09.004}
 
 Chisté, V., and Bé, M.M. 2007. 210Pb - Comments on evaluation of decay data.
 Laboratoire National Henri Becquerel, Gif-sur-Yvette Cedex, France. Available
-from http://www.lnhb.fr/nuclear-data/nuclear-data-table/.
+from \url{http://www.lnhb.fr/nuclear-data/nuclear-data-table/}
 
 Hohndorf, A. 1969. Bestimmung der Halbwertszeit von ^210^Pb. Zeitschrift fur
-Naturforschung A, 24: 612–615. https://doi.org/10.1515/zna-1969-0419
+Naturforschung A, 24: 612–615. \url{https://doi.org/10.1515/zna-1969-0419}
 
 Holden, N.E. 1990. Total half-lives for selected nuclides. Pure and Applied
-Chemistry, 62: 941–958. https://doi.org/10.1351/pac199062050941
+Chemistry, 62: 941–958. \url{https://doi.org/10.1351/pac199062050941}
 }

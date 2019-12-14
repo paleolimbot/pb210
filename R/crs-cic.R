@@ -32,16 +32,16 @@
 #' @references
 #' Appleby, P.G., and Oldfield, F. 1983. The assessment of ^210^Pb data from sites with
 #' varying sediment accumulation rates.
-#' Hydrobiologia, 103: 29–35. https://doi.org/10.1007/BF00028424
+#' Hydrobiologia, 103: 29–35. <https://doi.org/10.1007/BF00028424>
 #'
 #' Appleby, P.G., and Oldfield, F. 1978. The calculation of lead-210 dates assuming a
 #' constant rate of supply of unsupported ^210^Pb to the sediment.
-#' CATENA, 5: 1–8. https://doi.org/10.1016/S0341-8162(78)80002-2
+#' CATENA, 5: 1–8. <https://doi.org/10.1016/S0341-8162(78)80002-2>
 #'
 #' Robbins, J.A. 1978. Geochemical and geophysical applications of radioactive
 #' lead isotopes. In The Biogeochemistry of lead in the environment.
 #' Edited by J.O. Nriagu. Elsevier/North-Holland Biomedical Press, Amsterdam.
-#' pp. 285–393. https://books.google.com/books?id=N4wMAQAAMAAJ
+#' pp. 285–393. <https://books.google.com/books?id=N4wMAQAAMAAJ>
 #'
 #' @return `predict()` methods return a tibble with (at least)
 #' components `age` and `age_sd` (both in years).

@@ -91,10 +91,10 @@ hardware).
 \references{
 Binford, M.W. 1990. Calculation and uncertainty analysis of ^210^Pb dates for
 PIRLA project lake sediment cores. Journal of Paleolimnology, 3: 253–267.
-https://doi.org/10.1007/BF00219461
+\url{https://doi.org/10.1007/BF00219461}
 
 Sanchez-Cabeza, J.-A., Ruiz-Fernández, A.C., Ontiveros-Cuadras, J.F.,
 Pérez Bernal, L.H., and Olid, C. 2014. Monte Carlo uncertainty calculation of ^210^Pb
 chronologies and accumulation rates of sediments and peat bogs.
-Quaternary Geochronology, 23: 80–93. https://doi.org/10.1016/j.quageo.2014.06.002
+Quaternary Geochronology, 23: 80–93. \url{https://doi.org/10.1016/j.quageo.2014.06.002}
 }
