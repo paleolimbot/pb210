@@ -60,7 +60,9 @@ pb210_cic_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
   fit_factory <- function(i) {
     pb210_cic(
       cumulative_dry_mass = cumulative_dry_mass,
-      excess = pb210_excess(sample_activity(activity), sample_activity(background)),
+      excess = without_errors(
+        pb210_excess(sample_activity(activity), sample_activity(background))
+      ),
       model_top = model_top,
       decay_constant = sample_decay_constant(decay_constant)
     )
@@ -111,7 +113,9 @@ pb210_crs_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
   fit_factory <- function(i) {
     pb210_crs(
       cumulative_dry_mass = cumulative_dry_mass,
-      excess = pb210_excess(sample_activity(activity), sample_activity(background)),
+      excess = without_errors(
+        pb210_excess(sample_activity(activity), sample_activity(background))
+      ),
       inventory = inventory,
       core_area = core_area,
       decay_constant = sample_decay_constant(decay_constant)

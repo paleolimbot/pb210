@@ -265,7 +265,7 @@ predict.pb210_fit_crs <- function(object, cumulative_dry_mass = NULL, ...) {
     )
     has_error <- is.finite(extract_errors(excess)) & (extract_errors(excess) > 0)
 
-    mar <- object$fit_cic$decay_constant *
+    mar <- with_errors(object$fit_cic$decay_constant) *
       inventory / excess / with_errors(object$core_area)
 
     ages$mar <- without_errors(mar)
