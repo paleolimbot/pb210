@@ -40,8 +40,10 @@
 constrained by the measured activity and estimated background. Excess
 is calculated by pb210_excess() for each simulation. Prediction
 results are presented as the median result and are constrained by
-min (5th percentile) and  max (95th percentile) values (instead of
-quadrature-propogated error like pb210_cic() and pb210_crs())." />
+min (5th percentile) and max (95th percentile) values (instead of
+quadrature-propagated error like pb210_cic() and pb210_crs()). Note
+that this may take 10 seconds per 1,000 iterations (depending on
+hardware)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,8 +122,10 @@ quadrature-propogated error like pb210_cic() and pb210_crs())." />
 constrained by the measured activity and estimated background. Excess
 is calculated by <code><a href='pb210_excess.html'>pb210_excess()</a></code> for each simulation. Prediction
 results are presented as the median result and are constrained by
-min (5th percentile) and  max (95th percentile) values (instead of
-quadrature-propogated error like <code><a href='pb210_cic.html'>pb210_cic()</a></code> and <code><a href='pb210_cic.html'>pb210_crs()</a></code>).</p>
+min (5th percentile) and max (95th percentile) values (instead of
+quadrature-propagated error like <code><a href='pb210_cic.html'>pb210_cic()</a></code> and <code><a href='pb210_cic.html'>pb210_crs()</a></code>). Note
+that this may take 10 seconds per 1,000 iterations (depending on
+hardware).</p>
     </div>
 
     <pre class="usage"><span class='fu'>pb210_cic_monte_carlo</span>(
@@ -130,7 +134,7 @@ quadrature-propogated error like <code><a href='pb210_cic.html'>pb210_cic()</a><
   <span class='kw'>background</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>model_top</span> <span class='kw'>=</span> ~<span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_exponential</a></span>(<span class='no'>..1</span>, <span class='no'>..2</span>),
   <span class='kw'>decay_constant</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_decay_constant.html'>pb210_decay_constant</a></span>(),
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>sample_activity</span> <span class='kw'>=</span> <span class='no'>pb210_sample_norm</span>,
   <span class='kw'>sample_background</span> <span class='kw'>=</span> <span class='no'>pb210_sample_norm</span>,
   <span class='kw'>sample_decay_constant</span> <span class='kw'>=</span> <span class='no'>pb210_sample_norm</span>
@@ -192,7 +196,7 @@ use different decay constants. See <code><a href='pb210_decay_constant.html'>pb2
       <td><p>The number of permutations. The default is 1,000, as
 Sanchez-Cabeza et al. (2014) found that this was the minimum
 number of iterations needed for Monte-Carlo uncertainty to
-converge on the quadrature-propegated uncertainty. In general,
+converge on the quadrature-propagated uncertainty. In general,
 Sanchez-Cabeza et al. (2014) used n values from 1,000 to 4,000.</p></td>
     </tr>
     <tr>
@@ -227,11 +231,11 @@ from an internal diameter using <code><a href='pb210_core_area.html'>pb210_core_
 
     <p>Binford, M.W. 1990. Calculation and uncertainty analysis of ^210^Pb dates for
 PIRLA project lake sediment cores. Journal of Paleolimnology, 3: 253–267.
-doi:10.1007/BF00219461.</p>
+https://doi.org/10.1007/BF00219461</p>
 <p>Sanchez-Cabeza, J.-A., Ruiz-Fernández, A.C., Ontiveros-Cuadras, J.F.,
 Pérez Bernal, L.H., and Olid, C. 2014. Monte Carlo uncertainty calculation of ^210^Pb
 chronologies and accumulation rates of sediments and peat bogs.
-Quaternary Geochronology, 23: 80–93. doi:10.1016/j.quageo.2014.06.002.</p>
+Quaternary Geochronology, 23: 80–93. https://doi.org/10.1016/j.quageo.2014.06.002</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -36,7 +36,12 @@
 
 
 <meta property="og:title" content="Apply the Constant Rate of Supply or Constant Initial Concentration model — pb210_cic" />
-<meta property="og:description" content="Apply the Constant Rate of Supply or Constant Initial Concentration model" />
+<meta property="og:description" content="The CRS model was first published by Robbins (1978) and Appleby and Oldfield (1978),
+and is behind nearly every lead-210-based age-depth model. These functions
+compute age-depth models based on excess lead-210 activities (perhaps
+calculated by pb210_excess()) and propagate error in quadrature using the
+errors::errors() package. For a more robust estimation of error, consider
+using pb210_crs_monte_carlo() or pb210_cic_monte_carlo()." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -111,7 +116,12 @@
     </div>
 
     <div class="ref-description">
-    <p>Apply the Constant Rate of Supply or Constant Initial Concentration model</p>
+    <p>The CRS model was first published by Robbins (1978) and Appleby and Oldfield (1978),
+and is behind nearly every lead-210-based age-depth model. These functions
+compute age-depth models based on excess lead-210 activities (perhaps
+calculated by <code><a href='pb210_excess.html'>pb210_excess()</a></code>) and propagate error in quadrature using the
+<code><a href='https://rdrr.io/pkg/errors/man/errors.html'>errors::errors()</a></code> package. For a more robust estimation of error, consider
+using <code><a href='pb210_cic_monte_carlo.html'>pb210_crs_monte_carlo()</a></code> or <code><a href='pb210_cic_monte_carlo.html'>pb210_cic_monte_carlo()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>pb210_cic</span>(
@@ -148,7 +158,7 @@ These must be greater than 0 and in increasing order.</p></td>
       <th>excess</th>
       <td><p>An excess (non-erosional) lead-210 specific activity (in Bq/kg)
 for samples where this was measured, and NA where lead-210 was not measured. Use
-<code><a href='https://rdrr.io/pkg/errors/man/errors.html'>errors::set_errors()</a></code> to use automatic error propogation.</p></td>
+<code><a href='https://rdrr.io/pkg/errors/man/errors.html'>errors::set_errors()</a></code> to use quadrature error propogation.</p></td>
     </tr>
     <tr>
       <th>model_top</th>
@@ -194,10 +204,14 @@ CRS model <code><a href='https://rdrr.io/r/stats/predict.html'>predict()</a></co
 
     <p>Appleby, P.G., and Oldfield, F. 1983. The assessment of ^210^Pb data from sites with
 varying sediment accumulation rates.
-Hydrobiologia, 103: 29–35. doi:10.1007/BF00028424.</p>
+Hydrobiologia, 103: 29–35. https://doi.org/10.1007/BF00028424</p>
 <p>Appleby, P.G., and Oldfield, F. 1978. The calculation of lead-210 dates assuming a
 constant rate of supply of unsupported ^210^Pb to the sediment.
-CATENA, 5: 1–8. doi:10.1016/S0341-8162(78)80002-2.</p>
+CATENA, 5: 1–8. https://doi.org/10.1016/S0341-8162(78)80002-2</p>
+<p>Robbins, J.A. 1978. Geochemical and geophysical applications of radioactive
+lead isotopes. In The Biogeochemistry of lead in the environment.
+Edited by J.O. Nriagu. Elsevier/North-Holland Biomedical Press, Amsterdam.
+pp. 285–393. https://books.google.com/books?id=N4wMAQAAMAAJ</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># simulate a core</span>
