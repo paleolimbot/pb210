@@ -26,6 +26,7 @@ Imports:
     tibble,
     purrr,
     glue,
+    vctrs,
     stats,
     rlang,
     lubridate,
