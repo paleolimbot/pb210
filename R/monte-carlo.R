@@ -33,6 +33,23 @@
 #' chronologies and accumulation rates of sediments and peat bogs.
 #' Quaternary Geochronology, 23: 80–93. <https://doi.org/10.1016/j.quageo.2014.06.002>
 #'
+#' @examples
+#' # simulate a core
+#' core <- pb210_simulate_core() %>%
+#'   pb210_simulate_counting()
+#'
+#' # calculate ages using the CRS model
+#' crs <- pb210_crs_monte_carlo(
+#'   pb210_cumulative_mass(core$slice_mass),
+#'   set_errors(
+#'     core$activity_estimate,
+#'     core$activity_se
+#'   ),
+#'   n = 100
+#' )
+#'
+#' predict(crs)
+#'
 pb210_cic_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
                                   model_top = ~pb210_fit_exponential(..1, ..2),
                                   decay_constant = pb210_decay_constant(),

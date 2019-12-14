@@ -74,17 +74,6 @@ using \code{\link[=pb210_crs_monte_carlo]{pb210_crs_monte_carlo()}} or \code{\li
 core <- pb210_simulate_core() \%>\%
   pb210_simulate_counting()
 
-# calculate ages using the CIC model
-cic <- pb210_cic(
-  pb210_cumulative_mass(core$slice_mass),
-  set_errors(
-    core$activity_estimate,
-    core$activity_se
-  )
-)
-
-predict(cic)
-
 # calculate ages using the CRS model
 crs <- pb210_crs(
   pb210_cumulative_mass(core$slice_mass),

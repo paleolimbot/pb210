@@ -88,6 +88,24 @@ quadrature-propagated error like \code{\link[=pb210_cic]{pb210_cic()}} and \code
 that this may take 10 seconds per 1,000 iterations (depending on
 hardware).
 }
+\examples{
+# simulate a core
+core <- pb210_simulate_core() \%>\%
+  pb210_simulate_counting()
+
+# calculate ages using the CRS model
+crs <- pb210_crs_monte_carlo(
+  pb210_cumulative_mass(core$slice_mass),
+  set_errors(
+    core$activity_estimate,
+    core$activity_se
+  ),
+  n = 100
+)
+
+predict(crs)
+
+}
 \references{
 Binford, M.W. 1990. Calculation and uncertainty analysis of ^210^Pb dates for
 PIRLA project lake sediment cores. Journal of Paleolimnology, 3: 253–267.
