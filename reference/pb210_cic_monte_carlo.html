@@ -237,12 +237,44 @@ Pérez Bernal, L.H., and Olid, C. 2014. Monte Carlo uncertainty calculation of ^
 chronologies and accumulation rates of sediments and peat bogs.
 Quaternary Geochronology, 23: 80–93. <a href='https://doi.org/10.1016/j.quageo.2014.06.002'>https://doi.org/10.1016/j.quageo.2014.06.002</a></p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># simulate a core</span>
+<span class='no'>core</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='pb210_simulate_accumulation.html'>pb210_simulate_core</a></span>() <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='pb210_simulate_accumulation.html'>pb210_simulate_counting</a></span>()
+
+<span class='co'># calculate ages using the CRS model</span>
+<span class='no'>crs</span> <span class='kw'>&lt;-</span> <span class='fu'>pb210_crs_monte_carlo</span>(
+  <span class='fu'><a href='pb210_cumulative_mass.html'>pb210_cumulative_mass</a></span>(<span class='no'>core</span>$<span class='no'>slice_mass</span>),
+  <span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(
+    <span class='no'>core</span>$<span class='no'>activity_estimate</span>,
+    <span class='no'>core</span>$<span class='no'>activity_se</span>
+  ),
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>
+)
+
+<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>crs</span>)</div><div class='output co'>#&gt; # A tibble: 60 x 12
+#&gt;      age age_min age_max age_values   mar mar_min mar_max mar_values inventory
+#&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;list&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;list&gt;         &lt;dbl&gt;
+#&gt;  1  2.41    2.37    2.46 &lt;dbl [100… 0.150   0.147   0.153 &lt;dbl [100…     2995.
+#&gt;  2  7.46    7.34    7.58 &lt;dbl [100… 0.150   0.148   0.153 &lt;dbl [100…     2558.
+#&gt;  3 12.5    12.3    12.7  &lt;dbl [100… 0.151   0.148   0.154 &lt;dbl [100…     2184.
+#&gt;  4 17.7    17.4    17.9  &lt;dbl [100… 0.148   0.145   0.151 &lt;dbl [100…     1860.
+#&gt;  5 22.9    22.5    23.2  &lt;dbl [100… 0.152   0.149   0.155 &lt;dbl [100…     1582.
+#&gt;  6 28.1    27.6    28.5  &lt;dbl [100… 0.149   0.146   0.153 &lt;dbl [100…     1345.
+#&gt;  7 33.3    32.7    33.8  &lt;dbl [100… 0.155   0.151   0.158 &lt;dbl [100…     1144.
+#&gt;  8 38.5    37.9    39.0  &lt;dbl [100… 0.150   0.147   0.154 &lt;dbl [100…      973.
+#&gt;  9 43.8    43.1    44.4  &lt;dbl [100… 0.152   0.147   0.156 &lt;dbl [100…      824.
+#&gt; 10 49.1    48.3    49.8  &lt;dbl [100… 0.151   0.147   0.154 &lt;dbl [100…      697.
+#&gt; # … with 50 more rows, and 3 more variables: inventory_min &lt;dbl&gt;,
+#&gt; #   inventory_max &lt;dbl&gt;, inventory_values &lt;list&gt;</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#references">References</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

@@ -218,29 +218,6 @@ pp. 285–393. <a href='https://books.google.com/books?id=N4wMAQAAMAAJ'>https://
 <span class='no'>core</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='pb210_simulate_accumulation.html'>pb210_simulate_core</a></span>() <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='pb210_simulate_accumulation.html'>pb210_simulate_counting</a></span>()
 
-<span class='co'># calculate ages using the CIC model</span>
-<span class='no'>cic</span> <span class='kw'>&lt;-</span> <span class='fu'>pb210_cic</span>(
-  <span class='fu'><a href='pb210_cumulative_mass.html'>pb210_cumulative_mass</a></span>(<span class='no'>core</span>$<span class='no'>slice_mass</span>),
-  <span class='fu'><a href='https://rdrr.io/pkg/errors/man/errors.html'>set_errors</a></span>(
-    <span class='no'>core</span>$<span class='no'>activity_estimate</span>,
-    <span class='no'>core</span>$<span class='no'>activity_se</span>
-  )
-)
-
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>cic</span>)</div><div class='output co'>#&gt; # A tibble: 60 x 2
-#&gt;      age age_sd
-#&gt;    &lt;dbl&gt;  &lt;dbl&gt;
-#&gt;  1  2.44  0.197
-#&gt;  2  7.82  0.227
-#&gt;  3 12.1   0.257
-#&gt;  4 17.8   0.305
-#&gt;  5 23.1   0.355
-#&gt;  6 27.8   0.401
-#&gt;  7 33.1   0.456
-#&gt;  8 38.7   0.516
-#&gt;  9 43.8   0.573
-#&gt; 10 49.1   0.634
-#&gt; # … with 50 more rows</div><div class='input'>
 <span class='co'># calculate ages using the CRS model</span>
 <span class='no'>crs</span> <span class='kw'>&lt;-</span> <span class='fu'>pb210_crs</span>(
   <span class='fu'><a href='pb210_cumulative_mass.html'>pb210_cumulative_mass</a></span>(<span class='no'>core</span>$<span class='no'>slice_mass</span>),

@@ -188,8 +188,8 @@ prior to fitting.</p>
 <span class='no'>fit_loglinear</span> <span class='kw'>&lt;-</span> <span class='fu'>pb210_fit_loglinear</span>(<span class='no'>fake_depth</span>, <span class='no'>fake_pb210</span>)
 
 <span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coefficients</a></span>(<span class='no'>fit_exp</span>)</div><div class='output co'>#&gt;         b         m 
-#&gt;  5.000034 -1.000083 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coefficients</a></span>(<span class='no'>fit_loglinear</span>)</div><div class='output co'>#&gt;         b         m 
-#&gt;  4.923977 -0.975484 </div><div class='input'>
+#&gt;  5.000043 -0.999955 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coefficients</a></span>(<span class='no'>fit_loglinear</span>)</div><div class='output co'>#&gt;         b         m 
+#&gt;  4.970502 -0.991264 </div><div class='input'>
 <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(
   <span class='kw'>new_depth</span> <span class='kw'>=</span> <span class='fl'>0</span>:<span class='fl'>5</span>,
   <span class='kw'>fitted_exp</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>fit_exp</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>new_depth</span>)),
@@ -197,12 +197,12 @@ prior to fitting.</p>
 )</div><div class='output co'>#&gt; # A tibble: 6 x 3
 #&gt;   new_depth fitted_exp fitted_loglin
 #&gt;       &lt;int&gt;      &lt;dbl&gt;         &lt;dbl&gt;
-#&gt; 1         0    148.           138.  
-#&gt; 2         1     54.6           51.9 
-#&gt; 3         2     20.1           19.6 
-#&gt; 4         3      7.39           7.37
-#&gt; 5         4      2.72           2.78
-#&gt; 6         5      1.000          1.05</div><div class='input'>
+#&gt; 1         0     148.          144.  
+#&gt; 2         1      54.6          53.5 
+#&gt; 3         2      20.1          19.8 
+#&gt; 4         3       7.39          7.36
+#&gt; 5         4       2.72          2.73
+#&gt; 6         5       1.00          1.01</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
