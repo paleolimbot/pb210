@@ -5,6 +5,14 @@ test_that("pb210_sample_norm() works with and without errors", {
   expect_is(pb210_sample_norm(set_errors(1:10, 1)), "numeric")
 })
 
+test_that("pb210_sample_norm() is quiet when there are NA values in x", {
+  expect_silent(pb210_sample_norm(NA_real_))
+  expect_identical(pb210_sample_norm(NA_real_), NA_real_)
+
+  expect_silent(pb210_sample_norm(set_errors(NA_real_, 0)))
+  expect_identical(pb210_sample_norm(set_errors(NA_real_, 0)),NA_real_)
+})
+
 test_that("MC works for CIC fit", {
   accumulation <- pb210_simulate_accumulation(
     mass_accumulation = pb210_mass_accumulation_constant()

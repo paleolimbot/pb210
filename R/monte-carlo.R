@@ -249,12 +249,12 @@ transpose_predictions <- function(prediction_results, column) {
 #'
 #' @examples
 #' pb210_sample_norm(set_errors(1:10, 1))
-#' pb210_sample_norm(set_errors(1:10, 1))
 #' pb210_sample_norm(1:10)
 #'
 pb210_sample_norm <- function(x) {
   if (inherits(x, "errors") && any(is.finite(extract_errors(x)))) {
-    stats::rnorm(length(x), mean = drop_errors(x), sd = errors(x))
+    # this is the easiest way to deal with NA values in x and NA values in errors
+    suppressWarnings(stats::rnorm(length(x), mean = drop_errors(x), sd = errors(x)))
   } else {
     without_errors(x)
   }
