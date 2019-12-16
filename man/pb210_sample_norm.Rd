@@ -20,7 +20,6 @@ because this is done in
 }
 \examples{
 pb210_sample_norm(set_errors(1:10, 1))
-pb210_sample_norm(set_errors(1:10, 1))
 pb210_sample_norm(1:10)
 
 }
