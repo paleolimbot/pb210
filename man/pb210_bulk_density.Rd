@@ -63,7 +63,11 @@ Estimate dry density from water and organic content
 }
 \examples{
 # density of a 10 g slice that is 1 cm thick for a 6.3-cm diameter core
-pb210_bulk_density(slice_mass = 0.010, thickness = 0.01, core_area = pb210_core_area(0.063))
+pb210_bulk_density(
+  slice_mass = 0.010,
+  thickness = 0.01,
+  core_area = pb210_core_area(0.063)
+)
 
 }
 \references{

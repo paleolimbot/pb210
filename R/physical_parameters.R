@@ -72,7 +72,11 @@ pb210_cumulative_mass <- function(masses, position = 0.5) {
 #'
 #' @examples
 #' # density of a 10 g slice that is 1 cm thick for a 6.3-cm diameter core
-#' pb210_bulk_density(slice_mass = 0.010, thickness = 0.01, core_area = pb210_core_area(0.063))
+#' pb210_bulk_density(
+#'   slice_mass = 0.010,
+#'   thickness = 0.01,
+#'   core_area = pb210_core_area(0.063)
+#' )
 #'
 pb210_bulk_density <- function(slice_mass, thickness, core_area = pb210_core_area()) {
   slice_mass / pb210_slice_volume(thickness, core_area)
