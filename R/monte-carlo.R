@@ -141,10 +141,17 @@ predict.pb210_fit_cic_monte_carlo <- function(object, cumulative_dry_mass = NULL
     cumulative_dry_mass = cumulative_dry_mass,
     # for null fits
     out_length = n_samples,
-    out_names = "age"
+    out_names = c("age", "excess", "activity", "background")
   )
 
-  predict_many(prediction_results, "age", len = n_samples)
+  inputs <- purrr::transpose(object$inputs)
+
+  vctrs::vec_cbind(
+    predict_many(prediction_results, "age", len = n_samples),
+    predict_many(inputs, "excess", len = n_samples),
+    predict_many(inputs, "activity", len = n_samples),
+    predict_many(inputs, "background", len = n_samples)
+  )
 }
 
 #' @rdname pb210_cic_monte_carlo
@@ -162,14 +169,19 @@ predict.pb210_fit_crs_monte_carlo <- function(object, cumulative_dry_mass = NULL
     cumulative_dry_mass = cumulative_dry_mass,
     # for null fits
     out_length = n_samples,
-    out_names = c("age", "mar", "inventory")
+    out_names = c("age", "mar", "inventory", "excess", "activity", "background")
   )
+
+  inputs <- purrr::transpose(object$inputs)
 
   vctrs::vec_cbind(
     # predict_many(object$fits, c("data", "excess"), len = n_samples),
     predict_many(prediction_results, "age", len = n_samples),
     predict_many(prediction_results, "mar", len = n_samples),
-    predict_many(prediction_results, "inventory", len = n_samples)
+    predict_many(prediction_results, "inventory", len = n_samples),
+    predict_many(inputs, "excess", len = n_samples),
+    predict_many(inputs, "activity", len = n_samples),
+    predict_many(inputs, "background", len = n_samples)
   )
 }
 
