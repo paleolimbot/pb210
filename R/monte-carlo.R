@@ -122,7 +122,7 @@ pb210_crs_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
 
   structure(
     fit_results,
-    class = c("pb210_fit_cic_monte_carlo", "pb210_fit_mc", "pb210_fit")
+    class = c("pb210_fit_crs_monte_carlo", "pb210_fit_mc", "pb210_fit")
   )
 }
 
@@ -175,7 +175,6 @@ predict.pb210_fit_crs_monte_carlo <- function(object, cumulative_dry_mass = NULL
   inputs <- purrr::transpose(object$inputs)
 
   vctrs::vec_cbind(
-    # predict_many(object$fits, c("data", "excess"), len = n_samples),
     predict_many(prediction_results, "age", len = n_samples),
     predict_many(prediction_results, "mar", len = n_samples),
     predict_many(prediction_results, "inventory", len = n_samples),

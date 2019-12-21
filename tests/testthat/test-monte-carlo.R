@@ -96,6 +96,8 @@ test_that("MC works for CRS fit", {
   })
 
   crs_mc_ages <- predict(crs_mc)
+  expect_true(all(c("mar", "inventory") %in% colnames(crs_mc_ages)))
+
   crs_ages <- predict(crs_mc$fit_base)
   expect_ages_similar(crs_mc_ages$age[1:40], crs_ages$age[1:40], max_delta = 0.4)
 })
