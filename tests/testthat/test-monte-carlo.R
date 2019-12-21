@@ -25,11 +25,14 @@ test_that("monte-carlo fits with errors can be predict()ed", {
 
   bad_fits <- expect_warning(
     fit_many(
-      core$cumulative_dry_mass,
       set_errors(core$activity, core$activity_se),
       background = 0,
-      fit_fun = function(cdry, ex, ...) {
-        if(inherits(ex, "errors")) pb210_cic(cdry, ex, ...) else rlang::abort("fail!")
+      fit_fun = function(ex, dc, ...) {
+        if(inherits(ex, "errors")) {
+          pb210_cic(core$cumulative_dry_mass, ex, ..., decay_constant = dc)
+        } else {
+          rlang::abort("fail!")
+        }
       },
       n = 3
     ),
