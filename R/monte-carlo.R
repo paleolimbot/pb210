@@ -57,41 +57,25 @@ pb210_cic_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
                                   sample_activity = pb210_sample_norm,
                                   sample_background = pb210_sample_norm,
                                   sample_decay_constant = pb210_sample_norm) {
-  stopifnot(
-    n > 2,
-    is.function(sample_activity),
-    is.function(sample_background),
-    is.function(sample_decay_constant)
-  )
 
-  # check arguments and general realisticness of model using
-  # a basic fit
-  fit_base <- pb210_cic(
+  fit_results <- fit_many(
     cumulative_dry_mass = cumulative_dry_mass,
-    excess = pb210_excess(activity, background),
-    model_top = model_top,
-    decay_constant = decay_constant
+    activity = activity,
+    background = background,
+    fit_fun = pb210_cic,
+    args = list(
+      model_top = model_top
+    ),
+
+    decay_constant = decay_constant,
+    n = n,
+    sample_activity = sample_activity,
+    sample_background = sample_background,
+    sample_decay_constant = sample_decay_constant
   )
 
-  # make sure fit_base has errors
-  stopifnot(fit_base$use_errors)
-
-  fit_factory <- function(i) {
-    pb210_cic(
-      cumulative_dry_mass = cumulative_dry_mass,
-      excess = without_errors(
-        pb210_excess(sample_activity(activity), sample_activity(background))
-      ),
-      model_top = model_top,
-      decay_constant = sample_decay_constant(decay_constant)
-    )
-  }
-
-  fit_null <- pb210_cic_na(length(cumulative_dry_mass))
-
-  fit_results <- fit_many(fit_factory, fit_null, n)
   structure(
-    c(fit_results, list(n = n, fit_base = fit_base)),
+    fit_results,
     class = c("pb210_fit_cic_monte_carlo", "pb210_fit_mc", "pb210_fit")
   )
 }
@@ -102,87 +86,134 @@ pb210_crs_monte_carlo <- function(cumulative_dry_mass, activity, background = 0,
                                   inventory = pb210_inventory_calculator(),
                                   core_area = pb210_core_area(),
                                   decay_constant = pb210_decay_constant(),
-                                  n = 100,
+                                  n = 1000,
                                   sample_activity = pb210_sample_norm,
                                   sample_background = pb210_sample_norm,
                                   sample_decay_constant = pb210_sample_norm) {
 
   stopifnot(
-    n > 2,
-    is.function(sample_activity),
-    is.function(sample_background),
-    is.function(sample_decay_constant),
     # only works with inventories that are calculated
     inherits(inventory, "inventory_calculator")
   )
 
-  # check arguments and general realisticness of model using
-  # a basic fit
-  fit_base <- pb210_crs(
+  fit_results <- fit_many(
     cumulative_dry_mass = cumulative_dry_mass,
-    excess = pb210_excess(activity, background),
-    inventory = inventory,
-    core_area = core_area,
-    decay_constant = decay_constant
+    activity = activity,
+    background = background,
+    fit_fun = pb210_crs,
+    args = list(
+      inventory = inventory,
+      core_area = core_area
+    ),
+
+    decay_constant = decay_constant,
+    n = n,
+    sample_activity = sample_activity,
+    sample_background = sample_background,
+    sample_decay_constant = sample_decay_constant
   )
 
-  # make sure fit_base has errors
-  stopifnot(fit_base$use_errors)
-
-  fit_factory <- function(i) {
-    pb210_crs(
-      cumulative_dry_mass = cumulative_dry_mass,
-      excess = without_errors(
-        pb210_excess(sample_activity(activity), sample_activity(background))
-      ),
-      inventory = inventory,
-      core_area = core_area,
-      decay_constant = sample_decay_constant(decay_constant)
-    )
-  }
-
-  fit_null <- pb210_crs_na(length(cumulative_dry_mass))
-
-  fit_results <- fit_many(fit_factory, fit_null, n)
   structure(
-    c(fit_results, list(n = n, fit_base = fit_base)),
-    class = c("pb210_fit_crs_monte_carlo", "pb210_fit_mc", "pb210_fit")
+    fit_results,
+    class = c("pb210_fit_cic_monte_carlo", "pb210_fit_mc", "pb210_fit")
   )
 }
 
 #' @rdname pb210_cic_monte_carlo
 #' @export
 predict.pb210_fit_cic_monte_carlo <- function(object, cumulative_dry_mass = NULL, ...) {
+  if (is.null(cumulative_dry_mass)) {
+    cumulative_dry_mass <- object$fit_base$data$cumulative_dry_mass
+  }
+
+  n_samples <- length(cumulative_dry_mass)
+
   prediction_results <- purrr::map(
     object$fits,
-    predict.pb210_fit_cic,
-    cumulative_dry_mass = cumulative_dry_mass
+    stats::predict,
+    cumulative_dry_mass = cumulative_dry_mass,
+    # for null fits
+    out_length = n_samples,
+    out_names = "age"
   )
 
-
-  predict_many(prediction_results, "age")
+  predict_many(prediction_results, "age", len = n_samples)
 }
 
 #' @rdname pb210_cic_monte_carlo
 #' @export
 predict.pb210_fit_crs_monte_carlo <- function(object, cumulative_dry_mass = NULL, ...) {
+  if (is.null(cumulative_dry_mass)) {
+    cumulative_dry_mass <- object$fit_base$data$cumulative_dry_mass
+  }
+
+  n_samples <- length(cumulative_dry_mass)
+
   prediction_results <- purrr::map(
     object$fits,
-    predict.pb210_fit_crs,
-    cumulative_dry_mass = cumulative_dry_mass
+    stats::predict,
+    cumulative_dry_mass = cumulative_dry_mass,
+    # for null fits
+    out_length = n_samples,
+    out_names = c("age", "mar", "inventory")
   )
 
   vctrs::vec_cbind(
-    predict_many(prediction_results, "age"),
-    predict_many(prediction_results, "mar"),
-    predict_many(prediction_results, "inventory")
+    # predict_many(object$fits, c("data", "excess"), len = n_samples),
+    predict_many(prediction_results, "age", len = n_samples),
+    predict_many(prediction_results, "mar", len = n_samples),
+    predict_many(prediction_results, "inventory", len = n_samples)
   )
 }
 
-fit_many <- function(fit_factory, fit_null, n) {
-  results <- purrr::map(
-    seq_len(n),
-    purrr::safely(fit_factory, otherwise = fit_null)
+fit_many <- function(cumulative_dry_mass, activity, background,
+                     fit_fun, args = list(),
+                     decay_constant = pb210_decay_constant(),
+                     n = 1000,
+                     sample_activity = pb210_sample_norm,
+                     sample_background = pb210_sample_norm,
+                     sample_decay_constant = pb210_sample_norm) {
+  stopifnot(n >= 2)
+  sample_activity <- rlang::as_function(sample_activity)
+  sample_background <- rlang::as_function(sample_background)
+  sample_decay_constant <- rlang::as_function(sample_decay_constant)
+
+  # check plausible base fit (also checks args)
+  fit_base <- rlang::exec(
+    fit_fun,
+    cumulative_dry_mass,
+    pb210_excess(activity, background),
+    !!!args,
+    decay_constant = decay_constant
+  )
+
+  inputs <- tibble::tibble(
+    activity = purrr::map(seq_len(n), function(i) sample_activity(activity)),
+    background = purrr::map(seq_len(n), function(i) sample_background(background)),
+    excess = purrr::map2(
+      .data$activity,
+      .data$background,
+      function(activity, background) without_errors(pb210_excess(activity, background))
+    ),
+    decay_constant = purrr::map_dbl(
+      seq_len(n),
+      function(i) sample_decay_constant(decay_constant)
+    )
+  )
+
+  results <- purrr::map2(
+    inputs$excess, inputs$decay_constant,
+    purrr::safely(
+      function(excess, decay_constant) {
+        rlang::exec(
+          fit_fun,
+          cumulative_dry_mass, excess,
+          !!!args,
+          decay_constant = decay_constant
+        )
+      },
+      otherwise = pb210_age_depth_na()
+    )
   )
 
   fits <- purrr::map(results, "result")
@@ -198,6 +229,9 @@ fit_many <- function(fit_factory, fit_null, n) {
   }
 
   list(
+    fit_base = fit_base,
+    n = n,
+    inputs = inputs,
     fits = fits,
     problems = problems,
     has_problems = has_problems
@@ -205,13 +239,12 @@ fit_many <- function(fit_factory, fit_null, n) {
 }
 
 #' @importFrom rlang :=
-predict_many <- function(prediction_results,
-                         key = "age",
+predict_many <- function(prediction_results, key, len,
                          summarise_value = ~stats::median(..1, na.rm = TRUE),
                          summarise_min = ~stats::quantile(..1, 0.05, na.rm = TRUE),
                          summarise_max = ~stats::quantile(..1, 0.95, na.rm = TRUE)) {
-
-  by_depth <- transpose_predictions(prediction_results, key)
+  key <- key[length(key)]
+  by_depth <- transpose_predictions(prediction_results, key, len = len)
 
   tibble::tibble(
     !!key := purrr::map_dbl(by_depth, summarise_value),
@@ -221,10 +254,11 @@ predict_many <- function(prediction_results,
   )
 }
 
-transpose_predictions <- function(prediction_results, column) {
+transpose_predictions <- function(prediction_results, column,
+                                  len = nrow(prediction_results[[1]])) {
   force(column)
   purrr::map(
-    seq_len(nrow(prediction_results[[1]])),
+    seq_len(len),
     function(i) purrr::map_dbl(prediction_results, ~..1[[column]][i])
   )
 }
@@ -261,31 +295,14 @@ pb210_sample_norm <- function(x) {
 }
 
 
-pb210_cic_na <- function(out_length) {
-  structure(list(out_length), class = "pb210_fit_cic_na")
-}
-
-pb210_crs_na <- function(out_length) {
-  structure(list(out_length), class = "pb210_fit_crs_na")
+pb210_age_depth_na <- function() {
+  structure(list(must_not_be_empty = TRUE), class = "pb210_age_depth_na")
 }
 
 #' @export
-predict.pb210_na_fit <- function(object, ...) {
-  tibble::tibble(
-    age = rep_len(NA_real_, object$out_length),
-    age_sd = rep_len(NA_real_, object$out_length)
-  )
-}
-
-#' @export
-predict.pb210_na_fit <- function(object, ...) {
-  na_vec <- rep_len(NA_real_, object$out_length)
-  tibble::tibble(
-    age = na_vec,
-    age_sd = na_vec,
-    mar = na_vec,
-    mar_sd = na_vec,
-    inventory = na_vec,
-    inventory_sd = na_vec
-  )
+predict.pb210_age_depth_na <- function(object, ..., out_length, out_names) {
+  na_vec <- rep_len(NA_real_, out_length)
+  out <- rep_len(list(na_vec), length(out_names))
+  names(out) <- out_names
+  tibble::as_tibble(out)
 }

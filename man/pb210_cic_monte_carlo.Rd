@@ -26,7 +26,7 @@ pb210_crs_monte_carlo(
   inventory = pb210_inventory_calculator(),
   core_area = pb210_core_area(),
   decay_constant = pb210_decay_constant(),
-  n = 100,
+  n = 1000,
   sample_activity = pb210_sample_norm,
   sample_background = pb210_sample_norm,
   sample_decay_constant = pb210_sample_norm
