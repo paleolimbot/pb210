@@ -31,6 +31,8 @@ reference:
   - starts_with("pb210_fit_")
   - max_finite
   - pb210_sample_norm
+  - starts_with("finite_head")
+  - starts_with("finite_tail")
 - title: Example data
   desc: Real lead-210 measurements on which to practice fitting age-depth models
   contents:
