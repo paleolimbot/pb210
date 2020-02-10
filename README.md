@@ -99,17 +99,20 @@ alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(
 alta_lake_pb210$inventory <- pb210_inventory(
   alta_lake_pb210$cumulative_dry_mass,
   alta_lake_pb210$excess_pb210,
-  model_bottom = 0
+  model_bottom = ~pb210_fit_loglinear(
+    ..1, ..2, 
+    subset = ~finite_tail(..1, ..2, n_tail = 3)
+  )
 )
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
-Here I told it to ignore the possibility that there was any excess
-lead-210 inventory in the core before the last known measurement…in
-reality, this should be considered (you can consider it yourself by
-creating an exponential model with `pb210_fit_exponential()` and passing
-it to `model_bottom`).
+Here I told it to use the last 3 finite measurements to estimate excess
+lead-210 inventory in the core before the last known measurement. This
+is the implicit default derived from some experimentation…it’s good to
+specify this explicitly, since it affects the extrapolated ages quite a
+bit\!
 
 Now that we have all the parts, we can calculate the ages\!
 
@@ -127,16 +130,16 @@ alta_lake_pb210 %>%
 #> # A tibble: 32 x 3
 #>    cumulative_dry_mass       age age_sd
 #>                  <dbl>     <dbl>  <dbl>
-#>  1               0.422  7.11e-15   1.58
-#>  2               1.10   2.88e+ 0  NA   
-#>  3               1.86   6.45e+ 0   1.63
-#>  4               2.61   1.09e+ 1   1.56
-#>  5               4.44   2.43e+ 1   1.65
-#>  6               6.32   4.10e+ 1   2.13
-#>  7               8.61   6.14e+ 1   2.91
-#>  8              10.8    8.46e+ 1   3.64
-#>  9              13.5    1.32e+ 2   8.67
-#> 10              15.4   NA         NA   
+#>  1               0.422 -7.11e-15   1.58
+#>  2               1.10   2.82e+ 0  NA   
+#>  3               1.86   6.33e+ 0   1.63
+#>  4               2.61   1.07e+ 1   1.56
+#>  5               4.44   2.37e+ 1   1.65
+#>  6               6.32   3.96e+ 1   2.13
+#>  7               8.61   5.84e+ 1   2.90
+#>  8              10.8    7.81e+ 1   3.62
+#>  9              13.5    1.09e+ 2   8.64
+#> 10              15.4    1.30e+ 2  14.5 
 #> # … with 22 more rows
 ```
 

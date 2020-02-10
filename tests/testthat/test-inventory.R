@@ -1,6 +1,6 @@
 
 test_that("inventory calculation works", {
-  withr::with_seed(29, {
+  withr::with_seed(39, {
     fake_mass <- 0:10
     fake_pb210 <- exp(5 - fake_mass) + rnorm(11, sd = 0.005)
     known_coeffs <- c(m = -1, b = 5)

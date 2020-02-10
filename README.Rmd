@@ -120,7 +120,10 @@ alta_lake_pb210$cumulative_dry_mass <- pb210_cumulative_mass(
 alta_lake_pb210$inventory <- pb210_inventory(
   alta_lake_pb210$cumulative_dry_mass,
   alta_lake_pb210$excess_pb210,
-  model_bottom = 0
+  model_bottom = ~pb210_fit_loglinear(
+    ..1, ..2, 
+    subset = ~finite_tail(..1, ..2, n_tail = 3)
+  )
 )
 ```
 
@@ -135,7 +138,7 @@ ggplot(alta_lake_pb210, aes(depth_cm, inventory)) +
   )
 ```
 
-Here I told it to ignore the possibility that there was any excess lead-210 inventory in the core before the last known measurement...in reality, this should be considered (you can consider it yourself by creating an exponential model with `pb210_fit_exponential()` and passing it to `model_bottom`).
+Here I told it to use the last 3 finite measurements to estimate excess lead-210 inventory in the core before the last known measurement. This is the implicit default derived from some experimentation...it's good to specify this explicitly, since it affects the extrapolated ages quite a bit!
 
 Now that we have all the parts, we can calculate the ages!
 
