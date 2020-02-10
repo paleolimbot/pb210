@@ -12,6 +12,12 @@
 #' @param y A dependent variable that responds exponentially to `x`.
 #' @param newdata A tibble with a column `x`.
 #' @param object A model fit object.
+#' @param subset `NULL` to do no subsetting, a logical or numeric
+#'   vector to subset manually, or a function of two variables
+#'   (`x` and `y`) that returns `NULL`, a logical vector, or
+#'   a numeric vector that will be used to subset the data.
+#'   This is particularly useful in conjunction with
+#'   [finite_head()] or [finite_tail()].
 #' @param ... Not used.
 #' @param m,b,value Directly specify coefficients for a manual fit.
 #'
@@ -35,7 +41,7 @@
 #'   fitted_loglin = predict(fit_loglinear, newdata = tibble::tibble(x = new_depth))
 #' )
 #'
-pb210_fit_exponential <- function(x, y) {
+pb210_fit_exponential <- function(x, y, subset = NULL) {
   # these functions do not consider error
   x <- without_errors(x)
   y <- without_errors(y)
@@ -43,10 +49,13 @@ pb210_fit_exponential <- function(x, y) {
   # y values that are 0 or less will cause the model not to fit
   y[y <= 0] <- NA_real_
 
+  # apply subset
+  data <- apply_subset(x, y, subset)
+
   # the nonlinear least squares function often fails when initial
   # coefficients do not make sense
   # using a loglinear fit to find the starting place is one way around this
-  fit_loglinear <- pb210_fit_loglinear(x, y)
+  fit_loglinear <- pb210_fit_loglinear(data$x, data$y)
   coeffs_loglinear <- stats::coefficients(fit_loglinear)
 
   # the nls() function also fails when the initial coeficients are
@@ -58,13 +67,14 @@ pb210_fit_exponential <- function(x, y) {
   stats::nls(
     y ~ exp(m * x + b),
     start = as.list(coeffs_loglinear),
-    na.action = stats::na.omit
+    na.action = stats::na.omit,
+    data = data
   )
 }
 
 #' @rdname pb210_fit_exponential
 #' @export
-pb210_fit_loglinear <- function(x, y) {
+pb210_fit_loglinear <- function(x, y, subset = NULL) {
   # these functions do not consider error
   x <- without_errors(x)
   y <- without_errors(y)
@@ -72,7 +82,10 @@ pb210_fit_loglinear <- function(x, y) {
   # y values that are 0 or less will cause the model not to fit
   y[y <= 0] <- NA_real_
 
-  fit <- stats::lm(log(y) ~ x, na.action = stats::na.omit)
+  # apply subset
+  data <- apply_subset(x, y, subset)
+
+  fit <- stats::lm(log(y) ~ x, na.action = stats::na.omit, data = data)
 
   class(fit) <- c("lm_loglinear", class(fit))
   fit
@@ -236,4 +249,64 @@ pb210_as_fit.pb210_fit_lazy <- function(x, data = NULL, ...) {
 #' @export
 predict.pb210_fit_lazy <- function(object, ...) {
   abort("Lazy fit needs to be resolved by calling pb210_as_fit(x, data = ...)")
+}
+
+#' Subset generators
+#'
+#' @inheritParams pb210_fit_exponential
+#' @param prop_tail,prop_head A minimum proportion of finite values
+#'   that should be included in the output
+#' @param n_tail,n_head A minimum number of finite values
+#'   that should be included in the output
+#'
+#' @return A logical vector that can be used to subset `x` and `y`.
+#' @export
+#'
+#' @examples
+#' x <- 1:5
+#' y <- c(1, 2, NA, NA, 5)
+#'
+#' finite_head(x, y, 2)
+#' finite_tail(x, y, 2)
+#' finite_head_prop(x, y, 0.5)
+#' finite_tail_prop(x, y, 0.5)
+#'
+finite_head_prop <- function(x, y, prop_tail = 1) {
+  finite <- is.finite(x) & is.finite(y)
+  finite_head(x, y, ceiling(sum(finite) * prop_tail))
+}
+
+#' @rdname finite_head_prop
+#' @export
+finite_tail_prop <- function(x, y, prop_head = 1) {
+  finite <- is.finite(x) & is.finite(y)
+  finite_tail(x, y, ceiling(sum(finite) * prop_head))
+}
+
+#' @rdname finite_head_prop
+#' @export
+finite_tail <- function(x, y, n_tail = sum(is.finite(x) & is.finite(y))) {
+  finite <- is.finite(x) & is.finite(y)
+  n_finite <- sum(finite)
+  first_finite <- n_finite - n_tail + 1
+
+  (cumsum(finite) >= first_finite) & finite
+}
+
+#' @rdname finite_head_prop
+#' @export
+finite_head <- function(x, y, n_head = sum(is.finite(x) & is.finite(y))) {
+  rev(finite_tail(rev(x), rev(y), n_head))
+}
+
+apply_subset <- function(x, y, subset = NULL) {
+  data <- tibble::tibble(x, y)
+  if (is.null(subset)) {
+    data
+  } else if(is.logical(subset) || is.numeric(subset)) {
+    data[subset, ]
+  } else {
+    subset <- rlang::as_function(subset)
+    apply_subset(x, y, subset(x, y))
+  }
 }

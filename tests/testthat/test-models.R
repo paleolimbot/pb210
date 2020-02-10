@@ -104,3 +104,49 @@ test_that("lazy fits work as intended", {
     "lm_loglinear"
   )
 })
+
+test_that("finite head and tail functions work as expected", {
+  x <- 1:5
+  y <- c(1, 2, NA, NA, 5)
+
+  expect_identical(finite_tail(x, y), is.finite(y))
+  expect_identical(finite_tail(x, y, 0), c(F, F, F, F, F))
+  expect_identical(finite_tail(x, y, 1), c(F, F, F, F, T))
+  expect_identical(finite_tail(x, y, 2), c(F, T, F, F, T))
+  expect_identical(finite_tail(x, y, 3), c(T, T, F, F, T))
+  expect_identical(finite_tail(x, y, 4), c(T, T, F, F, T))
+
+  expect_identical(finite_tail_prop(x, y), finite_tail(x, y))
+  expect_identical(finite_tail_prop(x, y, 0.5), finite_tail(x, y, 2))
+
+  expect_identical(finite_head(x, y), is.finite(y))
+  expect_identical(finite_head(x, y, 0), c(F, F, F, F, F))
+  expect_identical(finite_head(x, y, 1), c(T, F, F, F, F))
+  expect_identical(finite_head(x, y, 2), c(T, T, F, F, F))
+  expect_identical(finite_head(x, y, 3), c(T, T, F, F, T))
+  expect_identical(finite_head(x, y, 4), c(T, T, F, F, T))
+
+  expect_identical(finite_head_prop(x, y), finite_head(x, y))
+  expect_identical(finite_head_prop(x, y, 0.5), finite_head(x, y, 2))
+})
+
+test_that("subset application works as expected", {
+  x <- 1:10
+  y <- c(1, 2, NA, NA, 5, 6, NA, 8, 9, NA)
+
+  expect_identical(apply_subset(x, y), tibble::tibble(x, y))
+  expect_identical(apply_subset(x, y, ~NULL), tibble::tibble(x, y))
+  expect_identical(apply_subset(x, y, function(x, y) NULL), tibble::tibble(x, y))
+  expect_identical(apply_subset(x, y, 1:10), tibble::tibble(x, y))
+  expect_identical(apply_subset(x, y, as.numeric(1:10)), tibble::tibble(x, y))
+
+
+  expect_identical(apply_subset(x, y, 5:7), tibble::tibble(x, y)[5:7, ])
+  expect_identical(apply_subset(x, y, (1:10) %in% (5:7)), tibble::tibble(x, y)[5:7, ])
+
+  # closer to actual usage
+  expect_identical(
+    apply_subset(x, y, ~finite_tail(..1, ..2, 3)),
+    tibble::tibble(x, y)[c(6, 8, 9), ]
+  )
+})

@@ -12,9 +12,9 @@
 \alias{coef.lm_loglinear}
 \title{Fit an exponential model}
 \usage{
-pb210_fit_exponential(x, y)
+pb210_fit_exponential(x, y, subset = NULL)
 
-pb210_fit_loglinear(x, y)
+pb210_fit_loglinear(x, y, subset = NULL)
 
 pb210_fit_exponential_manual(m, b)
 
@@ -34,6 +34,13 @@ pb210_fit_exponential_constant(value)
 \item{x}{An independent variable like depth or cumulative dry mass.}
 
 \item{y}{A dependent variable that responds exponentially to \code{x}.}
+
+\item{subset}{\code{NULL} to do no subsetting, a logical or numeric
+vector to subset manually, or a function of two variables
+(\code{x} and \code{y}) that returns \code{NULL}, a logical vector, or
+a numeric vector that will be used to subset the data.
+This is particularly useful in conjunction with
+\code{\link[=finite_head]{finite_head()}} or \code{\link[=finite_tail]{finite_tail()}}.}
 
 \item{m, b, value}{Directly specify coefficients for a manual fit.}
 
