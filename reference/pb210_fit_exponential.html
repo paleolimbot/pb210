@@ -124,9 +124,9 @@ values but is widely used. NA and zero values are removed observation-wise
 prior to fitting.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>pb210_fit_exponential</span>(<span class='no'>x</span>, <span class='no'>y</span>)
+    <pre class="usage"><span class='fu'>pb210_fit_exponential</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
-<span class='fu'>pb210_fit_loglinear</span>(<span class='no'>x</span>, <span class='no'>y</span>)
+<span class='fu'>pb210_fit_loglinear</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>pb210_fit_exponential_manual</span>(<span class='no'>m</span>, <span class='no'>b</span>)
 
@@ -156,6 +156,15 @@ prior to fitting.</p>
     <tr>
       <th>y</th>
       <td><p>A dependent variable that responds exponentially to <code>x</code>.</p></td>
+    </tr>
+    <tr>
+      <th>subset</th>
+      <td><p><code>NULL</code> to do no subsetting, a logical or numeric
+vector to subset manually, or a function of two variables
+(<code>x</code> and <code>y</code>) that returns <code>NULL</code>, a logical vector, or
+a numeric vector that will be used to subset the data.
+This is particularly useful in conjunction with
+<code><a href='finite_head_prop.html'>finite_head()</a></code> or <code><a href='finite_head_prop.html'>finite_tail()</a></code>.</p></td>
     </tr>
     <tr>
       <th>m, b, value</th>
@@ -197,12 +206,12 @@ prior to fitting.</p>
 )</div><div class='output co'>#&gt; # A tibble: 6 x 3
 #&gt;   new_depth fitted_exp fitted_loglin
 #&gt;       &lt;int&gt;      &lt;dbl&gt;         &lt;dbl&gt;
-#&gt; 1         0    148.           141.  
-#&gt; 2         1     54.6           52.8 
-#&gt; 3         2     20.1           19.8 
-#&gt; 4         3      7.39           7.45
-#&gt; 5         4      2.72           2.80
-#&gt; 6         5      1.000          1.05</div><div class='input'>
+#&gt; 1         0     148.          141.  
+#&gt; 2         1      54.6          52.8 
+#&gt; 3         2      20.1          19.8 
+#&gt; 4         3       7.39          7.45
+#&gt; 5         4       2.72          2.80
+#&gt; 6         5       1.00          1.05</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

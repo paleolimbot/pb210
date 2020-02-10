@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Coerce objects to exponential fits — pb210_as_fit • pb210</title>
+<title>Subset generators — finite_head_prop • pb210</title>
 
 
 <!-- jquery -->
@@ -35,10 +35,8 @@
 
 
 
-<meta property="og:title" content="Coerce objects to exponential fits — pb210_as_fit" />
-<meta property="og:description" content="This is used to sanitize input for pb210_cic() and pb210_crs(),
-where fit objects are required but where it is anticipated that
-numeric constants will be common as input." />
+<meta property="og:title" content="Subset generators — finite_head_prop" />
+<meta property="og:description" content="Subset generators" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -107,81 +105,55 @@ numeric constants will be common as input." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Coerce objects to exponential fits</h1>
+    <h1>Subset generators</h1>
     <small class="dont-index">Source: <a href='https://github.com/paleolimbot/pb210/blob/master/R/models.R'><code>R/models.R</code></a></small>
-    <div class="hidden name"><code>pb210_as_fit.Rd</code></div>
+    <div class="hidden name"><code>finite_head_prop.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is used to sanitize input for <code><a href='pb210_cic.html'>pb210_cic()</a></code> and <code><a href='pb210_cic.html'>pb210_crs()</a></code>,
-where fit objects are required but where it is anticipated that
-numeric constants will be common as input.</p>
+    <p>Subset generators</p>
     </div>
 
-    <pre class="usage"><span class='fu'>pb210_as_fit</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>finite_head_prop</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>prop_tail</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
-<span class='co'># S3 method for default</span>
-<span class='fu'>pb210_as_fit</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>finite_tail_prop</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>prop_head</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
-<span class='co'># S3 method for numeric</span>
-<span class='fu'>pb210_as_fit</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>finite_tail</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>n_tail</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/is.finite.html'>is.finite</a></span>(<span class='no'>x</span>) <span class='kw'>&amp;</span> <span class='fu'><a href='https://rdrr.io/r/base/is.finite.html'>is.finite</a></span>(<span class='no'>y</span>)))
 
-<span class='fu'>pb210_fit_lazy</span>(<span class='no'>x</span>)
-
-<span class='co'># S3 method for `function`</span>
-<span class='fu'>pb210_as_fit</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for formula</span>
-<span class='fu'>pb210_as_fit</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for pb210_fit_lazy</span>
-<span class='fu'>pb210_as_fit</span>(<span class='no'>x</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>finite_head</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>n_head</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/is.finite.html'>is.finite</a></span>(<span class='no'>x</span>) <span class='kw'>&amp;</span> <span class='fu'><a href='https://rdrr.io/r/base/is.finite.html'>is.finite</a></span>(<span class='no'>y</span>)))</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>An object</p></td>
+      <td><p>An independent variable like depth or cumulative dry mass.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Unused.</p></td>
+      <th>y</th>
+      <td><p>A dependent variable that responds exponentially to <code>x</code>.</p></td>
     </tr>
     <tr>
-      <th>data</th>
-      <td><p>For lazy fits, this object is a tibble with
-<code>cumulative_dry_mass</code> and <code>excess</code>.</p></td>
+      <th>prop_tail, prop_head</th>
+      <td><p>A minimum proportion of finite values
+that should be included in the output</p></td>
+    </tr>
+    <tr>
+      <th>n_tail, n_head</th>
+      <td><p>A minimum number of finite values
+that should be included in the output</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object with a <code><a href='https://rdrr.io/r/stats/predict.html'>stats::predict()</a></code> method.</p>
+    <p>A logical vector that can be used to subset <code>x</code> and <code>y</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>fake_depth</span> <span class='kw'>&lt;-</span> <span class='fl'>0</span>:<span class='fl'>10</span>
-<span class='no'>fake_pb210</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(<span class='fl'>5</span> - <span class='no'>fake_depth</span>) + <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>11</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>0.005</span>)
+    <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fl'>1</span>:<span class='fl'>5</span>
+<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>NA</span>, <span class='fl'>NA</span>, <span class='fl'>5</span>)
 
-<span class='fu'>pb210_as_fit</span>(<span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_exponential</a></span>(<span class='no'>fake_depth</span>, <span class='no'>fake_pb210</span>))</div><div class='output co'>#&gt; Nonlinear regression model
-#&gt;   model: y ~ exp(m * x + b)
-#&gt;    data: data
-#&gt;  b  m 
-#&gt;  5 -1 
-#&gt;  residual sum-of-squares: 0.0002726
-#&gt; 
-#&gt; Number of iterations to convergence: 3 
-#&gt; Achieved convergence tolerance: 5.184e-07</div><div class='input'><span class='fu'>pb210_as_fit</span>(<span class='fl'>1</span>)</div><div class='output co'>#&gt; $coef
-#&gt; b m 
-#&gt; 0 0 
-#&gt; 
-#&gt; attr(,"class")
-#&gt; [1] "exponential_manual"</div><div class='input'><span class='fu'>pb210_as_fit</span>(<span class='fl'>0</span>)</div><div class='output co'>#&gt; $coef
-#&gt;    b    m 
-#&gt; -Inf    1 
-#&gt; 
-#&gt; attr(,"class")
-#&gt; [1] "exponential_manual"</div><div class='input'>
+<span class='fu'>finite_head</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1]  TRUE  TRUE FALSE FALSE FALSE</div><div class='input'><span class='fu'>finite_tail</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] FALSE  TRUE FALSE FALSE  TRUE</div><div class='input'><span class='fu'>finite_head_prop</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='fl'>0.5</span>)</div><div class='output co'>#&gt; [1]  TRUE  TRUE FALSE FALSE FALSE</div><div class='input'><span class='fu'>finite_tail_prop</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='fl'>0.5</span>)</div><div class='output co'>#&gt; [1] FALSE  TRUE FALSE FALSE  TRUE</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

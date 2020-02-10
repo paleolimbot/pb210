@@ -147,7 +147,7 @@ hardware).</p>
   <span class='kw'>inventory</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_inventory.html'>pb210_inventory_calculator</a></span>(),
   <span class='kw'>core_area</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_core_area.html'>pb210_core_area</a></span>(),
   <span class='kw'>decay_constant</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_decay_constant.html'>pb210_decay_constant</a></span>(),
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>sample_activity</span> <span class='kw'>=</span> <span class='no'>pb210_sample_norm</span>,
   <span class='kw'>sample_background</span> <span class='kw'>=</span> <span class='no'>pb210_sample_norm</span>,
   <span class='kw'>sample_decay_constant</span> <span class='kw'>=</span> <span class='no'>pb210_sample_norm</span>
@@ -252,21 +252,25 @@ Quaternary Geochronology, 23: 80–93. <a href='https://doi.org/10.1016/j.quageo
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>
 )
 
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>crs</span>)</div><div class='output co'>#&gt; # A tibble: 60 x 12
+<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>crs</span>)</div><div class='output co'>#&gt; # A tibble: 60 x 24
 #&gt;      age age_min age_max age_values   mar mar_min mar_max mar_values inventory
 #&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;list&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;list&gt;         &lt;dbl&gt;
-#&gt;  1  2.37    2.33    2.41 &lt;dbl [100… 0.153   0.150   0.156 &lt;dbl [100…     2992.
-#&gt;  2  7.34    7.24    7.46 &lt;dbl [100… 0.152   0.150   0.155 &lt;dbl [100…     2562.
-#&gt;  3 12.4    12.2    12.6  &lt;dbl [100… 0.152   0.149   0.154 &lt;dbl [100…     2189.
-#&gt;  4 17.5    17.3    17.7  &lt;dbl [100… 0.150   0.148   0.153 &lt;dbl [100…     1867.
-#&gt;  5 22.6    22.4    23.0  &lt;dbl [100… 0.151   0.148   0.154 &lt;dbl [100…     1589.
-#&gt;  6 27.8    27.4    28.2  &lt;dbl [100… 0.151   0.148   0.154 &lt;dbl [100…     1353.
-#&gt;  7 33.0    32.6    33.6  &lt;dbl [100… 0.152   0.149   0.155 &lt;dbl [100…     1150.
-#&gt;  8 38.2    37.8    38.9  &lt;dbl [100… 0.154   0.149   0.157 &lt;dbl [100…      977.
-#&gt;  9 43.5    43.0    44.3  &lt;dbl [100… 0.149   0.145   0.152 &lt;dbl [100…      828.
-#&gt; 10 49.0    48.3    49.8  &lt;dbl [100… 0.149   0.146   0.153 &lt;dbl [100…      699.
-#&gt; # … with 50 more rows, and 3 more variables: inventory_min &lt;dbl&gt;,
-#&gt; #   inventory_max &lt;dbl&gt;, inventory_values &lt;list&gt;</div><div class='input'>
+#&gt;  1  2.38    2.34    2.41 &lt;dbl [100… 0.153   0.150   0.155 &lt;dbl [100…     2991.
+#&gt;  2  7.36    7.26    7.46 &lt;dbl [100… 0.153   0.150   0.155 &lt;dbl [100…     2561.
+#&gt;  3 12.4    12.2    12.6  &lt;dbl [100… 0.151   0.149   0.154 &lt;dbl [100…     2189.
+#&gt;  4 17.5    17.3    17.7  &lt;dbl [100… 0.150   0.148   0.152 &lt;dbl [100…     1867.
+#&gt;  5 22.7    22.4    22.9  &lt;dbl [100… 0.151   0.148   0.154 &lt;dbl [100…     1590.
+#&gt;  6 27.8    27.5    28.2  &lt;dbl [100… 0.151   0.147   0.154 &lt;dbl [100…     1353.
+#&gt;  7 33.1    32.6    33.5  &lt;dbl [100… 0.152   0.149   0.155 &lt;dbl [100…     1149.
+#&gt;  8 38.3    37.8    38.7  &lt;dbl [100… 0.153   0.150   0.157 &lt;dbl [100…      976.
+#&gt;  9 43.6    43.0    44.1  &lt;dbl [100… 0.149   0.146   0.153 &lt;dbl [100…      827.
+#&gt; 10 49.0    48.3    49.6  &lt;dbl [100… 0.149   0.146   0.153 &lt;dbl [100…      698.
+#&gt; # … with 50 more rows, and 15 more variables: inventory_min &lt;dbl&gt;,
+#&gt; #   inventory_max &lt;dbl&gt;, inventory_values &lt;list&gt;, excess &lt;dbl&gt;,
+#&gt; #   excess_min &lt;dbl&gt;, excess_max &lt;dbl&gt;, excess_values &lt;list&gt;, activity &lt;dbl&gt;,
+#&gt; #   activity_min &lt;dbl&gt;, activity_max &lt;dbl&gt;, activity_values &lt;list&gt;,
+#&gt; #   background &lt;dbl&gt;, background_min &lt;dbl&gt;, background_max &lt;dbl&gt;,
+#&gt; #   background_values &lt;list&gt;</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
