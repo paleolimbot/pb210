@@ -136,12 +136,13 @@ estimated using a trapezoidal approximation.</p>
   <span class='no'>cumulative_dry_mass</span>,
   <span class='no'>excess</span>,
   <span class='kw'>model_top</span> <span class='kw'>=</span> <span class='fu'><a href='max_finite.html'>max_finite</a></span>(<span class='no'>excess</span>),
-  <span class='kw'>model_bottom</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_exponential</a></span>(<span class='no'>cumulative_dry_mass</span>, <span class='no'>excess</span>)
+  <span class='kw'>model_bottom</span> <span class='kw'>=</span> <span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_loglinear</a></span>(<span class='no'>cumulative_dry_mass</span>, <span class='no'>excess</span>, <span class='kw'>subset</span> <span class='kw'>=</span>
+    ~<span class='fu'><a href='finite_head_prop.html'>finite_tail</a></span>(<span class='no'>..1</span>, <span class='no'>..2</span>, <span class='kw'>n_tail</span> <span class='kw'>=</span> <span class='fl'>3</span>))
 )
 
 <span class='fu'>pb210_inventory_calculator</span>(
   <span class='kw'>model_top</span> <span class='kw'>=</span> ~<span class='fu'><a href='max_finite.html'>max_finite</a></span>(<span class='no'>..2</span>),
-  <span class='kw'>model_bottom</span> <span class='kw'>=</span> ~<span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_exponential</a></span>(<span class='no'>..1</span>, <span class='no'>..2</span>)
+  <span class='kw'>model_bottom</span> <span class='kw'>=</span> ~<span class='fu'><a href='pb210_fit_exponential.html'>pb210_fit_loglinear</a></span>(<span class='no'>..1</span>, <span class='no'>..2</span>, ~<span class='fu'><a href='finite_head_prop.html'>finite_tail</a></span>(<span class='no'>..1</span>, <span class='no'>..2</span>, <span class='kw'>n_tail</span> <span class='kw'>=</span> <span class='fl'>3</span>))
 )
 
 <span class='co'># S3 method for inventory_calculator</span>
@@ -173,7 +174,9 @@ considerable impact on young dates.</p></td>
       <td><p>A fit object that will be used to model activities below
 the last positive finite lead-210 activity. Use a constant to specify a custom
 deep inventory of lead-210. Can also be a lambda-function of
-<code>cumulative_dry_mass</code>, and <code>excess</code>.</p></td>
+<code>cumulative_dry_mass</code>, and <code>excess</code>. By default, this uses
+<code><a href='pb210_fit_exponential.html'>pb210_fit_loglinear()</a></code> and <code><a href='finite_head_prop.html'>finite_tail_prop()</a></code> to generate an exponential
+fit using the last half of the finite values.</p></td>
     </tr>
     <tr>
       <th>object</th>
