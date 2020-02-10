@@ -150,3 +150,16 @@ test_that("subset application works as expected", {
     tibble::tibble(x, y)[c(6, 8, 9), ]
   )
 })
+
+test_that("subsets are actually passed to the model functions", {
+  withr::with_seed(287, {
+    fake_depth <- c(22, 100, 3, 0:10)
+    fake_pb210 <- c(1928, 32, 22, exp(5 - fake_depth[-(1:3)]) + rnorm(11, sd = 0.005))
+    fit <- pb210_fit_loglinear(fake_depth, fake_pb210, subset = -(1:3))
+    fit2 <- pb210_fit_exponential(fake_depth, fake_pb210, subset = -(1:3))
+
+    # coefficients should be "b" = 5 and "m" = -1
+    expect_true(all(abs(coefficients(fit) - c(5, -1)) < 0.07))
+    expect_true(all(abs(coefficients(fit2) - c(5, -1)) < 0.07))
+  })
+})
