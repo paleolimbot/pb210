@@ -38,8 +38,8 @@ test_that("age and depth steps are contiguous for pb210_simulate_core (no compre
     depth_step = rep(1, 30)
   )
 
-  expect_true(all(diff(core_sim$age_top) == 10))
-  expect_true(all(diff(core_sim$age_bottom) == 10))
+  expect_true(all(abs(diff(core_sim$age_top) - 10) < 1e-9))
+  expect_true(all(abs(diff(core_sim$age_bottom) - 10) < 1e-9))
   expect_true(all(abs(diff(core_sim$age) - 10) < 1e-9))
   expect_equal(min(core_sim$age_top), 0)
   expect_equal(

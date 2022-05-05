@@ -6,8 +6,7 @@
 \alias{pb210-package}
 \title{pb210: Lead-210 dating utilities}
 \description{
-Utilities to create chronologies for sediment cores using
-    analysis of lead-210 activity.
+Utilities to create chronologies for sediment cores using analysis of lead-210 activity.
 }
 \seealso{
 Useful links:
@@ -19,8 +18,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: 
-    Dewey Dunnington \email{dewey@fishandwhistle.net} (\href{https://orcid.org/0000-0002-9415-4582}{ORCID})
+\strong{Maintainer}:  Dewey Dunnington \email{dewey@fishandwhistle.net} (\href{https://orcid.org/0000-0002-9415-4582}{ORCID})
 
 }
 \keyword{internal}

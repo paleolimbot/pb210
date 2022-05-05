@@ -59,7 +59,7 @@ a vector to specify different masses for each sample.}
 
 \item{count_time}{The time each sample was counted, as resolved by
 \code{\link[lubridate:as.duration]{lubridate::as.duration()}}. Raw numbers are treated as a number of seconds, however
-we reccomend using \code{\link[lubridate:ddays]{lubridate::ddays()}} and/or \code{\link[lubridate:dhours]{lubridate::dhours()}} to make
+we reccomend using \code{\link[lubridate:duration]{lubridate::ddays()}} and/or \code{\link[lubridate:duration]{lubridate::dhours()}} to make
 the units explicit.}
 }
 \value{
@@ -77,7 +77,7 @@ A tibble with columns:
 The output of \code{pb210_simulate_counting()} also includes the columns:
 \itemize{
 \item \strong{activity_estimate} (Bq/kg): A plausible activity that might be
-obtained by a lead-210 counting method, sampled using \code{\link[stats:rpois]{stats::rpois()}}.
+obtained by a lead-210 counting method, sampled using \code{\link[stats:Poisson]{stats::rpois()}}.
 \item \strong{activity_se} (Bq/kg): The standard error (estimate of the standard
 deviation) of \strong{activity_estimate}. For the expected error,
 use \code{\link[=pb210_error_from_activity]{pb210_error_from_activity()}} on

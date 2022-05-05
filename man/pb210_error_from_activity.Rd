@@ -23,7 +23,7 @@ a vector to specify different masses for each sample.}
 
 \item{count_time}{The time each sample was counted, as resolved by
 \code{\link[lubridate:as.duration]{lubridate::as.duration()}}. Raw numbers are treated as a number of seconds, however
-we reccomend using \code{\link[lubridate:ddays]{lubridate::ddays()}} and/or \code{\link[lubridate:dhours]{lubridate::dhours()}} to make
+we reccomend using \code{\link[lubridate:duration]{lubridate::ddays()}} and/or \code{\link[lubridate:duration]{lubridate::dhours()}} to make
 the units explicit.}
 
 \item{counts}{The number of measured decays}
